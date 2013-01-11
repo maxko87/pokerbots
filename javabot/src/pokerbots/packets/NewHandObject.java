@@ -1,4 +1,4 @@
-package packets;
+package pokerbots.packets;
 
 import pokerbots.utils.HandEvaluator;
 

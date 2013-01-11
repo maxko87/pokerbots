@@ -1,4 +1,4 @@
-package packets;
+package pokerbots.packets;
 
 class NewGameObject {
 	//NEWGAME yourName oppName stackSize bb numHands timeBank
