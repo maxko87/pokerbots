@@ -1,6 +1,8 @@
 package pokerbots.player;
 
 import pokerbots.packets.*;
+import pokerbots.packets.GetActionObject.Action;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -72,7 +74,7 @@ public class BasicSafeProportionalPlayer {
 
 	//given odds and stack size, decides how much to bet
 	public int makeProportionalBet(float percentage, int minBet, int maxBet){
-		
+		return 0;
 	}
 
 	
@@ -86,6 +88,15 @@ public class BasicSafeProportionalPlayer {
 				float winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards[1],myHand.cards[2]);
 				float winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[2]);
 				float winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[1]);
+				float p = winChance0;
+				if ( winChance1 > p )
+					p = winChance1;
+				else if ( winChance2 > p )
+					p = winChance2;
+				if ( p > 0.5 )
+					betRaiseCall(curr,p);
+				else
+					foldOrCheck(curr);
 				break;
 				
 			//FLOP
@@ -101,6 +112,23 @@ public class BasicSafeProportionalPlayer {
 				break;
 			default:
 				break;
+		}
+	}
+	
+	public void betRaiseCall( GetActionObject curr, float winChance ) {
+		for ( int i = 0; i < curr.legalActions.length; i++ ) {
+			Action action = curr.legalActions[i];
+			if ( action.actionType.equalsIgnoreCase("bet") ) {
+				int min = action.minBet;
+				int max = action.maxBet;
+				int bet = makeProportionalBet(winChance,min,max);
+				outStream.println("BET:"+bet);
+				return;
+			}
+			if ( action.actionType.equalsIgnoreCase("call") ) {
+				outStream.println("CALL");
+				return;
+			}
 		}
 	}
 }
