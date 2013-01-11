@@ -18,6 +18,8 @@ public class BasicSafeProportionalPlayer {
 	
 	private final PrintWriter outStream;
 	private final BufferedReader inStream;
+	private NewGameObject myGame;
+	private NewHandObject myHand;
 
 	public BasicSafeProportionalPlayer(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
@@ -35,11 +37,18 @@ public class BasicSafeProportionalPlayer {
 					//outStream.println("CHECK");
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 
+					myGame = new NewGameObject(input);
+
+				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
+					
+					myHand = new NewHandObject(input);
+
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
-
-				} else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
-
+					//no learning yet
+				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
+					//none
 				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
+					//none
 					outStream.println("FINISH");
 				}
 			}
@@ -58,5 +67,12 @@ public class BasicSafeProportionalPlayer {
 			e.printStackTrace();
 		}
 	}
+
+	//given odds and stack size, decides how much to bet
+	public int makeProportionalBet(float percentage, int minBet, int maxBet){
+		
+	}
+
+	
 	
 }
