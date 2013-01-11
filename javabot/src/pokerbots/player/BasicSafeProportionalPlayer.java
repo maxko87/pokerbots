@@ -14,12 +14,12 @@ import pokerbots.utils.*;
  * engine.
  * 
  */
-public class Player {
+public class BasicSafeProportionalPlayer {
 	
 	private final PrintWriter outStream;
 	private final BufferedReader inStream;
 
-	public Player(PrintWriter output, BufferedReader input) {
+	public BasicSafeProportionalPlayer(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
 	}

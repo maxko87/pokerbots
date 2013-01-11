@@ -64,7 +64,7 @@ public class Main {
 			BufferedReader inStream = new BufferedReader(new InputStreamReader(
 					socket.getInputStream()));
 			
-			Player player = new Player(outStream, inStream);
+			BasicSafeProportionalPlayer player = new BasicSafeProportionalPlayer(outStream, inStream);
 			//Player2 player = new Player2(outStream, inStream);
 			player.run();
 			

@@ -1,6 +1,6 @@
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
-javac -d classes -sourcepath src src/pokerbots/packets/GetActionObject.java src/pokerbots/packets/NewGameObject.java src/pokerbots/packets/NewHandObject.java src/pokerbots/player/Main.java src/pokerbots/player/Player.java src/pokerbots/utils/HandEvaluator.java src/pokerbots/utils/PreflopTableGen.java src/pokerbots/utils/StochasticSimulator.java
+javac -d classes -sourcepath src src\pokerbots\packets\GetActionObject.java src\pokerbots\packets\NewGameObject.java src\pokerbots\packets\NewHandObject.java src\pokerbots\player\Main.java src\pokerbots\player\Player.java src\pokerbots\utils\HandEvaluator.java src\pokerbots\utils\PreflopTableGen.java src\pokerbots\utils\StochasticSimulator.java
 jar cfm pokerbot.jar Manifest.txt -C classes .
 scons: done building targets.
