@@ -27,18 +27,12 @@ public class Player {
 	public void run() {
 		String input;
 		try {
-
-			// Block until engine sends us a packet; read it into input.
 			while ((input = inStream.readLine()) != null) {
 				System.out.println(input);
 				String packetType = input.split(" ")[0];
 				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
-					// When appropriate, reply to the engine with a legal action.
-					// The engine will ignore all spurious packets you send.
-					// The engine will also check/fold for you if you return an illegal action.
-					// GETACTION potSize numBoardCards [boardCards] numLastActions [lastActions] numLegalActions [legalActions] timebank
-					Parser.parseGETACTION(input);
-					outStream.println("CHECK");
+					
+					//outStream.println("CHECK");
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
@@ -46,10 +40,9 @@ public class Player {
 				} else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
 
 				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
-					// At the end, engine will allow bot to send key/value pairs to store.
-					// FINISH indicates no more to store.
 					outStream.println("FINISH");
 				}
+			}
 		} catch (IOException e) {
 			System.out.println("IOException: " + e.getMessage());
 		}
@@ -66,6 +59,52 @@ public class Player {
 		}
 	}
 	
+}
+
+class NewGameObject {
+	//NEWGAME yourName oppName stackSize bb numHands timeBank
+	//NEWGAME player1 player2 200 2 100 20.000000
+	
+	public String myName = "";
+	public String oppName = "";
+	public int stackSize = 0;
+	public int bigBlind = 0;
+	public int numHands = 0;
+	public double timeBank = 0;
+	
+	public NewGameObject( String input ) {
+		String[] tokens = input.split(" ");
+		myName = tokens[1];
+		oppName = tokens[2];
+		stackSize = Integer.parseInt(tokens[3]);
+		bigBlind = Integer.parseInt(tokens[4]);
+		numHands = Integer.parseInt(tokens[5]);
+		timeBank = Double.parseDouble(tokens[6]);
+	}
+}
+
+class NewHandObject {
+	//NEWHAND handId button holeCard1 holeCard2 holeCard3 yourBank oppBank timeBank
+	//NEWHAND 10 true Ah Ac Ad 0 0 20.000000
+	
+	public int handId = 0;
+	public boolean button = false;
+	public int[] cards = new int[3];
+	public int myBank = 0;
+	public int oppBank = 0;
+	public double timeBank = 0;
+	
+	public NewHandObject( String input ) {
+		String[] tokens = input.split(" ");
+		handId = Integer.parseInt(tokens[1]);
+		button = Boolean.parseBoolean(tokens[2]);
+		cards[0] = HandEvaluator.stringToCard(tokens[3]);
+		cards[1] = HandEvaluator.stringToCard(tokens[4]);
+		cards[2] = HandEvaluator.stringToCard(tokens[5]);
+		myBank = Integer.parseInt(tokens[6]);
+		oppBank = Integer.parseInt(tokens[7]);
+		timeBank = Double.parseDouble(tokens[8]);
+	}
 }
 
 class GetActionObject{
