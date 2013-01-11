@@ -21,20 +21,20 @@ public class GetActionObject{
 		int i = 2;
 		boardCards = new int[Integer.parseInt(values[i])];
 		for (int j=0; j<boardCards.length; j++){
-			boardCards[j] = Integer.parseInt(values[i+j]);
+			boardCards[j] = Integer.parseInt(values[i+j+1]);
 		}
 
 		//TODO: parse first/second player actions?
 		i += boardCards.length + 1;
 		lastActions = new String[Integer.parseInt(values[i])];
 		for (int j=0; j<lastActions.length; j++){
-			lastActions[j] = values[i+j];
+			lastActions[j] = values[i+j+1];
 		}
 
 		i += lastActions.length + 1;
 		legalActions = new GameAction[Integer.parseInt(values[i])];
 		for (int j=0; j<legalActions.length; j++){
-			legalActions[j] = new GameAction(values[i+j]);
+			legalActions[j] = new GameAction(values[i+j+1]);
 		}
 
 		timebank = Float.parseFloat(values[i + legalActions.length + 1]);
