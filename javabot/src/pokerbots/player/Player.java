@@ -3,6 +3,7 @@ package pokerbots.player;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import pokerbots.utils.*;
 
 /**
  * Simple example pokerbot, written in Java.
@@ -26,27 +27,29 @@ public class Player {
 	public void run() {
 		String input;
 		try {
+
 			// Block until engine sends us a packet; read it into input.
 			while ((input = inStream.readLine()) != null) {
-
-				// Here is where you should implement code to parse the packets
-				// from the engine and act on it.
 				System.out.println(input);
-				
-				String word = input.split(" ")[0];
-				if ("GETACTION".compareToIgnoreCase(word) == 0) {
-					// When appropriate, reply to the engine with a legal
-					// action.
+				String packetType = input.split(" ")[0];
+				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
+					// When appropriate, reply to the engine with a legal action.
 					// The engine will ignore all spurious packets you send.
-					// The engine will also check/fold for you if you return an
-					// illegal action.
+					// The engine will also check/fold for you if you return an illegal action.
+					// GETACTION potSize numBoardCards [boardCards] numLastActions [lastActions] numLegalActions [legalActions] timebank
+					Parser.parseGETACTION(input);
 					outStream.println("CHECK");
-				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(word) == 0) {
+				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
+
+				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
+
+				} else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
+
+				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
 					// At the end, engine will allow bot to send key/value pairs to store.
 					// FINISH indicates no more to store.
 					outStream.println("FINISH");
 				}
-			}
 		} catch (IOException e) {
 			System.out.println("IOException: " + e.getMessage());
 		}
@@ -63,4 +66,19 @@ public class Player {
 		}
 	}
 	
+}
+
+class GetActionObject{
+
+// GETACTION potSize numBoardCards [boardCards] numLastActions [lastActions] numLegalActions [legalActions] timebank
+
+	int potSize;
+	int[] boardCards;
+	
+
+	
+	public GetActionObject(String input){
+
+	}
+
 }
