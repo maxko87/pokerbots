@@ -1,5 +1,6 @@
 package pokerbots.player;
 
+import pokerbots.packets.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,7 +32,8 @@ public class BasicSafeProportionalPlayer {
 				System.out.println(input);
 				String packetType = input.split(" ")[0];
 				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
-					
+					GetActionObject msg = new GetActionObject(input);
+					playerLogic(msg);
 					//outStream.println("CHECK");
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 
@@ -59,4 +61,30 @@ public class BasicSafeProportionalPlayer {
 		}
 	}
 	
+	public void playerLogic( GetActionObject curr ) {
+		int numBoardCards = curr.boardCards.length;
+		
+		switch ( numBoardCards ) {
+			//PREFLOP
+			case 0:
+				float winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards[1],myHand.cards[2]);
+				float winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[2]);
+				float winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[1]);
+				break;
+				
+			//FLOP
+			case 3:
+				break;
+				
+			//TURN
+			case 4:
+				break;
+			
+			//RIVER
+			case 5:
+				break;
+			default:
+				break;
+		}
+	}
 }
