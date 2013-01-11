@@ -120,6 +120,7 @@ public class BasicSafeProportionalPlayer {
 	public void betRaiseCall( GetActionObject curr, float winChance ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
 			GameAction action = curr.legalActions[i];
+			System.out.println("RIGHT HERE:" + action.actionType);
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
 				int max = action.maxBet;
