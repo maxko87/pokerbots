@@ -11,7 +11,8 @@ public class StochasticSimulator {
 						0x0a
 				},
 				new int[]{
-				});
+				},
+				300);
 		
 		for ( int i = 0; i < 9; i++ ) {
 			System.out.println("Hand Type ("+i+"): " + rates[i] );
@@ -24,7 +25,7 @@ public class StochasticSimulator {
 	public StochasticSimulator() {
 	}
 	
-	public float[] computeRates( int[] myHand, int[] table ) {
+	public float[] computeRates( int[] myHand, int[] table, int iters ) {
 		float[] handTypes = new float[11];
 		int rounds = 0;
 		int win = 0;
@@ -35,7 +36,7 @@ public class StochasticSimulator {
 		for ( int i = 0; i < table.length; i++ )
 			simTable[i] = table[i];
 		
-		for ( int trials = 0; trials < 200; trials++ ) {
+		for ( int trials = 0; trials < iters; trials++ ) {
 			//fill out the table and opponent hand
 			for ( int i = table.length; i < 5; i++ ) {
 				int suit = (int)(Math.random()*3.99);
