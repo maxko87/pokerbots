@@ -65,6 +65,7 @@ public class Main {
 					socket.getInputStream()));
 			
 			Player player = new Player(outStream, inStream);
+			//Player2 player = new Player2(outStream, inStream);
 			player.run();
 			
 			socket.close();
