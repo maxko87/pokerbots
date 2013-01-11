@@ -1,7 +1,6 @@
 package pokerbots.player;
 
 import pokerbots.packets.*;
-import pokerbots.packets.GetActionObject.Action;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -73,11 +72,11 @@ public class BasicSafeProportionalPlayer {
 	}
 
 	//given odds and stack size, decides how much to bet
-	public int makeProportionalBet(float percentage, int minBet, int maxBet){
-		return 0;
-	}
 
-	
+	private final float betStrength = 2.0f;
+	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet ){
+		return (int)((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / myHand.myBank));
+	}
 	
 	public void playerLogic( GetActionObject curr ) {
 		int numBoardCards = curr.boardCards.length;
@@ -101,14 +100,17 @@ public class BasicSafeProportionalPlayer {
 				
 			//FLOP
 			case 3:
+				foldOrCheck(curr);
 				break;
 				
 			//TURN
 			case 4:
+				foldOrCheck(curr);
 				break;
 			
 			//RIVER
 			case 5:
+				foldOrCheck(curr);
 				break;
 			default:
 				break;
@@ -117,7 +119,7 @@ public class BasicSafeProportionalPlayer {
 	
 	public void betRaiseCall( GetActionObject curr, float winChance ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			Action action = curr.legalActions[i];
+			GameAction action = curr.legalActions[i];
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
 				int max = action.maxBet;
@@ -125,10 +127,21 @@ public class BasicSafeProportionalPlayer {
 				outStream.println("BET:"+bet);
 				return;
 			}
-			if ( action.actionType.equalsIgnoreCase("call") ) {
+			else if ( action.actionType.equalsIgnoreCase("call") ) {
 				outStream.println("CALL");
 				return;
 			}
 		}
+	}
+	
+	public void foldOrCheck( GetActionObject curr ) {
+		for ( int i = 0; i < curr.legalActions.length; i++ ) {
+			GameAction action = curr.legalActions[i];
+			if ( action.actionType.equalsIgnoreCase("check") ) {
+				outStream.println("CHECK");
+				return;
+			}
+		}
+		outStream.println("FOLD");
 	}
 }

@@ -1,5 +1,7 @@
 package pokerbots.packets;
 
+import pokerbots.utils.HandEvaluator;
+
 public class GetActionObject{
 
 	// GETACTION potSize numBoardCards [boardCards] numLastActions [lastActions] numLegalActions [legalActions] timebank
@@ -7,7 +9,7 @@ public class GetActionObject{
 	public int potSize;
 	public int[] boardCards;
 	public String[] lastActions;
-	public String[] legalActions;
+	public GameAction[] legalActions;
 	public float timebank;
 
 	
@@ -30,28 +32,11 @@ public class GetActionObject{
 		}
 
 		i += lastActions.length + 1;
-		legalActions = new String[i];
+		legalActions = new GameAction[i];
 		for (int j=0; j<legalActions.length; j++){
-			legalActions[j] = values[i+j];
+			legalActions[j] = new GameAction(values[i+j]);
 		}
 
 		timebank = Float.parseFloat(values[i + legalActions.length + 1]);
 	}
-
-	public class Action(){
-
-		public String actionType;
-		public int minBet;
-		public int maxBet;
-
-		public Action(String input){
-			String[] values = input.split(" ");
-			String actionType = values[0];
-			if (values.length > 1){
-				String[] bets = values[1].split(":");
-				minBet = Integer.parseInt(bets[0]);
-				maxBet = Integer.parseInt(bets[1]);
-			}
-		}
-	}
-}	
+}
