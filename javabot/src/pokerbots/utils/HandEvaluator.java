@@ -1,3 +1,4 @@
+package pokerbots.utils;
 
 public class HandEvaluator {
 	public static void main( String[] args ) {
@@ -22,6 +23,34 @@ public class HandEvaluator {
 	}
 	
 	public HandEvaluator() {
+	}
+	
+	public static int stringToCard( String str ) {
+		// club, spade, diamond, heart
+		char rank = str.charAt(0);
+		char suit = str.charAt(1);
+		
+		int R = (int)(rank-'2');
+		if ( rank=='T' )
+			R = 8;
+		else if ( rank=='J' )
+			R = 9;
+		else if ( rank=='Q' )
+			R = 10;
+		else if ( rank=='K' )
+			R = 11;
+		else if ( rank=='A' )
+			R = 12;
+		
+		int S = 0;
+		if ( suit=='s' )
+			S = 1;
+		else if ( suit=='d' )
+			S = 2;
+		else if ( suit=='h' )
+			S = 3;
+		
+		return (S<<4) | R;
 	}
 	
 	public long evaluate( int[] cards ) {

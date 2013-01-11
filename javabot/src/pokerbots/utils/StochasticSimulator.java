@@ -1,3 +1,4 @@
+package pokerbots.utils;
 
 public class StochasticSimulator {
 	private HandEvaluator he = new HandEvaluator();
