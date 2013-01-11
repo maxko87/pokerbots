@@ -74,10 +74,36 @@ class GetActionObject{
 
 	int potSize;
 	int[] boardCards;
-	
+	String[] lastActions;
+	String[] legalActions;
+	float timebank;
 
 	
 	public GetActionObject(String input){
+		String[] values = data.split(" ");
+		
+		potSize = Integer.parseInt(values[1]);
+
+		int i = 2;
+		boardCards = new int[i];
+		while (int j=0; j<boardCards.length; j++){
+			boardCards[j] = Integer.parseInt(values[i+j]);
+		}
+
+		//TODO: parse first/second player actions?
+		i += boardCards.length + 1;
+		lastActions = new String[i];
+		while (int j=0; j<lastActions.length; j++){
+			lastActions[j] = values[i+j];
+		}
+
+		i += lastActions.length + 1;
+		legalActions = new String[i];
+		while (int j=0; j<legalActions.length; j++){
+			legalActions[j] = values[i+j];
+		}
+
+		timebank = Float.parseFloat(values[i + legalActions.length + 1]);
 
 	}
 
