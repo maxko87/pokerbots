@@ -71,11 +71,9 @@ public class BasicSafeProportionalPlayer {
 	}
 
 	//given odds and stack size, decides how much to bet
-	public int makeProportionalBet(float percentage, int minBet, int maxBet){
-		
+	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, float betStrength = 2.0){
+		return (expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / myHand.myBank) * k;
 	}
-
-	
 	
 	public void playerLogic( GetActionObject curr ) {
 		int numBoardCards = curr.boardCards.length;
