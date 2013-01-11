@@ -36,8 +36,8 @@ public class BasicSafeProportionalPlayer {
 				String packetType = input.split(" ")[0];
 				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
 					GetActionObject msg = new GetActionObject(input);
-					playerLogic(msg);
-					//outStream.println("CHECK");
+					String action = playerLogic(msg);
+					outStream.println(action);
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 
 					myGame = new NewGameObject(input);
@@ -74,13 +74,13 @@ public class BasicSafeProportionalPlayer {
 	//given odds and stack size, decides how much to bet
 
 	private final float betStrength = 2.0f;
-	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet ){
-		return (int)((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / myHand.myBank));
+	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int currStackSize ){
+		return (int)((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize));
 	}
 	
-	public void playerLogic( GetActionObject curr ) {
+	public String playerLogic( GetActionObject curr ) {
 		int numBoardCards = curr.boardCards.length;
-		
+
 		switch ( numBoardCards ) {
 			//PREFLOP
 			case 0:
@@ -92,57 +92,92 @@ public class BasicSafeProportionalPlayer {
 					p = winChance1;
 				else if ( winChance2 > p )
 					p = winChance2;
-				if ( p > 0.5 )
-					betRaiseCall(curr,p);
+				if ( p > 0.4 )
+					return betRaiseCall(curr,p);
 				else
-					foldOrCheck(curr);
-				break;
+					return foldOrCheck(curr);
 				
 			//FLOP
 			case 3:
-				foldOrCheck(curr);
-				break;
+				for ( int i = 0; i < curr.legalActions.length; i++ ) {
+					GameAction action = curr.legalActions[i];
+					if ( action.actionType.equalsIgnoreCase("discard") ) {
+						return "DISCARD:"+HandEvaluator.cardToString(myHand.cards[0]);
+					}
+				}
+				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards[1],myHand.cards[2]);
+				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[2]);
+				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[1]);
+				p = winChance0;
+				if ( winChance1 > p )
+					p = winChance1;
+				else if ( winChance2 > p )
+					p = winChance2;
+				if ( p > 0.4 )
+					return betRaiseCall(curr,p);
+				else
+					return foldOrCheck(curr);
 				
 			//TURN
 			case 4:
-				foldOrCheck(curr);
-				break;
+				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards[1],myHand.cards[2]);
+				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[2]);
+				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[1]);
+				p = winChance0;
+				if ( winChance1 > p )
+					p = winChance1;
+				else if ( winChance2 > p )
+					p = winChance2;
+				if ( p > 0.4 )
+					return betRaiseCall(curr,p);
+				else
+					return foldOrCheck(curr);
 			
 			//RIVER
 			case 5:
-				foldOrCheck(curr);
-				break;
+				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards[1],myHand.cards[2]);
+				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[2]);
+				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[1]);
+				p = winChance0;
+				if ( winChance1 > p )
+					p = winChance1;
+				else if ( winChance2 > p )
+					p = winChance2;
+				if ( p > 0.4 )
+					return betRaiseCall(curr,p);
+				else
+					return foldOrCheck(curr);
 			default:
 				break;
 		}
+		
+		return "FOLD-BAD";
 	}
 	
-	public void betRaiseCall( GetActionObject curr, float winChance ) {
+	public String betRaiseCall( GetActionObject curr, float winChance ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
 			GameAction action = curr.legalActions[i];
-			System.out.println("RIGHT HERE:" + action.actionType);
+		
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
 				int max = action.maxBet;
-				int bet = makeProportionalBet(winChance,min,max);
-				outStream.println("BET:"+bet);
-				return;
+				int bet = makeProportionalBet(winChance,min,max,curr.potSize/2);
+				return "BET:"+bet;
 			}
 			else if ( action.actionType.equalsIgnoreCase("call") ) {
-				outStream.println("CALL");
-				return;
+				return "CALL";
 			}
 		}
+		return "FOLD";
 	}
 	
-	public void foldOrCheck( GetActionObject curr ) {
+	public String foldOrCheck( GetActionObject curr ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
 			GameAction action = curr.legalActions[i];
 			if ( action.actionType.equalsIgnoreCase("check") ) {
-				outStream.println("CHECK");
-				return;
+				return "CHECK";
 			}
 		}
-		outStream.println("FOLD");
+		return "FOLD";
 	}
 }

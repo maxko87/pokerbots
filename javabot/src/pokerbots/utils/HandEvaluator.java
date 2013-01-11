@@ -53,6 +53,22 @@ public class HandEvaluator {
 		return (S<<4) | R;
 	}
 	
+	private static char[] ranks = new char[]{
+		'2','3','4','5','6','7','8','9','T','J','Q','K','A'
+	};
+	
+	private static char[] suits = new char[]{
+		'c','s','d','h'	
+	};
+	
+	public static String cardToString( int card ) {
+		// club, spade, diamond, heart
+		int rank = card&0xf;
+		int suit = card>>4;
+		
+		return ranks[rank] + "" + suits[suit];
+	}
+	
 	public long evaluate( int[] cards ) {
 		long handType = 0; //type of hand
 		long highCard = 0; //rank of hand for tie breakers

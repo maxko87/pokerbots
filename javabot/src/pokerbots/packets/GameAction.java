@@ -10,7 +10,7 @@ public class GameAction {
 
 	public GameAction(String input){
 		String[] values = input.split(":");
-		String actionType = values[0];
+		actionType = values[0];
 
 		// bet or raise
 		if (values.length == 3){

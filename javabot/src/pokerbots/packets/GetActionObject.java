@@ -21,7 +21,7 @@ public class GetActionObject{
 		int i = 2;
 		boardCards = new int[Integer.parseInt(values[i])];
 		for (int j=0; j<boardCards.length; j++){
-			boardCards[j] = Integer.parseInt(values[i+j+1]);
+			boardCards[j] = HandEvaluator.stringToCard(values[i+j+1]);
 		}
 
 		//TODO: parse first/second player actions?
