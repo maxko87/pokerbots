@@ -1,6 +1,6 @@
 package pokerbots.packets;
 
-class NewGameObject {
+public class NewGameObject {
 	//NEWGAME yourName oppName stackSize bb numHands timeBank
 	//NEWGAME player1 player2 200 2 100 20.000000
 	

@@ -1,6 +1,6 @@
 package pokerbots.packets;
 
-class GetActionObject{
+public class GetActionObject{
 
 	// GETACTION potSize numBoardCards [boardCards] numLastActions [lastActions] numLegalActions [legalActions] timebank
 

@@ -2,7 +2,7 @@ package pokerbots.packets;
 
 import pokerbots.utils.HandEvaluator;
 
-class NewHandObject {
+public class NewHandObject {
 	//NEWHAND handId button holeCard1 holeCard2 holeCard3 yourBank oppBank timeBank
 	//NEWHAND 10 true Ah Ac Ad 0 0 20.000000
 	
