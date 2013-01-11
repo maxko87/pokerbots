@@ -10,8 +10,7 @@
 # SCONS
 *.dblite
 
-
-
 .DS_Store
+*.DS_Store
 match_*.txt
 *.dump
