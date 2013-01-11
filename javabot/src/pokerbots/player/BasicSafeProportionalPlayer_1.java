@@ -16,14 +16,14 @@ import pokerbots.utils.*;
  * engine.
  * 
  */
-public class BasicSafeProportionalPlayer {
+public class BasicSafeProportionalPlayer_1 {
 	
 	private final PrintWriter outStream;
 	private final BufferedReader inStream;
 	private NewGameObject myGame;
 	private NewHandObject myHand;
 
-	public BasicSafeProportionalPlayer(PrintWriter output, BufferedReader input) {
+	public BasicSafeProportionalPlayer_1(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
 	}
@@ -75,7 +75,7 @@ public class BasicSafeProportionalPlayer {
 
 	private final float betStrength = 2.0f;
 	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int currStackSize ){
-		return (int)((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize));
+		return (int) ((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize) * betStrength);
 	}
 	
 	public String playerLogic( GetActionObject curr ) {
@@ -84,9 +84,9 @@ public class BasicSafeProportionalPlayer {
 		switch ( numBoardCards ) {
 			//PREFLOP
 			case 0:
-				float winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards[1],myHand.cards[2]);
-				float winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[2]);
-				float winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[1]);
+				float winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards3[1],myHand.cards3[2]);
+				float winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[2]);
+				float winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[1]);
 				float p = winChance0;
 				if ( winChance1 > p )
 					p = winChance1;
@@ -102,12 +102,12 @@ public class BasicSafeProportionalPlayer {
 				for ( int i = 0; i < curr.legalActions.length; i++ ) {
 					GameAction action = curr.legalActions[i];
 					if ( action.actionType.equalsIgnoreCase("discard") ) {
-						return "DISCARD:"+HandEvaluator.cardToString(myHand.cards[0]);
+						return "DISCARD:"+HandEvaluator.cardToString(myHand.cards3[0]);
 					}
 				}
-				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards[1],myHand.cards[2]);
-				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[2]);
-				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[1]);
+				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards3[1],myHand.cards3[2]);
+				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[2]);
+				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[1]);
 				p = winChance0;
 				if ( winChance1 > p )
 					p = winChance1;
@@ -120,9 +120,9 @@ public class BasicSafeProportionalPlayer {
 				
 			//TURN
 			case 4:
-				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards[1],myHand.cards[2]);
-				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[2]);
-				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[1]);
+				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards3[1],myHand.cards3[2]);
+				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[2]);
+				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[1]);
 				p = winChance0;
 				if ( winChance1 > p )
 					p = winChance1;
@@ -135,9 +135,9 @@ public class BasicSafeProportionalPlayer {
 			
 			//RIVER
 			case 5:
-				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards[1],myHand.cards[2]);
-				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[2]);
-				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards[0],myHand.cards[1]);
+				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards3[1],myHand.cards3[2]);
+				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[2]);
+				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[1]);
 				p = winChance0;
 				if ( winChance1 > p )
 					p = winChance1;

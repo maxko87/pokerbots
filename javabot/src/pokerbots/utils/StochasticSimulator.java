@@ -1,7 +1,7 @@
 package pokerbots.utils;
 
 public class StochasticSimulator {
-	private HandEvaluator he = new HandEvaluator();
+	private static HandEvaluator he = new HandEvaluator();
 	
 	public static void main ( String[] args ) {
 		StochasticSimulator SS = new StochasticSimulator();
@@ -26,7 +26,7 @@ public class StochasticSimulator {
 	public StochasticSimulator() {
 	}
 	
-	public float[] computeRates( int[] myHand, int[] table, int iters ) {
+	public static float[] computeRates( int[] myHand, int[] table, int iters ) {
 		float[] handTypes = new float[11];
 		int rounds = 0;
 		int win = 0;
@@ -71,7 +71,7 @@ public class StochasticSimulator {
 		return handTypes;
 	}
 	
-	public long getBestHand( int[] hand, int[] table  ) {
+	public static long getBestHand( int[] hand, int[] table  ) {
 		if ( table.length==3 ) {
 			return he.evaluate( new int[]{hand[0],hand[1],table[0],table[1],table[2]} );
 		} else if ( table.length==4 ) {
