@@ -1,0 +1,16 @@
+*.class
+
+# Package Files #
+*.war
+*.ear
+
+# VIM
+*.swp
+
+# SCONS
+*.dblite
+
+.DS_Store
+*.DS_Store
+match_*.txt
+*.dump

@@ -75,7 +75,8 @@ public class BasicSafeProportionalPlayer_1 {
 
 	private final float betStrength = 2.0f;
 	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int currStackSize ){
-		return (int) ((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize) * betStrength);
+		//return (int) ((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize) * betStrength);
+		return (int) ( 2 * (expectedWinPercentage - .5) * (maxBet - minBet) + minBet);
 	}
 	
 	public String playerLogic( GetActionObject curr ) {

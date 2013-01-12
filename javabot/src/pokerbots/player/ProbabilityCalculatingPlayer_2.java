@@ -26,11 +26,11 @@ import pokerbots.utils.StochasticSimulator;
 public class ProbabilityCalculatingPlayer_2 {
 	
 	//number of iterations for our simulator to calculate probabilities before deciding which card to toss.
-	private final int DISCARD_SIM_ITERS = 100;
+	private final int DISCARD_SIM_ITERS = 200;
 	//number of iterations for calculating probabilities after each other street 
-	private final int FLOP_SIM_ITERS = 100;
-	private final int TURN_SIM_ITERS = 100;
-	private final int RIVER_SIM_ITERS = 100;
+	private final int FLOP_SIM_ITERS = 200;
+	private final int TURN_SIM_ITERS = 110;
+	private final int RIVER_SIM_ITERS = 60;
 	//minimum estimated percentage of winning to play each street.
 	private final float[] MIN_WIN_TO_PLAY = new float[] {0.4f, 0.4f, 0.4f, 0.4f};
 	//scaling for larger bets on later streets
@@ -86,7 +86,8 @@ public class ProbabilityCalculatingPlayer_2 {
 
 	private final float betStrength = 2.0f;
 	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int currStackSize ){
-		return (int) ((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize) * betStrength);
+		//return (int) ((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize) * betStrength);
+		return (int) ( 2 * (expectedWinPercentage - .5) * (maxBet - minBet) + minBet);
 	}
 	
 	public String playerLogic( GetActionObject curr ) {
@@ -114,16 +115,20 @@ public class ProbabilityCalculatingPlayer_2 {
 						return discardHelper(curr);
 					}
 				}
-				winChance = StochasticSimulator.computeRates(myHand.cards2, curr.boardCards, FLOP_SIM_ITERS)[10];
-				if ( winChance > MIN_WIN_TO_PLAY[street_num] )
-					return betRaiseCall(curr, winChance);
+				
+				winChance2 = StochasticSimulator.computeRates(new int[] {myHand.cards3[0], myHand.cards3[1]}, curr.boardCards, FLOP_SIM_ITERS)[10];
+				winChance1 = StochasticSimulator.computeRates(new int[] {myHand.cards3[0], myHand.cards3[2]}, curr.boardCards, FLOP_SIM_ITERS)[10];
+				winChance0 = StochasticSimulator.computeRates(new int[] {myHand.cards3[1], myHand.cards3[2]}, curr.boardCards, FLOP_SIM_ITERS)[10];
+				float maxChance = Utils.getMax(winChance0, winChance1, winChance2);
+				if ( maxChance > MIN_WIN_TO_PLAY[street_num] )
+					return betRaiseCall(curr, maxChance);
 				else
 					return foldOrCheck(curr);
 				
 			//TURN
 			case 4:
 				street_num = 2;
-				winChance = StochasticSimulator.computeRates(myHand.cards2, curr.boardCards, FLOP_SIM_ITERS)[10];
+				winChance = StochasticSimulator.computeRates(myHand.cards2, curr.boardCards, TURN_SIM_ITERS)[10];
 				if ( winChance > MIN_WIN_TO_PLAY[street_num] )
 					return betRaiseCall(curr, winChance);
 				else
@@ -132,7 +137,7 @@ public class ProbabilityCalculatingPlayer_2 {
 			//RIVER
 			case 5:
 				street_num = 3;
-				winChance = StochasticSimulator.computeRates(myHand.cards2, curr.boardCards, FLOP_SIM_ITERS)[10];
+				winChance = StochasticSimulator.computeRates(myHand.cards2, curr.boardCards, RIVER_SIM_ITERS)[10];
 				if ( winChance > MIN_WIN_TO_PLAY[street_num] )
 					return betRaiseCall(curr, winChance);
 				else

@@ -6,14 +6,23 @@ public class StochasticSimulator {
 	public static void main ( String[] args ) {
 		StochasticSimulator SS = new StochasticSimulator();
 		long time = System.currentTimeMillis();
+		//
+		// [3h 6h 5h 4d] [6s]
+		// [9h 7h]
+		//
 		float[] rates = SS.computeRates(
 				new int[]{
-						0x1a,
-						0x0a
+						HandEvaluator.stringToCard("9h"),
+						HandEvaluator.stringToCard("7h")
 				},
 				new int[]{
+						HandEvaluator.stringToCard("3h"),
+						HandEvaluator.stringToCard("6h"),
+						HandEvaluator.stringToCard("5h"),
+						HandEvaluator.stringToCard("4d"),
+						HandEvaluator.stringToCard("6s")
 				},
-				300);
+				3000);
 		
 		for ( int i = 0; i < 9; i++ ) {
 			System.out.println("Hand Type ("+i+"): " + rates[i] );
