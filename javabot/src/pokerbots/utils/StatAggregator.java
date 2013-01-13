@@ -106,8 +106,8 @@ public class StatAggregator {
 		 * TODO
 		 */
 		public void parseHand(String[] linesOfDump){
-			
-		}
+			//NOTE: scale all amounts by the quantity (potSize/startingStackSize)!!!!
+		}	
 
 		/* Helper that either returns the percentage of action over total for a specific street,
 		 * or generalizes to all streets, or returns a default value.
@@ -189,6 +189,26 @@ public class StatAggregator {
 				}
 			}
 			return (bucket*bucketWidth) + (bucketWidth/2);
+		}
+		
+		// (0,1) rating of this opponent's aggression (size of bet when he does bet)
+		public float getAggression(int street, int maxBet){
+			int totalValueOfBets = 0;
+			int totalNumberOfBets = 0;
+			for (int i=0; i<NUM_OPP_WIN_PERCENTAGE_BUCKETS; i++){
+				totalValueOfBets += totalValueOfBetsPerBucketPerStreet[i][street];
+				totalNumberOfBets += totalCountOfBetsPerBucketPerStreet[i][street];
+			}
+			float averageBet = (float)(totalValueOfBets)/totalNumberOfBets;
+			return averageBet/maxBet;
+		}
+		
+		// (0,1) rating of this opponent's looseness (number of calls+raises over number of calls+raises+folds)
+		public float getLooseness(int street){
+			int calls = timesCallsToBet[street] + timesCallsToRaise[street];
+			int raises = timesRaisesToBet[street] + timesRaisesToRaise[street];
+			int folds = timesFoldsToBet[street] + timesFoldsToRaise[street];
+			return (float)(calls+raises)/(calls+raises+folds);
 		}
 
 	}

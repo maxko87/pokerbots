@@ -8,6 +8,7 @@ import pokerbots.packets.ActionObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.HandObject;
+import pokerbots.utils.BettingBrain;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.Utils;
 import pokerbots.utils.PreflopTableGen;
@@ -40,10 +41,12 @@ public class LearningPlayer_3 {
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
+	private BettingBrain brain;
 
 	public LearningPlayer_3(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
+		brain = new BettingBrain();
 	}
 	
 	public void run() {
@@ -80,13 +83,6 @@ public class LearningPlayer_3 {
 			System.out.println("Encounterd problem shutting down connections");
 			e.printStackTrace();
 		}
-	}
-
-	//given odds and stack size, decides how much to bet
-	private final float betStrength = 2.0f;
-	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int currStackSize ){
-		//return (int) ((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize) * betStrength);
-		return (int) ( 2 * (expectedWinPercentage - .5) * (maxBet - minBet) + minBet);
 	}
 	
 	public String playerLogic( GetActionObject getActionObject) {
@@ -169,14 +165,14 @@ public class LearningPlayer_3 {
 		
 	}
 
-	public String betRaiseCall( GetActionObject curr, float winChance ) {
-		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			ActionObject action = curr.legalActions[i];
+	public String betRaiseCall( GetActionObject getActionObject, float winChance ) {
+		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
+			ActionObject action = getActionObject.legalActions[i];
 		
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
 				int max = action.maxBet;
-				int bet = makeProportionalBet(winChance,min,max,curr.potSize/2);
+				int bet = brain.makeProportionalBet(winChance,min,max,getActionObject.potSize/2);
 				return "BET:"+bet;
 			}
 			else if ( action.actionType.equalsIgnoreCase("call") ) {
@@ -186,9 +182,9 @@ public class LearningPlayer_3 {
 		return "FOLD";
 	}
 	
-	public String foldOrCheck( GetActionObject curr ) {
-		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			ActionObject action = curr.legalActions[i];
+	public String foldOrCheck( GetActionObject getActionObject ) {
+		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
+			ActionObject action = getActionObject.legalActions[i];
 			if ( action.actionType.equalsIgnoreCase("check") ) {
 				return "CHECK";
 			}
