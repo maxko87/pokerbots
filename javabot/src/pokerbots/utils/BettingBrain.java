@@ -3,10 +3,9 @@ package pokerbots.utils;
 public class BettingBrain {
 
 	public enum State {GOOD, BLUFF, ETC}
-	StatAggregator aggregator;
 	
 	public BettingBrain(){
-		aggregator = new StatAggregator();
+		
 	}
 	
 	//given odds and stack size, decides how much to bet

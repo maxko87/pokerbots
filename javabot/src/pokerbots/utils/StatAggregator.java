@@ -2,6 +2,8 @@ package pokerbots.utils;
 
 import java.util.HashMap;
 
+import pokerbots.utils.StatAggregator.OpponentStats;
+
 public class StatAggregator {
 	
 	/*
@@ -31,6 +33,13 @@ public class StatAggregator {
 		m = new HashMap<String, OpponentStats>();
 	}
 	
+	public OpponentStats getOrCreateOpponent(String oppName) {
+		if (m.get(oppName) == null){
+			m.put(oppName, new OpponentStats());
+		}
+		return m.get(oppName);
+	}
+	
 	//Deserialize TODO
 	public StatAggregator(String keyValuePairs){
 		
@@ -42,11 +51,15 @@ public class StatAggregator {
 	}
 	
 	
-	private class OpponentStats{
+	public class OpponentStats{
 
 		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {1, 1, 1, 1}; // must be at least 1
 		public final float DEFAULT_PERCENT = 0.5f;
 		public final int NUM_OPP_WIN_PERCENTAGE_BUCKETS = 5;
+		
+		//these two parameters should be learned later
+		public final float DEFAULT_LOOSENESS = 0.5f;
+		public final float DEFAULT_AGGRESSION = 0.5f;
 		
 		public int[] timesFoldsToBet;
 		public int[] timesCallsToBet;
@@ -200,7 +213,7 @@ public class StatAggregator {
 				totalNumberOfBets += totalCountOfBetsPerBucketPerStreet[i][street];
 			}
 			float averageBet = (float)(totalValueOfBets)/totalNumberOfBets;
-			return averageBet/maxBet;
+			return (maxBet > 0.0f) ? averageBet/maxBet : DEFAULT_AGGRESSION;
 		}
 		
 		// (0,1) rating of this opponent's looseness (number of calls+raises over number of calls+raises+folds)
@@ -208,7 +221,7 @@ public class StatAggregator {
 			int calls = timesCallsToBet[street] + timesCallsToRaise[street];
 			int raises = timesRaisesToBet[street] + timesRaisesToRaise[street];
 			int folds = timesFoldsToBet[street] + timesFoldsToRaise[street];
-			return (float)(calls+raises)/(calls+raises+folds);
+			return (calls+raises+folds > 0) ? (float)(calls+raises)/(calls+raises+folds) : DEFAULT_LOOSENESS;
 		}
 
 	}
