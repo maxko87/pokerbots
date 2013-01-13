@@ -8,7 +8,7 @@ public class GetActionObject{
 
 	public int potSize;
 	public int[] boardCards;
-	public String[] lastActions;
+	public PerformedActionObject[] lastActions;
 	public LegalActionObject[] legalActions;
 	public float timebank;
 
@@ -26,9 +26,9 @@ public class GetActionObject{
 
 		//TODO: parse first/second player actions?
 		i += boardCards.length + 1;
-		lastActions = new String[Integer.parseInt(values[i])];
+		lastActions = new PerformedActionObject[Integer.parseInt(values[i])];
 		for (int j=0; j<lastActions.length; j++){
-			lastActions[j] = values[i+j+1];
+			lastActions[j] = new PerformedActionObject(values[i+j+1]);
 		}
 
 		i += lastActions.length + 1;

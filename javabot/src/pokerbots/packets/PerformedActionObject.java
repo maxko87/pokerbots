@@ -5,12 +5,13 @@ import pokerbots.utils.HandEvaluator;
 public class PerformedActionObject {
 	public String actionType;
 	public int amount;
-	public int card1,card2;
+	public int card1,card2,discarded;
 	public String actor;
 
 	public PerformedActionObject(String input){
 		String[] values = input.split(":");
 		actionType = values[0];
+		System.out.println("DEBUG: " + input);
 
 		//if fold,discard,deal,check,call
 		if ( actionType.equalsIgnoreCase("fold") | actionType.equalsIgnoreCase("call")
@@ -26,7 +27,10 @@ public class PerformedActionObject {
 				actor = values[3];
 		}
 		else {
-			amount = Integer.parseInt(values[1]);
+			if ( actionType.equalsIgnoreCase("discard") )
+				discarded = HandEvaluator.stringToCard(values[1]);
+			else
+				amount = Integer.parseInt(values[1]);
 			if ( values.length==3 )
 				actor = values[2];
 		}
