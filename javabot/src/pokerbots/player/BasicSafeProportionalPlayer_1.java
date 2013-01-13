@@ -101,7 +101,7 @@ public class BasicSafeProportionalPlayer_1 {
 			//FLOP
 			case 3:
 				for ( int i = 0; i < curr.legalActions.length; i++ ) {
-					ActionObject action = curr.legalActions[i];
+					LegalActionObject action = curr.legalActions[i];
 					if ( action.actionType.equalsIgnoreCase("discard") ) {
 						return "DISCARD:"+HandEvaluator.cardToString(myHand.cards3[0]);
 					}
@@ -157,7 +157,7 @@ public class BasicSafeProportionalPlayer_1 {
 	
 	public String betRaiseCall( GetActionObject curr, float winChance ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			ActionObject action = curr.legalActions[i];
+			LegalActionObject action = curr.legalActions[i];
 		
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
@@ -174,7 +174,7 @@ public class BasicSafeProportionalPlayer_1 {
 	
 	public String foldOrCheck( GetActionObject curr ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			ActionObject action = curr.legalActions[i];
+			LegalActionObject action = curr.legalActions[i];
 			if ( action.actionType.equalsIgnoreCase("check") ) {
 				return "CHECK";
 			}

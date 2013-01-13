@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import pokerbots.packets.ActionObject;
+import pokerbots.packets.LegalActionObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.HandObject;
@@ -110,7 +110,7 @@ public class ProbabilityCalculatingPlayer_2 {
 			case 3:
 				street_num = 1;
 				for ( int i = 0; i < curr.legalActions.length; i++ ) {
-					ActionObject action = curr.legalActions[i];
+					LegalActionObject action = curr.legalActions[i];
 					if ( action.actionType.equalsIgnoreCase("discard") ) {
 						return discardHelper(curr);
 					}
@@ -172,7 +172,7 @@ public class ProbabilityCalculatingPlayer_2 {
 
 	public String betRaiseCall( GetActionObject curr, float winChance ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			ActionObject action = curr.legalActions[i];
+			LegalActionObject action = curr.legalActions[i];
 		
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
@@ -189,7 +189,7 @@ public class ProbabilityCalculatingPlayer_2 {
 	
 	public String foldOrCheck( GetActionObject curr ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			ActionObject action = curr.legalActions[i];
+			LegalActionObject action = curr.legalActions[i];
 			if ( action.actionType.equalsIgnoreCase("check") ) {
 				return "CHECK";
 			}
