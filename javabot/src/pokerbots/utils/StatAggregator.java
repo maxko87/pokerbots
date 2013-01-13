@@ -17,6 +17,7 @@ public class StatAggregator {
 	 * 			- average bets per street
 	 * 			- bet to call ratio (later)
 	 * 		
+	 * ALL VALUES SHOULD BE NORMALIZED TO POT SIZE
 	 * 
 	 * Map from opponent names to MatchStats objects
 	 * 
@@ -43,32 +44,32 @@ public class StatAggregator {
 	
 	private class OpponentStats{
 
-		private final int[] THRESHOLD_FOR_GENERALIZING = new int[] {1, 1, 1, 1}; // must be at least 1
-		private final float DEFAULT_PERCENT = 0.5f;
-		private final int NUM_BUCKETS = 5;
+		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {1, 1, 1, 1}; // must be at least 1
+		public final float DEFAULT_PERCENT = 0.5f;
+		public final int NUM_OPP_WIN_PERCENTAGE_BUCKETS = 5;
 		
-		private int[] timesFoldsToBet;
-		private int[] timesCallsToBet;
-		private int[] timesRaisesToBet;
+		public int[] timesFoldsToBet;
+		public int[] timesCallsToBet;
+		public int[] timesRaisesToBet;
 		
-		private int[] timesFoldsToRaise;
-		private int[] timesCallsToRaise;
-		private int[] timesRaisesToRaise;
+		public int[] timesFoldsToRaise;
+		public int[] timesCallsToRaise;
+		public int[] timesRaisesToRaise;
 
-		private int[] timesChecksOnAction;
-		private int[] timesBetsOnAction;
+		public int[] timesChecksOnAction;
+		public int[] timesBetsOnAction;
 
-		private int[] totalTimesToBet;
-		private int[] totalTimesToRaise;
-		private int[] totalTimesOnAction;
+		public int[] totalTimesWeBet;
+		public int[] totalTimesWeRaise;
+		public int[] totalTimesOnAction;
 
 
-		private int[] totalAmountWeBetForFold;
-		private int[] totalAmountWeRaiseForFold;
+		public int[] totalAmountWeBetForFold;
+		public int[] totalAmountWeRaiseForFold;
 		
 		
-		private int[][] totalBetsPerBucketPerStreet;
-		private int[][] timesBetsPerBucketPerStreet;
+		public int[][] totalValueOfBetsPerBucketPerStreet;
+		public int[][] totalCountOfBetsPerBucketPerStreet;
 		
 		public OpponentStats(){
 			
@@ -80,22 +81,22 @@ public class StatAggregator {
 			timesRaisesToRaise = new int[] {0,0,0,0};
 			timesChecksOnAction = new int[] {0,0,0,0};
 			timesBetsOnAction = new int[] {0,0,0,0};
-			totalTimesToBet = new int[] {0,0,0,0};
-			totalTimesToRaise = new int[] {0,0,0,0};
+			totalTimesWeBet = new int[] {0,0,0,0};
+			totalTimesWeRaise = new int[] {0,0,0,0};
 			totalTimesOnAction = new int[] {0,0,0,0};
 			totalAmountWeBetForFold = new int[] {0,0,0,0};
 			totalAmountWeRaiseForFold = new int[] {0,0,0,0};
 			
-			totalBetsPerBucketPerStreet = new int[NUM_BUCKETS][4];
-			for (int i=0; i<totalBetsPerBucketPerStreet.length; i++){
-				for (int j=0; j<totalBetsPerBucketPerStreet[0].length; j++){
-					totalBetsPerBucketPerStreet[i][j] = 0;
+			totalValueOfBetsPerBucketPerStreet = new int[NUM_OPP_WIN_PERCENTAGE_BUCKETS][4];
+			for (int i=0; i<totalValueOfBetsPerBucketPerStreet.length; i++){
+				for (int j=0; j<totalValueOfBetsPerBucketPerStreet[0].length; j++){
+					totalValueOfBetsPerBucketPerStreet[i][j] = 0;
 				}
 			}
-			timesBetsPerBucketPerStreet = new int[NUM_BUCKETS][4];
-			for (int i=0; i<timesBetsPerBucketPerStreet.length; i++){
-				for (int j=0; j<timesBetsPerBucketPerStreet[0].length; j++){
-					timesBetsPerBucketPerStreet[i][j] = 0;
+			totalCountOfBetsPerBucketPerStreet = new int[NUM_OPP_WIN_PERCENTAGE_BUCKETS][4];
+			for (int i=0; i<totalCountOfBetsPerBucketPerStreet.length; i++){
+				for (int j=0; j<totalCountOfBetsPerBucketPerStreet[0].length; j++){
+					totalCountOfBetsPerBucketPerStreet[i][j] = 0;
 				}
 			}
 
@@ -129,27 +130,27 @@ public class StatAggregator {
 		}
 
 		public float getPercentFoldToBet(int street){
-			return fractionOrGeneralize(timesFoldsToBet, totalTimesToBet, street);
+			return fractionOrGeneralize(timesFoldsToBet, totalTimesWeBet, street);
 		}
 
 		public float getPercentCallToBet(int street){
-			return fractionOrGeneralize(timesCallsToBet, totalTimesToBet, street);
+			return fractionOrGeneralize(timesCallsToBet, totalTimesWeBet, street);
 		}
 
 		public float getPercentRaiseToBet(int street){
-			return fractionOrGeneralize(timesRaisesToBet, totalTimesToBet, street);
+			return fractionOrGeneralize(timesRaisesToBet, totalTimesWeBet, street);
 		}
 
 		public float getPercentFoldToRaise(int street){
-			return fractionOrGeneralize(timesFoldsToRaise, totalTimesToRaise, street);
+			return fractionOrGeneralize(timesFoldsToRaise, totalTimesWeRaise, street);
 		}
 
 		public float getPercentCallToRaise(int street){
-			return fractionOrGeneralize(timesCallsToRaise, totalTimesToRaise, street);
+			return fractionOrGeneralize(timesCallsToRaise, totalTimesWeRaise, street);
 		}
 
 		public float getPercentRaiseToRaise(int street){
-			return fractionOrGeneralize(timesRaisesToRaise, totalTimesToRaise, street);
+			return fractionOrGeneralize(timesRaisesToRaise, totalTimesWeRaise, street);
 		}
 
 		public float getPercentChecksOnAction(int street){
@@ -168,9 +169,26 @@ public class StatAggregator {
 			return fractionOrGeneralize(totalAmountWeRaiseForFold, timesFoldsToRaise, street);
 		}
 		
+		// showdowns only: retroactively determine opponent's bet size given a win percentage on specific street
+		// we can tell how much an opponent would bet on a street if he had a certain win percentage.
 		public float getBetAmount(int street, float oppWinPercentage){
-			int bucket = (int)((oppWinPercentage*NUM_BUCKETS) / 100);
-			return fractionOrGeneralize(totalBetsPerBucketPerStreet[bucket], timesBetsPerBucketPerStreet[bucket], street);
+			int bucket = (int)((oppWinPercentage*NUM_OPP_WIN_PERCENTAGE_BUCKETS) / 100);
+			return fractionOrGeneralize(totalValueOfBetsPerBucketPerStreet[bucket], totalCountOfBetsPerBucketPerStreet[bucket], street);
+		}
+		
+		// gives middle of estimated opponent's win percentage for a street given a bet
+		public float getOppWinPercentage(int street, int bet){
+			int bucket = 0;
+			float diff = Float.MAX_VALUE;
+			float bucketWidth = 100.0f / NUM_OPP_WIN_PERCENTAGE_BUCKETS;
+			for (int i=0; i<NUM_OPP_WIN_PERCENTAGE_BUCKETS; i++){
+				float winPercent = (i*bucketWidth) + (bucketWidth/2);
+				if (Math.abs(getBetAmount(street, winPercent) - bet) < diff){
+					bucket = i;
+					diff = Math.abs(getBetAmount(street, winPercent) - bet);
+				}
+			}
+			return (bucket*bucketWidth) + (bucketWidth/2);
 		}
 
 	}
