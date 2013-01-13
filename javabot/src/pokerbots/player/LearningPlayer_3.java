@@ -80,7 +80,6 @@ public class LearningPlayer_3 {
 					myHand = new HandObject(input);
 					history.newRound();
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
-					//TODO: no learning yet
 					aggregator.analyzeRoundData(myGame,myHand,history.getCurrentRound());
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
