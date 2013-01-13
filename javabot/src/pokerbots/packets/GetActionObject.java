@@ -9,7 +9,7 @@ public class GetActionObject{
 	public int potSize;
 	public int[] boardCards;
 	public String[] lastActions;
-	public GameAction[] legalActions;
+	public ActionObject[] legalActions;
 	public float timebank;
 
 	
@@ -32,9 +32,9 @@ public class GetActionObject{
 		}
 
 		i += lastActions.length + 1;
-		legalActions = new GameAction[Integer.parseInt(values[i])];
+		legalActions = new ActionObject[Integer.parseInt(values[i])];
 		for (int j=0; j<legalActions.length; j++){
-			legalActions[j] = new GameAction(values[i+j+1]);
+			legalActions[j] = new ActionObject(values[i+j+1]);
 		}
 
 		timebank = Float.parseFloat(values[i + legalActions.length + 1]);

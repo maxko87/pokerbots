@@ -20,8 +20,8 @@ public class BasicSafeProportionalPlayer_1 {
 	
 	private final PrintWriter outStream;
 	private final BufferedReader inStream;
-	private NewGameObject myGame;
-	private NewHandObject myHand;
+	private GameObject myGame;
+	private HandObject myHand;
 
 	public BasicSafeProportionalPlayer_1(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
@@ -40,11 +40,11 @@ public class BasicSafeProportionalPlayer_1 {
 					outStream.println(action);
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 
-					myGame = new NewGameObject(input);
+					myGame = new GameObject(input);
 
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					
-					myHand = new NewHandObject(input);
+					myHand = new HandObject(input);
 
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
 					//no learning yet
@@ -101,7 +101,7 @@ public class BasicSafeProportionalPlayer_1 {
 			//FLOP
 			case 3:
 				for ( int i = 0; i < curr.legalActions.length; i++ ) {
-					GameAction action = curr.legalActions[i];
+					ActionObject action = curr.legalActions[i];
 					if ( action.actionType.equalsIgnoreCase("discard") ) {
 						return "DISCARD:"+HandEvaluator.cardToString(myHand.cards3[0]);
 					}
@@ -157,7 +157,7 @@ public class BasicSafeProportionalPlayer_1 {
 	
 	public String betRaiseCall( GetActionObject curr, float winChance ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			GameAction action = curr.legalActions[i];
+			ActionObject action = curr.legalActions[i];
 		
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
@@ -174,7 +174,7 @@ public class BasicSafeProportionalPlayer_1 {
 	
 	public String foldOrCheck( GetActionObject curr ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			GameAction action = curr.legalActions[i];
+			ActionObject action = curr.legalActions[i];
 			if ( action.actionType.equalsIgnoreCase("check") ) {
 				return "CHECK";
 			}

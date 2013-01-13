@@ -2,13 +2,13 @@ package pokerbots.packets;
 
 import pokerbots.utils.HandEvaluator;
 
-public class GameAction {
+public class ActionObject {
 	public String actionType;
 	public int minBet; //optional
 	public int maxBet; //optional
 	public int cardToDiscard; //optional
 
-	public GameAction(String input){
+	public ActionObject(String input){
 		String[] values = input.split(":");
 		actionType = values[0];
 

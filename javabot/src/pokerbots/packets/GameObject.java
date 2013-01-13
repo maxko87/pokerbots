@@ -1,6 +1,6 @@
 package pokerbots.packets;
 
-public class NewGameObject {
+public class GameObject {
 	//NEWGAME yourName oppName stackSize bb numHands timeBank
 	//NEWGAME player1 player2 200 2 100 20.000000
 	
@@ -11,7 +11,7 @@ public class NewGameObject {
 	public int numHands = 0;
 	public double timeBank = 0;
 	
-	public NewGameObject( String input ) {
+	public GameObject( String input ) {
 		String[] tokens = input.split(" ");
 		myName = tokens[1];
 		oppName = tokens[2];
