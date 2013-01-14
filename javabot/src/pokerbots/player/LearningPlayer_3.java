@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import pokerbots.packets.HandOverObject;
 import pokerbots.packets.LegalActionObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.GameObject;
@@ -80,6 +81,8 @@ public class LearningPlayer_3 {
 					myHand = new HandObject(input);
 					history.newRound();
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
+					HandOverObject HOobj = new HandOverObject(input);
+					history.appendRoundData(HOobj.lastActions);
 					aggregator.analyzeRoundData(myGame,myHand,history.getCurrentRound());
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
@@ -185,7 +188,7 @@ public class LearningPlayer_3 {
 
 	// uses opponent's aggression to scale our looseness -- higher opp aggression = we play tighter
 	public float getMinWinChance(int street){
-		return Utils.scale(opponent.getAggression(street, myGame.stackSize), 0, 100, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
+		return Utils.scale(opponent.getAggression(street, myGame.stackSize), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
 	}
 	
 	// TODO: uses opponent's looseness to scale our bets -- higher opp looseness = we play more aggressively
@@ -198,6 +201,8 @@ public class LearningPlayer_3 {
 				int max = action.maxBet;
 				int bet = (int)(brain.makeProportionalBet(winChance,min,max,getActionObject.potSize/2));
 				bet *= opponent.getLooseness(street);
+				if (bet < min)
+					bet = min;
 				return "BET:"+bet;
 			}
 			else if ( action.actionType.equalsIgnoreCase("call") ) {
