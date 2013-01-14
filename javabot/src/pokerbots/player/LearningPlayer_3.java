@@ -44,6 +44,7 @@ public class LearningPlayer_3 {
 	private StatAggregator aggregator;
 	private OpponentStats opponent;
 	private MatchHistory history;
+	private int potSize;
 
 	public LearningPlayer_3(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
@@ -51,6 +52,7 @@ public class LearningPlayer_3 {
 		brain = new BettingBrain();
 		aggregator = new StatAggregator(); // TODO: initialize?
 		history = new MatchHistory();
+		potSize = 0;
 	}
 	
 	public void run() {
@@ -62,6 +64,7 @@ public class LearningPlayer_3 {
 				
 				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
 					GetActionObject msg = new GetActionObject(input);
+					potSize = msg.potSize;
 					history.appendRoundData(msg.lastActions);
 					String action = respondToGetAction(msg);
 					outStream.println(action);
@@ -73,11 +76,12 @@ public class LearningPlayer_3 {
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
 					history.newRound();
+					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
 					HandOverObject HOobj = new HandOverObject(input);
 					history.appendRoundData(HOobj.lastActions);
-					opponent.analyzeRoundData(myGame,myHand,history.getCurrentRound());
+					opponent.analyzeRoundData(myGame, myHand, history.getCurrentRound(), potSize);
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
 					opponent.printStats(myGame);

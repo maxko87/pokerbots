@@ -37,12 +37,6 @@ public class StatAggregator {
 		m = new HashMap<String, OpponentStats>();
 	}
 	
-	public void analyzeRoundData( GameObject game, HandObject hand, Round data ){
-		//NOTE: scale all amounts by the quantity (potSize/startingStackSize)!!!!
-		OpponentStats oppStats = getOrCreateOpponent(game.oppName);
-		oppStats.analyzeRoundData(game, hand, data);
-	}	
-	
 	public OpponentStats getOrCreateOpponent(String oppName) {
 		if (m.get(oppName) == null){
 			m.put(oppName, new OpponentStats(oppName));
@@ -139,7 +133,7 @@ public class StatAggregator {
 		/* Parses the lines between every "HAND #" and "__ wins the pot" in the match.txt file to update this class accordingly. 
 		 * TODO
 		 */
-		public void analyzeRoundData( GameObject game, HandObject hand, Round data ){
+		public void analyzeRoundData( GameObject game, HandObject hand, Round data, int potSize ){
 			//NOTE: scale all amounts by the quantity (potSize/startingStackSize)!!!!
 			
 			int street = 0;
@@ -164,24 +158,24 @@ public class StatAggregator {
 							timesFoldsToBet[street]++;
 							totalTimesWeBet[street]++;
 							
-							System.out.println("INCREMENTED timesFoldsToBet:\t\t" + timesFoldsToBet[street]);
-							System.out.println("INCREMENTED totalTimesWeBet:\t\t" + totalTimesWeBet[street]);
+							System.out.println("INCREMENTED timesFoldsToBet: " + street + "\t\t" + timesFoldsToBet[street]);
+							System.out.println("INCREMENTED totalTimesWeBet: " + street + "\t\t" + totalTimesWeBet[street]);
 						}
 						else if ( currA.equalsIgnoreCase("raise") ) {
 							timesRaisesToBet[street]++;
 							totalTimesWeBet[street]++;
-							totalValueOfRaises[street] += curr.amount;
+							totalValueOfRaises[street] += curr.amount * potSize / game.stackSize;
 							
-							System.out.println("INCREMENTED timesRaisesToBet:\t\t" + timesRaisesToBet[street]);
-							System.out.println("INCREMENTED totalTimesWeBet:\t\t" + totalTimesWeBet[street]);
-							System.out.println("INCREMENTED totalValueOfRaises:\t\t" + totalValueOfRaises[street]);
+							System.out.println("INCREMENTED timesRaisesToBet: " + street + "\t\t" + timesRaisesToBet[street]);
+							System.out.println("INCREMENTED totalTimesWeBet: " + street + "\t\t" + totalTimesWeBet[street]);
+							System.out.println("INCREMENTED totalValueOfRaises: " + street + "\t\t" + totalValueOfRaises[street]);
 						}
 						else if ( currA.equalsIgnoreCase("call") ) {
 							timesCallsToBet[street]++;
 							totalTimesWeBet[street]++;
 							
-							System.out.println("INCREMENTED timesCallsToBet:\t\t" + timesCallsToBet[street]);
-							System.out.println("INCREMENTED totalTimesWeBet:\t\t" + totalTimesWeBet[street]);
+							System.out.println("INCREMENTED timesCallsToBet: " + street + "\t\t" + timesCallsToBet[street]);
+							System.out.println("INCREMENTED totalTimesWeBet: " + street + "\t\t" + totalTimesWeBet[street]);
 						}
 					}
 					else if ( prevA.equalsIgnoreCase("raise") ) {
@@ -189,24 +183,24 @@ public class StatAggregator {
 							timesFoldsToRaise[street]++;
 							totalTimesWeRaise[street]++;
 
-							System.out.println("INCREMENTED timesFoldsToRaise:\t\t" + timesFoldsToRaise[street]);
-							System.out.println("INCREMENTED totalTimesWeRaise:\t\t" + totalTimesWeRaise[street]);
+							System.out.println("INCREMENTED timesFoldsToRaise: " + street + "\t\t" + timesFoldsToRaise[street]);
+							System.out.println("INCREMENTED totalTimesWeRaise: " + street + "\t\t" + totalTimesWeRaise[street]);
 						}
 						else if ( currA.equalsIgnoreCase("raise") ) {
 							timesRaisesToRaise[street]++;
 							totalTimesWeRaise[street]++;
-							totalValueOfRaises[street] += curr.amount;
+							totalValueOfRaises[street] += curr.amount * potSize / game.stackSize;
 							
-							System.out.println("INCREMENTED timesRaisesToRaise:\t\t" + timesRaisesToRaise[street]);
-							System.out.println("INCREMENTED totalTimesWeRaise:\t\t" + totalTimesWeRaise[street]);
-							System.out.println("INCREMENTED totalValueOfRaises:\t\t" + totalValueOfRaises[street]);
+							System.out.println("INCREMENTED timesRaisesToRaise: " + street + "\t\t" + timesRaisesToRaise[street]);
+							System.out.println("INCREMENTED totalTimesWeRaise: " + street + "\t\t" + totalTimesWeRaise[street]);
+							System.out.println("INCREMENTED totalValueOfRaises: " + street + "\t\t" + totalValueOfRaises[street]);
 						}
 						else if ( currA.equalsIgnoreCase("call") ) {
 							timesCallsToRaise[street]++;
 							totalTimesWeRaise[street]++;
 							
-							System.out.println("INCREMENTED timesCallsToRaise:\t\t" + timesCallsToRaise[street]);
-							System.out.println("INCREMENTED totalTimesWeRaise:\t\t" + totalTimesWeRaise[street]);
+							System.out.println("INCREMENTED timesCallsToRaise: " + street + "\t\t" + timesCallsToRaise[street]);
+							System.out.println("INCREMENTED totalTimesWeRaise: " + street + "\t\t" + totalTimesWeRaise[street]);
 						}
 					}
 				}
@@ -217,17 +211,17 @@ public class StatAggregator {
 						timesChecksOnAction[street]++;
 						totalTimesOnAction[street]++;
 						
-						System.out.println("INCREMENTED timesChecksOnAction:\t\t" + timesChecksOnAction[street]);
-						System.out.println("INCREMENTED totalTimesOnAction:\t\t" + totalTimesOnAction[street]);
+						System.out.println("INCREMENTED timesChecksOnAction: " + street + "\t\t" + timesChecksOnAction[street]);
+						System.out.println("INCREMENTED totalTimesOnAction: " + street + "\t\t" + totalTimesOnAction[street]);
 					}
 					if ( currA.equalsIgnoreCase("bet") ) {
 						timesBetsOnAction[street]++;
 						totalTimesOnAction[street]++;
-						totalValueOfBets[street] += curr.amount;
+						totalValueOfBets[street] += curr.amount * potSize / game.stackSize;
 						
-						System.out.println("INCREMENTED timesBetsOnAction:\t\t" + timesBetsOnAction[street]);
-						System.out.println("INCREMENTED totalTimesOnAction:\t\t" + totalTimesOnAction[street]);
-						System.out.println("INCREMENTED totalValueOfBets:\t\t" + totalValueOfBets[street]);
+						System.out.println("INCREMENTED timesBetsOnAction: " + street + "\t\t" + timesBetsOnAction[street]);
+						System.out.println("INCREMENTED totalTimesOnAction: " + street + "\t\t" + totalTimesOnAction[street]);
+						System.out.println("INCREMENTED totalValueOfBets: " + street + "\t\t" + totalValueOfBets[street]);
 					}
 				}
 				prev = curr;
