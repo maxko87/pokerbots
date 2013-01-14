@@ -32,7 +32,7 @@ public class ProbabilityCalculatingPlayer_2 {
 	private final int TURN_SIM_ITERS = 300;
 	private final int RIVER_SIM_ITERS = 200;
 	//minimum estimated percentage of winning to play each street.
-	private final float[] MIN_WIN_TO_PLAY = new float[] {0.3f, 0.3f, 0.4f, 0.4f};
+	private final float[] MIN_WIN_TO_PLAY = new float[] {0.4f, 0.4f, 0.5f, 0.5f};
 	//scaling for larger bets on later streets
 	private final float[] CONTINUATION_FACTORS = new float[] {1.0f, 1.0f, 1.5f, 2.0f};
 	
@@ -84,10 +84,10 @@ public class ProbabilityCalculatingPlayer_2 {
 
 	//given odds and stack size, decides how much to bet
 
-	private final float betStrength = 2.0f;
+	private final float betStrength = 0.2f;
 	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int currStackSize ){
 		//return (int) ((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize) * betStrength);
-		return (int) ( 2 * (expectedWinPercentage - .5) * (maxBet - minBet) + minBet);
+		return (int) ( betStrength * (expectedWinPercentage - .5) * (maxBet - minBet) + minBet);
 	}
 	
 	public String playerLogic( GetActionObject curr ) {
