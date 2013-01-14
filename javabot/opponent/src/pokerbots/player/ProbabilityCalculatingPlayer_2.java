@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import pokerbots.packets.GameAction;
+import pokerbots.packets.LegalActionObject;
 import pokerbots.packets.GetActionObject;
-import pokerbots.packets.NewGameObject;
-import pokerbots.packets.NewHandObject;
+import pokerbots.packets.GameObject;
+import pokerbots.packets.HandObject;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.Utils;
 import pokerbots.utils.PreflopTableGen;
@@ -26,20 +26,20 @@ import pokerbots.utils.StochasticSimulator;
 public class ProbabilityCalculatingPlayer_2 {
 	
 	//number of iterations for our simulator to calculate probabilities before deciding which card to toss.
-	private final int DISCARD_SIM_ITERS = 100;
+	private final int DISCARD_SIM_ITERS = 500;
 	//number of iterations for calculating probabilities after each other street 
-	private final int FLOP_SIM_ITERS = 100;
-	private final int TURN_SIM_ITERS = 100;
-	private final int RIVER_SIM_ITERS = 100;
+	private final int FLOP_SIM_ITERS = 500;
+	private final int TURN_SIM_ITERS = 300;
+	private final int RIVER_SIM_ITERS = 200;
 	//minimum estimated percentage of winning to play each street.
-	private final float[] MIN_WIN_TO_PLAY = new float[] {0.4f, 0.4f, 0.4f, 0.4f};
+	private final float[] MIN_WIN_TO_PLAY = new float[] {0.4f, 0.4f, 0.5f, 0.5f};
 	//scaling for larger bets on later streets
 	private final float[] CONTINUATION_FACTORS = new float[] {1.0f, 1.0f, 1.5f, 2.0f};
 	
 	private final PrintWriter outStream;
 	private final BufferedReader inStream;
-	private NewGameObject myGame;
-	private NewHandObject myHand;
+	private GameObject myGame;
+	private HandObject myHand;
 
 	public ProbabilityCalculatingPlayer_2(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
@@ -57,9 +57,9 @@ public class ProbabilityCalculatingPlayer_2 {
 					String action = playerLogic(msg);
 					outStream.println(action);
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
-					myGame = new NewGameObject(input);
+					myGame = new GameObject(input);
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
-					myHand = new NewHandObject(input);
+					myHand = new HandObject(input);
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
 					//TODO: no learning yet
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
@@ -84,10 +84,10 @@ public class ProbabilityCalculatingPlayer_2 {
 
 	//given odds and stack size, decides how much to bet
 
-	private final float betStrength = 2.0f;
+	private final float betStrength = 0.2f;
 	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int currStackSize ){
 		//return (int) ((expectedWinPercentage - .5) * (maxBet - minBet) * (myGame.stackSize / currStackSize) * betStrength);
-		return (int) ( 2 * (expectedWinPercentage - .5) * (maxBet - minBet) + minBet);
+		return (int) ( betStrength * (expectedWinPercentage - .5) * (maxBet - minBet) + minBet);
 	}
 	
 	public String playerLogic( GetActionObject curr ) {
@@ -110,7 +110,7 @@ public class ProbabilityCalculatingPlayer_2 {
 			case 3:
 				street_num = 1;
 				for ( int i = 0; i < curr.legalActions.length; i++ ) {
-					GameAction action = curr.legalActions[i];
+					LegalActionObject action = curr.legalActions[i];
 					if ( action.actionType.equalsIgnoreCase("discard") ) {
 						return discardHelper(curr);
 					}
@@ -172,7 +172,7 @@ public class ProbabilityCalculatingPlayer_2 {
 
 	public String betRaiseCall( GetActionObject curr, float winChance ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			GameAction action = curr.legalActions[i];
+			LegalActionObject action = curr.legalActions[i];
 		
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
@@ -189,7 +189,7 @@ public class ProbabilityCalculatingPlayer_2 {
 	
 	public String foldOrCheck( GetActionObject curr ) {
 		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			GameAction action = curr.legalActions[i];
+			LegalActionObject action = curr.legalActions[i];
 			if ( action.actionType.equalsIgnoreCase("check") ) {
 				return "CHECK";
 			}

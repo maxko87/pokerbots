@@ -13,8 +13,8 @@ public class MatchHistory {
 		public List<PerformedActionObject> actions = new ArrayList<PerformedActionObject>();
 		
 		public void printRound() {
-			System.out.println("---------");
 			System.out.println("NEW ROUND");
+			System.out.println("---------");
 			
 			for ( int i = 0; i < actions.size(); i++ ) {
 				PerformedActionObject action = actions.get(i);

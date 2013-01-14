@@ -2,7 +2,7 @@ package pokerbots.packets;
 
 import pokerbots.utils.HandEvaluator;
 
-public class NewHandObject {
+public class HandObject {
 	//NEWHAND handId button holeCard1 holeCard2 holeCard3 yourBank oppBank timeBank
 	//NEWHAND 10 true Ah Ac Ad 0 0 20.000000
 	
@@ -14,7 +14,7 @@ public class NewHandObject {
 	public int oppBank = 0;
 	public double timeBank = 0;
 	
-	public NewHandObject( String input ) {
+	public HandObject( String input ) {
 		String[] tokens = input.split(" ");
 		handId = Integer.parseInt(tokens[1]);
 		button = Boolean.parseBoolean(tokens[2]);

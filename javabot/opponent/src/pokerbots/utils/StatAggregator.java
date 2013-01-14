@@ -142,10 +142,10 @@ public class StatAggregator {
 		public void analyzeRoundData( GameObject game, HandObject hand, Round data ){
 			//NOTE: scale all amounts by the quantity (potSize/startingStackSize)!!!!
 			
+			PerformedActionObject prev = data.actions.get(0);
 			int street = 0;
-			for ( int i = 0; i < data.actions.size() - 1; i++ ) {
-				PerformedActionObject prev = data.actions.get(i);
-				PerformedActionObject curr = data.actions.get(i+1);
+			for ( int i = 1; i < data.actions.size(); i++ ) {
+				PerformedActionObject curr = data.actions.get(i);
 
 				String prevA = prev.actionType;
 				String currA = curr.actionType;
@@ -163,50 +163,30 @@ public class StatAggregator {
 						if ( currA.equalsIgnoreCase("fold") ) {
 							timesFoldsToBet[street]++;
 							totalTimesWeBet[street]++;
-							
-							System.out.println("INCREMENTED timesFoldsToBet:\t\t" + timesFoldsToBet[street]);
-							System.out.println("INCREMENTED totalTimesWeBet:\t\t" + totalTimesWeBet[street]);
 						}
 						else if ( currA.equalsIgnoreCase("raise") ) {
 							timesRaisesToBet[street]++;
 							totalTimesWeBet[street]++;
 							totalValueOfRaises[street] += curr.amount;
-							
-							System.out.println("INCREMENTED timesRaisesToBet:\t\t" + timesRaisesToBet[street]);
-							System.out.println("INCREMENTED totalTimesWeBet:\t\t" + totalTimesWeBet[street]);
-							System.out.println("INCREMENTED totalValueOfRaises:\t\t" + totalValueOfRaises[street]);
 						}
 						else if ( currA.equalsIgnoreCase("call") ) {
 							timesCallsToBet[street]++;
 							totalTimesWeBet[street]++;
-							
-							System.out.println("INCREMENTED timesCallsToBet:\t\t" + timesCallsToBet[street]);
-							System.out.println("INCREMENTED totalTimesWeBet:\t\t" + totalTimesWeBet[street]);
 						}
 					}
 					else if ( prevA.equalsIgnoreCase("raise") ) {
 						if ( currA.equalsIgnoreCase("fold") ) {
 							timesFoldsToRaise[street]++;
 							totalTimesWeRaise[street]++;
-
-							System.out.println("INCREMENTED timesFoldsToRaise:\t\t" + timesFoldsToRaise[street]);
-							System.out.println("INCREMENTED totalTimesWeRaise:\t\t" + totalTimesWeRaise[street]);
 						}
 						else if ( currA.equalsIgnoreCase("raise") ) {
 							timesRaisesToRaise[street]++;
 							totalTimesWeRaise[street]++;
 							totalValueOfRaises[street] += curr.amount;
-							
-							System.out.println("INCREMENTED timesRaisesToRaise:\t\t" + timesRaisesToRaise[street]);
-							System.out.println("INCREMENTED totalTimesWeRaise:\t\t" + totalTimesWeRaise[street]);
-							System.out.println("INCREMENTED totalValueOfRaises:\t\t" + totalValueOfRaises[street]);
 						}
 						else if ( currA.equalsIgnoreCase("call") ) {
 							timesCallsToRaise[street]++;
 							totalTimesWeRaise[street]++;
-							
-							System.out.println("INCREMENTED timesCallsToRaise:\t\t" + timesCallsToRaise[street]);
-							System.out.println("INCREMENTED totalTimesWeRaise:\t\t" + totalTimesWeRaise[street]);
 						}
 					}
 				}
@@ -216,22 +196,14 @@ public class StatAggregator {
 					if ( currA.equalsIgnoreCase("check") ) {
 						timesChecksOnAction[street]++;
 						totalTimesOnAction[street]++;
-						
-						System.out.println("INCREMENTED timesChecksOnAction:\t\t" + timesChecksOnAction[street]);
-						System.out.println("INCREMENTED totalTimesOnAction:\t\t" + totalTimesOnAction[street]);
 					}
 					if ( currA.equalsIgnoreCase("bet") ) {
 						timesBetsOnAction[street]++;
 						totalTimesOnAction[street]++;
 						totalValueOfBets[street] += curr.amount;
-						
-						System.out.println("INCREMENTED timesBetsOnAction:\t\t" + timesBetsOnAction[street]);
-						System.out.println("INCREMENTED totalTimesOnAction:\t\t" + totalTimesOnAction[street]);
-						System.out.println("INCREMENTED totalValueOfBets:\t\t" + totalValueOfBets[street]);
 					}
 				}
 				prev = curr;
-				
 			}
 			
 		}	
@@ -334,33 +306,11 @@ public class StatAggregator {
 			return (totalBetCount > 0.0f) ? (float)(totalValueOfBets[street] + totalValueOfRaises[street] ) / (totalBetCount * maxBet) : DEFAULT_AGGRESSION;
 		}
 		
-		public float getTotalAggression(int maxBet){
-			float totalBetCount = 0;
-			float totalValueOfAllBets = 0;
-			for (int street=0; street<4; street++){
-				totalBetCount += (timesRaisesToBet[street] + timesRaisesToRaise[street] + timesBetsOnAction[street]);
-				totalValueOfAllBets += (float)(totalValueOfBets[street] + totalValueOfRaises[street] );
-			}
-			return (totalBetCount > 0.0f) ? totalValueOfAllBets / (totalBetCount * maxBet) : DEFAULT_AGGRESSION;
-		}
-		
 		// (0,1) rating of this opponent's looseness (number of calls+raises over number of calls+raises+folds)
 		public float getLooseness(int street){
 			int calls = timesCallsToBet[street] + timesCallsToRaise[street];
 			int raises = timesRaisesToBet[street] + timesRaisesToRaise[street];
 			int folds = timesFoldsToBet[street] + timesFoldsToRaise[street];
-			return (calls+raises+folds > 0) ? (float)(calls+raises)/(calls+raises+folds) : DEFAULT_LOOSENESS;
-		}
-		
-		public float getTotalLooseness(){
-			int calls = 0;
-			int raises = 0;
-			int folds = 0;
-			for (int street=0; street<4; street++){
-				calls += timesCallsToBet[street] + timesCallsToRaise[street];
-				raises += timesRaisesToBet[street] + timesRaisesToRaise[street];
-				folds += timesFoldsToBet[street] + timesFoldsToRaise[street];
-			}
 			return (calls+raises+folds > 0) ? (float)(calls+raises)/(calls+raises+folds) : DEFAULT_LOOSENESS;
 		}
 		
@@ -374,8 +324,8 @@ public class StatAggregator {
 				System.out.println("Call\t\t" + getPercentCallToBet(i) +"\t\t"+getPercentCallToRaise(i)+"\t\tX");
 				System.out.println("Bet\t\t" + "X\t\tX\t\t" + getPercentBetsOnAction(i));
 				System.out.println("Checks on action: " + getPercentChecksOnAction(i) );
-				System.out.println("Aggression: " + getTotalAggression(myGame.stackSize));
-				System.out.println("Looseness: " + getTotalLooseness() );
+				System.out.println("Aggression: " + getAggression(i,myGame.stackSize));
+				System.out.println("Looseness: " + getLooseness(i) );
 			}
 		}
 

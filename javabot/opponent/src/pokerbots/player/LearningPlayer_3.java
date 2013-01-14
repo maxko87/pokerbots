@@ -21,6 +21,12 @@ import pokerbots.utils.Utils;
 
 
 /**
+ * Simple example pokerbot, written in Java.
+ * 
+ * This is an example of a bare bones, pokerbot. It only sets up the socket
+ * necessary to connect with the engine and then always returns the same action.
+ * It is meant as an example of how a pokerbot should communicate with the
+ * engine.
  * 
  */
 public class LearningPlayer_3 {
@@ -59,35 +65,29 @@ public class LearningPlayer_3 {
 			while ((input = inStream.readLine()) != null) {
 				System.out.println(input);
 				String packetType = input.split(" ")[0];
-				
 				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
 					GetActionObject msg = new GetActionObject(input);
 					history.appendRoundData(msg.lastActions);
 					String action = respondToGetAction(msg);
 					outStream.println(action);
-					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
 					opponent = aggregator.getOrCreateOpponent(myGame.oppName);
-					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
 					history.newRound();
-					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
 					HandOverObject HOobj = new HandOverObject(input);
 					history.appendRoundData(HOobj.lastActions);
-					opponent.analyzeRoundData(myGame,myHand,history.getCurrentRound());
+					aggregator.analyzeRoundData(myGame,myHand,history.getCurrentRound());
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
-					opponent.printStats(myGame);
 					
+					aggregator.getOrCreateOpponent(myGame.oppName).printStats(myGame);
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
 					//none
-					
 				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
 					//none
-					
 					outStream.println("FINISH");
 				}
 			}
@@ -186,7 +186,7 @@ public class LearningPlayer_3 {
 
 	// uses opponent's aggression to scale our looseness -- higher opp aggression = we play tighter
 	public float getMinWinChance(int street){
-		return Utils.scale(opponent.getTotalAggression(myGame.stackSize), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
+		return Utils.scale(opponent.getAggression(street, myGame.stackSize), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
 	}
 	
 	// TODO: uses opponent's looseness to scale our bets -- higher opp looseness = we play more aggressively
@@ -198,7 +198,7 @@ public class LearningPlayer_3 {
 				int min = action.minBet;
 				int max = action.maxBet;
 				int bet = (int)(brain.makeProportionalBet(winChance,min,max,getActionObject.potSize/2));
-				bet *= opponent.getTotalLooseness();
+				bet *= opponent.getLooseness(street);
 				if (bet < min)
 					bet = min;
 				return "BET:"+bet;
