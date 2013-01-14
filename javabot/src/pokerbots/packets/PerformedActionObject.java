@@ -11,7 +11,6 @@ public class PerformedActionObject {
 	public PerformedActionObject(String input){
 		String[] values = input.split(":");
 		actionType = values[0];
-		System.out.println("DEBUG: " + input);
 
 		//if fold,discard,deal,check,call
 		if ( actionType.equalsIgnoreCase("fold") | actionType.equalsIgnoreCase("call")

@@ -45,7 +45,7 @@ public class StatAggregator {
 	
 	public OpponentStats getOrCreateOpponent(String oppName) {
 		if (m.get(oppName) == null){
-			m.put(oppName, new OpponentStats());
+			m.put(oppName, new OpponentStats(oppName));
 		}
 		return m.get(oppName);
 	}
@@ -63,6 +63,7 @@ public class StatAggregator {
 	
 	public class OpponentStats{
 
+		String name = "Undefined";
 		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {1, 1, 1, 1}; // must be at least 1
 		public final float DEFAULT_PERCENT = 0.5f;
 		public final int NUM_OPP_WIN_PERCENTAGE_BUCKETS = 5;
@@ -97,7 +98,9 @@ public class StatAggregator {
 		public int[][] totalValueOfBetsPerBucketPerStreet;
 		public int[][] totalCountOfBetsPerBucketPerStreet;
 		
-		public OpponentStats(){
+		public OpponentStats( String name ){
+			
+			this.name = name;
 			
 			timesFoldsToBet = new int[] {0,0,0,0};
 			timesCallsToBet = new int[] {0,0,0,0};
@@ -110,8 +113,11 @@ public class StatAggregator {
 			totalTimesWeBet = new int[] {0,0,0,0};
 			totalTimesWeRaise = new int[] {0,0,0,0};
 			totalTimesOnAction = new int[] {0,0,0,0};
+			
+			// TODO: COMPUTE THESE.
 			totalAmountWeBetForFold = new int[] {0,0,0,0};
 			totalAmountWeRaiseForFold = new int[] {0,0,0,0};
+			
 			totalValueOfBets = new int[] {0,0,0,0};
 			totalValueOfRaises = new int[] {0,0,0,0};
 			
@@ -136,8 +142,68 @@ public class StatAggregator {
 		public void analyzeRoundData( GameObject game, HandObject hand, Round data ){
 			//NOTE: scale all amounts by the quantity (potSize/startingStackSize)!!!!
 			
-			for ( int i = 0; i < data.actions.size(); i++ ) {
-				//PerformedActionObject curr = data.actions;
+			PerformedActionObject prev = data.actions.get(0);
+			int street = 0;
+			for ( int i = 1; i < data.actions.size(); i++ ) {
+				PerformedActionObject curr = data.actions.get(i);
+
+				String prevA = prev.actionType;
+				String currA = curr.actionType;
+				
+				//Increment street
+				if ( currA.equalsIgnoreCase("deal") ) {
+					street++;
+					prev = curr;
+					continue;
+				}
+				
+				//IF I perform an action THEN OPP performs action
+				if ( prev.actor.equalsIgnoreCase(game.myName) && curr.actor.equals(game.oppName) ) {
+					if ( prevA.equalsIgnoreCase("bet") ) {
+						if ( currA.equalsIgnoreCase("fold") ) {
+							timesFoldsToBet[street]++;
+							totalTimesWeBet[street]++;
+						}
+						else if ( currA.equalsIgnoreCase("raise") ) {
+							timesRaisesToBet[street]++;
+							totalTimesWeBet[street]++;
+							totalValueOfRaises[street] += curr.amount;
+						}
+						else if ( currA.equalsIgnoreCase("call") ) {
+							timesCallsToBet[street]++;
+							totalTimesWeBet[street]++;
+						}
+					}
+					else if ( prevA.equalsIgnoreCase("raise") ) {
+						if ( currA.equalsIgnoreCase("fold") ) {
+							timesFoldsToRaise[street]++;
+							totalTimesWeRaise[street]++;
+						}
+						else if ( currA.equalsIgnoreCase("raise") ) {
+							timesRaisesToRaise[street]++;
+							totalTimesWeRaise[street]++;
+							totalValueOfRaises[street] += curr.amount;
+						}
+						else if ( currA.equalsIgnoreCase("call") ) {
+							timesCallsToRaise[street]++;
+							totalTimesWeRaise[street]++;
+						}
+					}
+				}
+				
+				//IF On-Action behavior is seen
+				if ( curr.actor.equalsIgnoreCase(game.oppName) ) {
+					if ( currA.equalsIgnoreCase("check") ) {
+						timesChecksOnAction[street]++;
+						totalTimesOnAction[street]++;
+					}
+					if ( currA.equalsIgnoreCase("bet") ) {
+						timesBetsOnAction[street]++;
+						totalTimesOnAction[street]++;
+						totalValueOfBets[street] += curr.amount;
+					}
+				}
+				prev = curr;
 			}
 			
 		}	
@@ -246,6 +312,21 @@ public class StatAggregator {
 			int raises = timesRaisesToBet[street] + timesRaisesToRaise[street];
 			int folds = timesFoldsToBet[street] + timesFoldsToRaise[street];
 			return (calls+raises+folds > 0) ? (float)(calls+raises)/(calls+raises+folds) : DEFAULT_LOOSENESS;
+		}
+		
+		public void printStats(GameObject myGame) {
+			String[] streets = new String[]{"Preflop","Flop","Turn","River"};
+			for ( int i = 0; i < 4; i++ ) {
+				System.out.println("<<< STREET : " + streets[i]+" >>>");
+				System.out.println("opp \\ us\tBet\t\tRaise\t\tCheck");
+				System.out.println("Fold\t\t" + getPercentFoldToBet(i) +"\t\t"+getPercentFoldToRaise(i)+"\t\tX");
+				System.out.println("Raise\t\t" + getPercentRaiseToBet(i) +"\t\t"+getPercentRaiseToRaise(i)+"\t\tX");
+				System.out.println("Call\t\t" + getPercentCallToBet(i) +"\t\t"+getPercentCallToRaise(i)+"\t\tX");
+				System.out.println("Bet\t\t" + "X\t\tX\t\t" + getPercentBetsOnAction(i));
+				System.out.println("Checks on action: " + getPercentChecksOnAction(i) );
+				System.out.println("Aggression: " + getAggression(i,myGame.stackSize));
+				System.out.println("Looseness: " + getLooseness(i) );
+			}
 		}
 
 	}

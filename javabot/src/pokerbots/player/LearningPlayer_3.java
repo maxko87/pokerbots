@@ -70,10 +70,6 @@ public class LearningPlayer_3 {
 					history.appendRoundData(msg.lastActions);
 					String action = respondToGetAction(msg);
 					outStream.println(action);
-					
-					PerformedActionObject[] currAction = new PerformedActionObject[1];
-					currAction[0] = new PerformedActionObject(action+":"+myGame.myName);
-					//history.appendRoundData(currAction);
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
 					opponent = aggregator.getOrCreateOpponent(myGame.oppName);
@@ -86,6 +82,8 @@ public class LearningPlayer_3 {
 					aggregator.analyzeRoundData(myGame,myHand,history.getCurrentRound());
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
+					
+					aggregator.getOrCreateOpponent(myGame.oppName).printStats(myGame);
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
 					//none
 				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
