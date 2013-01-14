@@ -85,6 +85,9 @@ public class StatAggregator {
 		public int[] totalTimesWeBet;
 		public int[] totalTimesWeRaise;
 		public int[] totalTimesOnAction;
+		
+		public int[] totalValueOfBets;
+		public int[] totalValueOfRaises;
 
 
 		public int[] totalAmountWeBetForFold;
@@ -109,6 +112,8 @@ public class StatAggregator {
 			totalTimesOnAction = new int[] {0,0,0,0};
 			totalAmountWeBetForFold = new int[] {0,0,0,0};
 			totalAmountWeRaiseForFold = new int[] {0,0,0,0};
+			totalValueOfBets = new int[] {0,0,0,0};
+			totalValueOfRaises = new int[] {0,0,0,0};
 			
 			totalValueOfBetsPerBucketPerStreet = new int[NUM_OPP_WIN_PERCENTAGE_BUCKETS][4];
 			for (int i=0; i<totalValueOfBetsPerBucketPerStreet.length; i++){
@@ -221,6 +226,7 @@ public class StatAggregator {
 		
 		// (0,1) rating of this opponent's aggression (size of bet when he does bet)
 		public float getAggression(int street, int maxBet){
+			/*
 			int totalValueOfBets = 0;
 			int totalNumberOfBets = 0;
 			for (int i=0; i<NUM_OPP_WIN_PERCENTAGE_BUCKETS; i++){
@@ -229,6 +235,9 @@ public class StatAggregator {
 			}
 			float averageBet = (float)(totalValueOfBets)/totalNumberOfBets;
 			return (maxBet > 0.0f) ? averageBet/maxBet : DEFAULT_AGGRESSION;
+			*/
+			float totalBetCount = (timesRaisesToBet[street] + timesRaisesToRaise[street] + timesBetsOnAction[street]);
+			return (totalBetCount > 0.0f) ? (float)(totalValueOfBets[street] + totalValueOfRaises[street] ) / (totalBetCount * maxBet) : DEFAULT_AGGRESSION;
 		}
 		
 		// (0,1) rating of this opponent's looseness (number of calls+raises over number of calls+raises+folds)
