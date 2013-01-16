@@ -29,4 +29,12 @@ public class Utils {
 		System.out.println(scale(11,10,20,20,80));
 	}
 	
+	public static int boundInt(int num, int minNum, int maxNum) {
+		if (num < minNum)
+			return minNum;
+		else if (num > maxNum)
+			return maxNum;
+		return num;
+	}
+	
 }

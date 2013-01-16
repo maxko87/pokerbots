@@ -49,7 +49,6 @@ public class LearningPlayer_3 {
 	public LearningPlayer_3(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
-		brain = new BettingBrain();
 		aggregator = new StatAggregator(); // TODO: initialize?
 		history = new MatchHistory();
 		potSize = 0;
@@ -71,6 +70,7 @@ public class LearningPlayer_3 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
+					brain = new BettingBrain(myGame);
 					opponent = aggregator.getOrCreateOpponent(myGame.oppName);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
@@ -193,6 +193,10 @@ public class LearningPlayer_3 {
 		return Utils.scale(opponent.getTotalAggression(myGame.stackSize), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
 	}
 	
+	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int myRemainingStack){
+		return (int) ( 2 * (expectedWinPercentage - .5) * (maxBet - minBet) + minBet);
+	}
+	
 	// TODO: uses opponent's looseness to scale our bets -- higher opp looseness = we play more aggressively
 	public String betRaiseCall( GetActionObject getActionObject, float winChance, int street ) {
 		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
@@ -201,7 +205,7 @@ public class LearningPlayer_3 {
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
 				int max = action.maxBet;
-				int bet = (int)(brain.makeProportionalBet(winChance,min,max,getActionObject.potSize/2));
+				int bet = (int)(makeProportionalBet(winChance,min,max,getActionObject.potSize/2));
 				bet *= opponent.getTotalLooseness();
 				if (bet < min)
 					bet = min;

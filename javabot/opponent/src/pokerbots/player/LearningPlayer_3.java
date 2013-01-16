@@ -21,12 +21,6 @@ import pokerbots.utils.Utils;
 
 
 /**
- * Simple example pokerbot, written in Java.
- * 
- * This is an example of a bare bones, pokerbot. It only sets up the socket
- * necessary to connect with the engine and then always returns the same action.
- * It is meant as an example of how a pokerbot should communicate with the
- * engine.
  * 
  */
 public class LearningPlayer_3 {
@@ -50,13 +44,14 @@ public class LearningPlayer_3 {
 	private StatAggregator aggregator;
 	private OpponentStats opponent;
 	private MatchHistory history;
+	private int potSize;
 
 	public LearningPlayer_3(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
-		brain = new BettingBrain();
 		aggregator = new StatAggregator(); // TODO: initialize?
 		history = new MatchHistory();
+		potSize = 0;
 	}
 	
 	public void run() {
@@ -65,29 +60,38 @@ public class LearningPlayer_3 {
 			while ((input = inStream.readLine()) != null) {
 				System.out.println(input);
 				String packetType = input.split(" ")[0];
+				
 				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
 					GetActionObject msg = new GetActionObject(input);
+					potSize = msg.potSize;
 					history.appendRoundData(msg.lastActions);
 					String action = respondToGetAction(msg);
 					outStream.println(action);
+					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
+					brain = new BettingBrain(myGame);
 					opponent = aggregator.getOrCreateOpponent(myGame.oppName);
+					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
 					history.newRound();
+					potSize = 0;
+					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
 					HandOverObject HOobj = new HandOverObject(input);
 					history.appendRoundData(HOobj.lastActions);
-					aggregator.analyzeRoundData(myGame,myHand,history.getCurrentRound());
+					opponent.analyzeRoundData(myGame, myHand, history.getCurrentRound(), potSize);
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
+					opponent.printStats(myGame);
 					
-					aggregator.getOrCreateOpponent(myGame.oppName).printStats(myGame);
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
 					//none
+					
 				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
 					//none
+					
 					outStream.println("FINISH");
 				}
 			}
@@ -186,7 +190,11 @@ public class LearningPlayer_3 {
 
 	// uses opponent's aggression to scale our looseness -- higher opp aggression = we play tighter
 	public float getMinWinChance(int street){
-		return Utils.scale(opponent.getAggression(street, myGame.stackSize), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
+		return Utils.scale(opponent.getTotalAggression(myGame.stackSize), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
+	}
+	
+	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int myRemainingStack){
+		return (int) ( 2 * (expectedWinPercentage - .5) * (maxBet - minBet) + minBet);
 	}
 	
 	// TODO: uses opponent's looseness to scale our bets -- higher opp looseness = we play more aggressively
@@ -197,8 +205,8 @@ public class LearningPlayer_3 {
 			if ( action.actionType.equalsIgnoreCase("bet") ) {
 				int min = action.minBet;
 				int max = action.maxBet;
-				int bet = (int)(brain.makeProportionalBet(winChance,min,max,getActionObject.potSize/2));
-				bet *= opponent.getLooseness(street);
+				int bet = (int)(makeProportionalBet(winChance,min,max,getActionObject.potSize/2));
+				bet *= opponent.getTotalLooseness();
 				if (bet < min)
 					bet = min;
 				return "BET:"+bet;

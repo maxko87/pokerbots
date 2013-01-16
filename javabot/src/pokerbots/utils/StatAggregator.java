@@ -6,7 +6,6 @@ import pokerbots.packets.GameObject;
 import pokerbots.packets.HandObject;
 import pokerbots.packets.PerformedActionObject;
 import pokerbots.utils.MatchHistory.Round;
-import pokerbots.utils.StatAggregator.OpponentStats;
 
 public class StatAggregator {
 	
@@ -63,8 +62,8 @@ public class StatAggregator {
 		public final int NUM_OPP_WIN_PERCENTAGE_BUCKETS = 5;
 		
 		//these two parameters should be learned later
-		public final float DEFAULT_LOOSENESS = 0.5f;
-		public final float DEFAULT_AGGRESSION = 0.5f;
+		public final float DEFAULT_LOOSENESS = 0.3f;
+		public final float DEFAULT_AGGRESSION = 0.25f;
 		
 		public int[] timesFoldsToBet;
 		public int[] timesCallsToBet;

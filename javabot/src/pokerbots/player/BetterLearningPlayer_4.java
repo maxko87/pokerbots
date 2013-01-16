@@ -4,12 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import pokerbots.packets.GameObject;
+import pokerbots.packets.GetActionObject;
+import pokerbots.packets.HandObject;
 import pokerbots.packets.HandOverObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.packets.GetActionObject;
-import pokerbots.packets.GameObject;
-import pokerbots.packets.HandObject;
-import pokerbots.packets.PerformedActionObject;
 import pokerbots.utils.BettingBrain;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
@@ -21,20 +20,32 @@ import pokerbots.utils.Utils;
 
 
 /**
+ * Improvements made:
+ * - move logic into BettingBrain 
+ * - scale bets proportional to pot size
+ * - allow raising 
  * 
+ * Todo:
+ * - factor in opponents bet sizes
+ * - fix looseness (use REFUND!)
+ * 
+ * 
+ * Future bot todo:
+ * - implement states with semi-random transitions between them
+ * - populate and use getPercentFoldToBet, getPercentCallToBet, getOurAverageBetForFold, getOurAverageRaiseForFold
+ * 
+ * 
+ * As of Player 4, the Player class only takes care of managing the object references and calculating standard probabilities.
+ * All the advanced logic has been moved into BettingBrain.
  */
 public class BetterLearningPlayer_4 {
 	
 	//number of iterations for our simulator to calculate probabilities before deciding which card to toss.
-	private final int DISCARD_SIM_ITERS = 500;
-	//number of iterations for calculating probabilities after each other street 
-	private final int FLOP_SIM_ITERS = 500;
-	private final int TURN_SIM_ITERS = 300;
-	private final int RIVER_SIM_ITERS = 200;
-	//minimum default percentage range of winning to play each street.
-	private final float[][] MIN_WIN_TO_PLAY = new float[][] {{0.2f, 0.4f}, {0.2f, 0.4f}, {0.3f, 0.5f}, {0.3f, 0.5f}};
-	//scaling for larger bets on later streets
-	private final float[] CONTINUATION_FACTORS = new float[] {1.0f, 1.0f, 1.5f, 2.0f};
+	private final int DISCARD_SIM_ITERS = 1000;
+	//number of iterations for calculating probabilities after each other street.
+	private final int FLOP_SIM_ITERS = 600;
+	private final int TURN_SIM_ITERS = 500;
+	private final int RIVER_SIM_ITERS = 500;
 	
 	private final PrintWriter outStream;
 	private final BufferedReader inStream;
@@ -49,8 +60,7 @@ public class BetterLearningPlayer_4 {
 	public BetterLearningPlayer_4(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
-		brain = new BettingBrain();
-		aggregator = new StatAggregator(); // TODO: initialize?
+		aggregator = new StatAggregator(); // TODO: initialize with past data?
 		history = new MatchHistory();
 		potSize = 0;
 	}
@@ -71,6 +81,7 @@ public class BetterLearningPlayer_4 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
+					brain = new BettingBrain(myGame);
 					opponent = aggregator.getOrCreateOpponent(myGame.oppName);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
@@ -110,19 +121,21 @@ public class BetterLearningPlayer_4 {
 	
 	public String respondToGetAction( GetActionObject getActionObject) {
 		int numBoardCards = getActionObject.boardCards.length;
+		float winChance0;
+		float winChance1;
+		float winChance2;
+		float winChance;
 
 		switch ( numBoardCards ) {
 			//PREFLOP
 			case 0:
 				int street = 0;
-				float winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards3[1],myHand.cards3[2]);
-				float winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[2]);
-				float winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[1]);
-				float winChance = Utils.getMax(winChance0, winChance1, winChance2);
-				if ( winChance > getMinWinChance(street) )
-					return betRaiseCall(getActionObject,winChance,street);
-				else
-					return foldOrCheck(getActionObject);
+				winChance0 = PreflopTableGen.getPreflopWinRate(myHand.cards3[1],myHand.cards3[2]);
+				winChance1 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[2]);
+				winChance2 = PreflopTableGen.getPreflopWinRate(myHand.cards3[0],myHand.cards3[1]);
+				winChance = Utils.getMax(winChance0, winChance1, winChance2);
+				
+				return brain.takeAction(opponent, getActionObject, winChance, street);
 				
 			//FLOP
 			case 3:
@@ -137,29 +150,25 @@ public class BetterLearningPlayer_4 {
 				winChance2 = StochasticSimulator.computeRates(new int[] {myHand.cards3[0], myHand.cards3[1]}, getActionObject.boardCards, FLOP_SIM_ITERS)[10];
 				winChance1 = StochasticSimulator.computeRates(new int[] {myHand.cards3[0], myHand.cards3[2]}, getActionObject.boardCards, FLOP_SIM_ITERS)[10];
 				winChance0 = StochasticSimulator.computeRates(new int[] {myHand.cards3[1], myHand.cards3[2]}, getActionObject.boardCards, FLOP_SIM_ITERS)[10];
-				float maxChance = Utils.getMax(winChance0, winChance1, winChance2);
-				if ( maxChance > getMinWinChance(street) )
-					return betRaiseCall(getActionObject, maxChance,street);
-				else
-					return foldOrCheck(getActionObject);
+				winChance = Utils.getMax(winChance0, winChance1, winChance2);
+				
+				return brain.takeAction(opponent, getActionObject, winChance, street);
+			
 				
 			//TURN
 			case 4:
 				street = 2;
 				winChance = StochasticSimulator.computeRates(myHand.cards2, getActionObject.boardCards, TURN_SIM_ITERS)[10];
-				if ( winChance > getMinWinChance(street) )
-					return betRaiseCall(getActionObject, winChance,street);
-				else
-					return foldOrCheck(getActionObject);
-			
+				
+				return brain.takeAction(opponent, getActionObject, winChance, street);
+				
 			//RIVER
 			case 5:
 				street = 3;
 				winChance = StochasticSimulator.computeRates(myHand.cards2, getActionObject.boardCards, RIVER_SIM_ITERS)[10];
-				if ( winChance > getMinWinChance(street) )
-					return betRaiseCall(getActionObject, winChance,street);
-				else
-					return foldOrCheck(getActionObject);
+				
+				return brain.takeAction(opponent, getActionObject, winChance, street);
+				
 			default:
 				break;
 		}
@@ -187,40 +196,5 @@ public class BetterLearningPlayer_4 {
 		return "DISCARD:"+HandEvaluator.cardToString(myHand.cards3[toss]);
 		
 	}
-
-	// uses opponent's aggression to scale our looseness -- higher opp aggression = we play tighter
-	public float getMinWinChance(int street){
-		return Utils.scale(opponent.getTotalAggression(myGame.stackSize), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
-	}
 	
-	// TODO: uses opponent's looseness to scale our bets -- higher opp looseness = we play more aggressively
-	public String betRaiseCall( GetActionObject getActionObject, float winChance, int street ) {
-		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
-			LegalActionObject action = getActionObject.legalActions[i];
-		
-			if ( action.actionType.equalsIgnoreCase("bet") ) {
-				int min = action.minBet;
-				int max = action.maxBet;
-				int bet = (int)(brain.makeProportionalBet(winChance,min,max,getActionObject.potSize/2));
-				bet *= opponent.getTotalLooseness();
-				if (bet < min)
-					bet = min;
-				return "BET:"+bet;
-			}
-			else if ( action.actionType.equalsIgnoreCase("call") ) {
-				return "CALL";
-			}
-		}
-		return "FOLD";
-	}
-	
-	public String foldOrCheck( GetActionObject curr ) {
-		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			LegalActionObject action = curr.legalActions[i];
-			if ( action.actionType.equalsIgnoreCase("check") ) {
-				return "CHECK";
-			}
-		}
-		return "FOLD";
-	}
 }
