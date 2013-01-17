@@ -150,6 +150,15 @@ public class StatAggregator {
 					continue;
 				}
 				
+				//
+				if ( curr.actor.equals(game.myName) && curr.actionType.equalsIgnoreCase("refund") ) {
+					timesFoldsToBet[street]++;
+					totalTimesWeBet[street]++;
+					
+					System.out.println("INCREMENTED timesFoldsToBet: " + street + "\t\t" + timesFoldsToBet[street]);
+					System.out.println("INCREMENTED totalTimesWeBet: " + street + "\t\t" + totalTimesWeBet[street]);
+				}
+				
 				//IF I perform an action THEN OPP performs action
 				if ( prev.actor.equalsIgnoreCase(game.myName) && curr.actor.equals(game.oppName) ) {
 					if ( prevA.equalsIgnoreCase("bet") ) {

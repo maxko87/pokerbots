@@ -23,11 +23,11 @@ import pokerbots.utils.Utils;
  * Improvements made:
  * - move logic into BettingBrain 
  * - scale bets proportional to pot size
- * - allow raising 
+ * - allow raising
+ * - factor in opponents bet sizes 
  * 
  * Todo:
- * - factor in opponents bet sizes
- * - fix looseness (use REFUND!)
+ * - fix looseness (use REFUND!) -- do it better
  * 
  * 
  * Future bot todo:
