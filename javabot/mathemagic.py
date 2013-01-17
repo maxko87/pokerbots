@@ -1,7 +1,7 @@
 # run ./refresh_opponent first
 import os, random, csv, re
 
-NUM_RUNS = 5
+NUM_RUNS = 20
 
 def replaceVal(valNum, newValue):
 	with open("src/pokerbots/utils/BettingBrain.java", "r+") as f:
@@ -23,18 +23,23 @@ def bound(num, min, max):
 	return num
 
 def runEngine():
+
+	os.system("./socket_pokerbot_helper.sh")
 	os.system("java -jar engine_1.3.jar")
+	#tommy!
 
 def updateLog(r):
 	
-	#grab final chip count from dump
+	#grab final and intermediate chip counts from dump
 	with open("BOT_V4.dump", "r+") as f:
 		dump = f.read()
-		chip_count = re.findall("HANDOVER (-?\d+) ", dump)[-1]
-		print chip_count
+		chip_count1000 = re.findall("HANDOVER (-?\d+) ", dump)[-1]
+		chip_count333 = re.findall("HANDOVER (-?\d+) ", dump)[333]
+		chip_count666 = re.findall("HANDOVER (-?\d+) ", dump)[666]
+		print chip_count333, chip_count666, chip_count1000 
 	
 	#write score and params to csv
-	res = [chip_count]
+	res = [chip_count1000, chip_count666, chip_count333]
 	for i in range(1,len(r)):
 		res += [r[i]]
 	csvout = csv.writer(open("data.csv", "a"))
@@ -42,7 +47,7 @@ def updateLog(r):
 
 def initalizeCsv():
 	csvout = csv.writer(open("data.csv", "a"))
-	csvout.writerow(("score","val1","val2","val3","val4","val5","val6","val7","val8","val9","val10","val11","val12"))
+	csvout.writerow(("score 1000","score 666","score 333","val1","val2","val3","val4","val5","val6","val7","val8","val9","val10","val11","val12"))
 
 
 initalizeCsv()

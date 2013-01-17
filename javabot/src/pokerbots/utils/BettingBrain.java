@@ -13,7 +13,6 @@ import pokerbots.utils.StatAggregator.OpponentStats;
  * to beat at least 75% of the bots, and we should stick to it as much as we can (the rest of the strategies rely increasingly on psychology, which
  * bots may or may not have).
  * 
- * 2) Holding out. When we have a very strong hand early on (e.g. trips or higher after the flop), we check/call on the flop and bet/raise hard on the 
  * turn and river (maybe even check/call on the turn and hold off the betting until the river). 
  * 
  * 3) Holding out bluff. Similar to above, but instead of actually having a strong hand, we wait for a board that might make us seem like we have a 
@@ -40,26 +39,26 @@ import pokerbots.utils.StatAggregator.OpponentStats;
 
 public class BettingBrain {
 	
-	float val1 = 0.2f;
-	float val2 = 0.5f;
-	float val3 = 0.2f;
-	float val4 = 0.5f;
-	float val5 = 0.4f;
-	float val6 = 0.5f;
-	float val7 = 0.4f;
-	float val8 = 0.5f;
+	float val1 = 0.4f;
+	float val2 = 0.6f;
+	float val3 = 0.4f;
+	float val4 = 0.7f;
+	float val5 = 0.5f;
+	float val6 = 0.75f;
+	float val7 = 0.5f;
+	float val8 = 0.8f;
 	
 	float val9 = 0.2f;
 	float val10 = 0.2f;
 	float val11 = 0.3f;
 	float val12 = 0.4f;
 	
-	float val13 = 0.4f;
-	float val14 = 0.7f;
-	float val15 = 0.8f;
+	float val13 = 0.6f;
+	float val14 = 0.9f;
+	float val15 = 1.0f;
 	float val16 = 1.0f;
 	
-	float val17 = 0.3f;
+	float val17 = 0.05f;
 	
 	//minimum default percentage range of winning to play/raise each street.
 	//private final float[][] MIN_WIN_TO_PLAY = new float[][] {{.2f, .5f}, {.2f, .5f}, {.4f, .5f}, {.4f, .5f}};
@@ -76,7 +75,7 @@ public class BettingBrain {
 	
 	//minimum/maximum percentages of our stack we should be betting during value bets
 	//private final float[] MIN_OF_POT = new float[] {.2f, .2f, .2f, .3f};
-	//private final float[] MAX_OF_STACK = new float[] {.4f, .7f, .8f, 1.0f};
+	//private final float[] MIN_OF_STACK = new float[] {.4f, .7f, .8f, 1.0f};
 	private final float[] MAX_OF_STACK = new float[] {val13, val14, val15, val16};
 	
 	//maxmimum reduction in winChance based on a strong bet. TODO: this should be lower when we play against bluffing bots
