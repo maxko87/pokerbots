@@ -103,7 +103,7 @@ public class HandEvaluator {
 		boolean hasStraight = false;
 		int consecutive = 0;
 		for ( int c = 0; c < ranks.length; c++ ) {
-			if ( ranks[c]==1 )
+			if ( ranks[c]>0 )
 				consecutive++;
 			else
 				consecutive=0;
