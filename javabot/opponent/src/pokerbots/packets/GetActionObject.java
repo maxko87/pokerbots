@@ -8,8 +8,8 @@ public class GetActionObject{
 
 	public int potSize;
 	public int[] boardCards;
-	public String[] lastActions;
-	public GameAction[] legalActions;
+	public PerformedActionObject[] lastActions;
+	public LegalActionObject[] legalActions;
 	public float timebank;
 
 	
@@ -24,17 +24,16 @@ public class GetActionObject{
 			boardCards[j] = HandEvaluator.stringToCard(values[i+j+1]);
 		}
 
-		//TODO: parse first/second player actions?
 		i += boardCards.length + 1;
-		lastActions = new String[Integer.parseInt(values[i])];
+		lastActions = new PerformedActionObject[Integer.parseInt(values[i])];
 		for (int j=0; j<lastActions.length; j++){
-			lastActions[j] = values[i+j+1];
+			lastActions[j] = new PerformedActionObject(values[i+j+1]);
 		}
 
 		i += lastActions.length + 1;
-		legalActions = new GameAction[Integer.parseInt(values[i])];
+		legalActions = new LegalActionObject[Integer.parseInt(values[i])];
 		for (int j=0; j<legalActions.length; j++){
-			legalActions[j] = new GameAction(values[i+j+1]);
+			legalActions[j] = new LegalActionObject(values[i+j+1]);
 		}
 
 		timebank = Float.parseFloat(values[i + legalActions.length + 1]);

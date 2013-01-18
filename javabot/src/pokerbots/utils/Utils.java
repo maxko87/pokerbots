@@ -22,11 +22,27 @@ public class Utils {
 	
 	public static float scale(float val, float xMin, float xMax, float yMin, float yMax){
 		float k = (val - xMin) / (xMax - xMin);
-		return k*(yMax - yMin) + yMin;
+		return boundFloat( (k*(yMax - yMin) + yMin), yMin, yMax);
 	}
 	
 	public static void main(String[] args){
 		System.out.println(scale(11,10,20,20,80));
+	}
+	
+	public static int boundInt(int num, int minNum, int maxNum) {
+		if (num < minNum)
+			return minNum;
+		else if (num > maxNum)
+			return maxNum;
+		return num;
+	}
+	
+	public static float boundFloat(float num, float minNum, float maxNum) {
+		if (num < minNum)
+			return minNum;
+		else if (num > maxNum)
+			return maxNum;
+		return num;
 	}
 	
 }
