@@ -66,8 +66,8 @@ public class Main {
 			
 			//BasicSafeProportionalPlayer_1 player = new BasicSafeProportionalPlayer_1(outStream, inStream);
 			//ProbabilityCalculatingPlayer_2 player = new ProbabilityCalculatingPlayer_2(outStream, inStream);
-			LearningPlayer_3 player = new LearningPlayer_3(outStream,inStream);
-			//BetterLearningPlayer_4 player = new BetterLearningPlayer_4(outStream,inStream);
+			//LearningPlayer_3 player = new LearningPlayer_3(outStream,inStream);
+			BetterLearningPlayer_4 player = new BetterLearningPlayer_4(outStream,inStream);
 			player.run();
 			
 			socket.close();

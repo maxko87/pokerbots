@@ -4,8 +4,8 @@ import os, random, csv, re
 NUM_RUNS = 20
 
 def replaceVal(valNum, newValue):
-	with open("src/pokerbots/utils/BettingBrain.java", "r+") as f:
-		text = f.read()
+    with open("src/pokerbots/utils/BettingBrain.java", "r+") as f:
+        text = f.read()
 
 	with open("src/pokerbots/utils/BettingBrain.java", "w") as fw:
 
@@ -75,7 +75,9 @@ for run in range(1,NUM_RUNS+1):
 		replaceVal(i, r[i])
 	
 	runEngine()
-	updateLog(r)
+	updateLog(r)	
+
+
 
 
 
