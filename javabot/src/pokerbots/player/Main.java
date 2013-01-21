@@ -67,14 +67,10 @@ public class Main {
 			//BasicSafeProportionalPlayer_1 player = new BasicSafeProportionalPlayer_1(outStream, inStream);
 			//ProbabilityCalculatingPlayer_2 player = new ProbabilityCalculatingPlayer_2(outStream, inStream);
 			//LearningPlayer_3 player = new LearningPlayer_3(outStream,inStream);
-<<<<<<< HEAD
 			//WexBot player = new WexBot(outStream,inStream);
 			//player.run();
-=======
 			BetterLearningPlayer_4 player = new BetterLearningPlayer_4(outStream,inStream);
-			player.run();
->>>>>>> 3df554038475ca808314117f1525b0931e27ecb5
-			
+			player.run();			
 			socket.close();
 		} catch (IOException e) {
 			System.err.println(e.getMessage());

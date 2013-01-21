@@ -1,5 +1,43 @@
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
-scons: `.' is up to date.
-scons: done building targets.
+javac -d classes -sourcepath src src/pokerbots/packets/GameObject.java src/pokerbots/packets/GetActionObject.java src/pokerbots/packets/HandObject.java src/pokerbots/packets/HandOverObject.java src/pokerbots/packets/LegalActionObject.java src/pokerbots/packets/PerformedActionObject.java src/pokerbots/player/BasicSafeProportionalPlayer_1.java src/pokerbots/player/BetterLearningPlayer_4.java src/pokerbots/player/LearningPlayer_3.java src/pokerbots/player/Main.java src/pokerbots/player/ProbabilityCalculatingPlayer_2.java src/pokerbots/utils/BettingBrain.java src/pokerbots/utils/BettingBrain_original.java src/pokerbots/utils/EVCalculator.java src/pokerbots/utils/HandEvaluator.java src/pokerbots/utils/MatchHistory.java src/pokerbots/utils/PreflopTableGen.java src/pokerbots/utils/StatAggregator.java src/pokerbots/utils/StochasticSimulator.java src/pokerbots/utils/Utils.java
+src/pokerbots/player/Main.java:70: error: illegal start of expression
+<<<<<<< HEAD
+^
+src/pokerbots/player/Main.java:70: error: illegal start of expression
+<<<<<<< HEAD
+  ^
+src/pokerbots/player/Main.java:70: error: illegal start of expression
+<<<<<<< HEAD
+    ^
+src/pokerbots/player/Main.java:73: error: > expected
+=======
+^
+src/pokerbots/player/Main.java:73: error: illegal start of expression
+=======
+    ^
+src/pokerbots/player/Main.java:73: error: illegal start of expression
+=======
+      ^
+src/pokerbots/player/Main.java:74: error: ';' expected
+			BetterLearningPlayer_4 player = new BetterLearningPlayer_4(outStream,inStream);
+			                      ^
+src/pokerbots/player/Main.java:76: error: illegal start of expression
+>>>>>>> 3df554038475ca808314117f1525b0931e27ecb5
+^
+src/pokerbots/player/Main.java:76: error: illegal start of expression
+>>>>>>> 3df554038475ca808314117f1525b0931e27ecb5
+   ^
+src/pokerbots/player/Main.java:76: error: illegal start of expression
+>>>>>>> 3df554038475ca808314117f1525b0931e27ecb5
+      ^
+src/pokerbots/player/Main.java:76: error: ';' expected
+>>>>>>> 3df554038475ca808314117f1525b0931e27ecb5
+          ^
+src/pokerbots/player/Main.java:78: error: ';' expected
+			socket.close();
+			      ^
+12 errors
+scons: *** [classes/pokerbots/packets/GameObject.class] Error 1
+scons: building terminated because of errors.
