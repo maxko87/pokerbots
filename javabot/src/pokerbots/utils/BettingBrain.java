@@ -39,22 +39,22 @@ import pokerbots.utils.StatAggregator.OpponentStats;
 
 public class BettingBrain {
 	
-	float val1 = 0.4f;
-	float val2 = 0.6f;
+	float val1 = 0.25f;
+	float val2 = 0.45f;
 	
-	float val3 = 0.6f;
-	float val4 = 0.8f;
+	float val3 = 0.7f;
+	float val4 = 0.1f;
 	
-	float val5 = 0.7f;
-	float val6 = 0.8f;
+	float val5 = 0.4f;
+	float val6 = 0.7f;
 	
-	float val7 = 0.7f;
-	float val8 = 0.8f;
+	float val7 = 0.3f;
+	float val8 = 0.4f;
 	
-	float val9 = 0.2f;
-	float val10 = 0.2f;
-	float val11 = 0.3f;
-	float val12 = 0.4f;
+	float val9 = 0.23f;
+	float val10 = 0.35f;
+	float val11 = 0.33f;
+	float val12 = 0.47f;
 	
 	float val13 = 0.6f;
 	float val14 = 0.9f;
@@ -66,7 +66,7 @@ public class BettingBrain {
 	//minimum default percentage range of winning to play/raise each street.
 	//private final float[][] MIN_WIN_TO_PLAY = new float[][] {{.2f, .5f}, {.2f, .5f}, {.4f, .5f}, {.4f, .5f}};
 	private final float[][] MIN_WIN_TO_PLAY = new float[][] {{val1, val2}, {val3, val4}, {val5, val6}, {val7, val8}};
-	private final float[] MIN_WIN_TO_RAISE = new float[] {.9f, .8f, .9f, .9f};
+	private final float[] MIN_WIN_TO_RAISE = new float[] {.8f, .8f, .9f, .9f};
 	
 	//scaling for larger bets on later streets.
 	//private final float[] CONTINUATION_FACTORS = new float[] {1.0f, 1.0f, 1.5f, 2.0f};
