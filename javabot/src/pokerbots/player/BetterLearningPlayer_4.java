@@ -82,11 +82,11 @@ public class BetterLearningPlayer_4 {
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
 					brain = new BettingBrain(myGame);
-					opponent = aggregator.getOrCreateOpponent(myGame.oppName);
+					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
-					history.newRound();
+					history.newRound(myHand.handId);
 					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {

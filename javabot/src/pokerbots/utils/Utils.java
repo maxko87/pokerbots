@@ -25,10 +25,6 @@ public class Utils {
 		return boundFloat( (k*(yMax - yMin) + yMin), yMin, yMax);
 	}
 	
-	public static void main(String[] args){
-		System.out.println(scale(11,10,20,20,80));
-	}
-	
 	public static int boundInt(int num, int minNum, int maxNum) {
 		if (num < minNum)
 			return minNum;
@@ -47,6 +43,13 @@ public class Utils {
 	
 	public static float randomBetween(float min, float max){
 		return min + (int)(Math.random() * ((max - min) + 1));
+	}
+	
+	
+	
+	
+	public static void main(String[] args){
+		System.out.println(scale(100,10,20,20,80));
 	}
 	
 }

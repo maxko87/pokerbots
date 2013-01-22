@@ -1,3 +1,11 @@
+HEURISTICS (specifically against Tommy, but general too):
+1) If they ALWAYS CALL our RAISE, RAISE THEM ALL IN on THE BEST OF HANDS (PREFLOP and FLOP)
+2) 
+
+
+
+
+
 1) Instead of figuring out what action to take, we should be determining how much money we want to spend, then take the appropriate action. 
  -- when calling a bet, be a bit more lenient (don't fold)
  
@@ -5,7 +13,63 @@
 
 
 
+Hand #21, BOT_V4 (1122), TOMMY (-1122)
+BOT_V4 posts the blind of 1
+TOMMY posts the blind of 2
+Dealt to BOT_V4 [5h 4c 8s]
+Dealt to TOMMY [Ts 9h Td]
+BOT_V4 calls
+### ILLEGAL ACTION: Call [player=TOMMY]
+TOMMY checks
+*** FLOP *** (4) [8d 6d 8c]
+TOMMY bets 3
+BOT_V4 raises to 368
+TOMMY calls
+TOMMY discards [9h]
+BOT_V4 discards [4c]
+*** TURN *** (740) [8d 6d 8c] [9c]
+TOMMY bets 30
+BOT_V4 folds
+Uncalled bet of 30 returned to TOMMY
+TOMMY wins the pot (740)
 
+
+
+Hand #18, TOMMY (-1120), BOT_V4 (1120)
+TOMMY posts the blind of 1
+BOT_V4 posts the blind of 2
+Dealt to TOMMY [5s Ts Ad]
+Dealt to BOT_V4 [Th Kh Jc]
+TOMMY calls
+### ILLEGAL ACTION: Call [player=BOT_V4]
+BOT_V4 checks
+*** FLOP *** (4) [Tc 9s 8s]
+BOT_V4 checks
+TOMMY bets 3
+BOT_V4 folds
+Uncalled bet of 3 returned to TOMMY
+TOMMY wins the pot (4)
+
+
+Hand #51, BOT_V4 (919), TOMMY (-919)
+BOT_V4 posts the blind of 1
+TOMMY posts the blind of 2
+Dealt to BOT_V4 [8s 9h 5h]
+Dealt to TOMMY [3h 7h Ts]
+BOT_V4 calls
+### ILLEGAL ACTION: Call [player=TOMMY]
+TOMMY checks
+*** FLOP *** (4) [9d 9s Td]
+TOMMY bets 5
+BOT_V4 raises to 364
+TOMMY calls
+TOMMY discards [3h]
+BOT_V4 discards [5h]
+*** TURN *** (732) [9d 9s Td] [3d]
+TOMMY bets 34
+BOT_V4 folds
+Uncalled bet of 34 returned to TOMMY
+TOMMY wins the pot (732)
 
 
 

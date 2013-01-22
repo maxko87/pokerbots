@@ -36,9 +36,9 @@ public class StatAggregator {
 		m = new HashMap<String, OpponentStats>();
 	}
 	
-	public OpponentStats getOrCreateOpponent(String oppName) {
+	public OpponentStats getOrCreateOpponent(String oppName, int startingStackSize) {
 		if (m.get(oppName) == null){
-			m.put(oppName, new OpponentStats(oppName));
+			m.put(oppName, new OpponentStats(oppName, startingStackSize));
 		}
 		return m.get(oppName);
 	}
@@ -57,7 +57,8 @@ public class StatAggregator {
 	public class OpponentStats{
 
 		String name = "Undefined";
-		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {1, 1, 1, 1}; // must be at least 1
+		int startingStackSize = 400;
+		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3}; // must be at least 1
 		public final float DEFAULT_PERCENT = 0.5f;
 		public final int NUM_OPP_WIN_PERCENTAGE_BUCKETS = 5;
 		
@@ -91,9 +92,10 @@ public class StatAggregator {
 		public int[][] totalValueOfBetsPerBucketPerStreet;
 		public int[][] totalCountOfBetsPerBucketPerStreet;
 		
-		public OpponentStats( String name ){
+		public OpponentStats( String name, int startingStackSize ){
 			
 			this.name = name;
+			this.startingStackSize = startingStackSize;
 			
 			timesFoldsToBet = new int[] {0,0,0,0};
 			timesCallsToBet = new int[] {0,0,0,0};
@@ -132,7 +134,7 @@ public class StatAggregator {
 		/* Parses the lines between every "HAND #" and "__ wins the pot" in the match.txt file to update this class accordingly. 
 		 * TODO
 		 */
-		public void analyzeRoundData( GameObject game, HandObject hand, Round data, int potSize ){
+		public void analyzeRoundData( GameObject game, HandObject hand, Round data, int stackSize ){
 			//NOTE: scale all amounts by the quantity (potSize/startingStackSize)!!!!
 			
 			int street = 0;
@@ -165,6 +167,7 @@ public class StatAggregator {
 						if ( currA.equalsIgnoreCase("fold") ) {
 							timesFoldsToBet[street]++;
 							totalTimesWeBet[street]++;
+							totalAmountWeBetForFold[street] += curr.amount;
 							
 							System.out.println("INCREMENTED timesFoldsToBet: " + street + "\t\t" + timesFoldsToBet[street]);
 							System.out.println("INCREMENTED totalTimesWeBet: " + street + "\t\t" + totalTimesWeBet[street]);
@@ -172,7 +175,7 @@ public class StatAggregator {
 						else if ( currA.equalsIgnoreCase("raise") ) {
 							timesRaisesToBet[street]++;
 							totalTimesWeBet[street]++;
-							totalValueOfRaises[street] += curr.amount * potSize / game.stackSize;
+							totalValueOfRaises[street] += curr.amount;
 							
 							System.out.println("INCREMENTED timesRaisesToBet: " + street + "\t\t" + timesRaisesToBet[street]);
 							System.out.println("INCREMENTED totalTimesWeBet: " + street + "\t\t" + totalTimesWeBet[street]);
@@ -190,6 +193,7 @@ public class StatAggregator {
 						if ( currA.equalsIgnoreCase("fold") ) {
 							timesFoldsToRaise[street]++;
 							totalTimesWeRaise[street]++;
+							totalAmountWeRaiseForFold[street] += curr.amount;
 
 							System.out.println("INCREMENTED timesFoldsToRaise: " + street + "\t\t" + timesFoldsToRaise[street]);
 							System.out.println("INCREMENTED totalTimesWeRaise: " + street + "\t\t" + totalTimesWeRaise[street]);
@@ -197,7 +201,7 @@ public class StatAggregator {
 						else if ( currA.equalsIgnoreCase("raise") ) {
 							timesRaisesToRaise[street]++;
 							totalTimesWeRaise[street]++;
-							totalValueOfRaises[street] += curr.amount * potSize / game.stackSize;
+							totalValueOfRaises[street] += curr.amount;
 							
 							System.out.println("INCREMENTED timesRaisesToRaise: " + street + "\t\t" + timesRaisesToRaise[street]);
 							System.out.println("INCREMENTED totalTimesWeRaise: " + street + "\t\t" + totalTimesWeRaise[street]);
@@ -225,7 +229,7 @@ public class StatAggregator {
 					if ( currA.equalsIgnoreCase("bet") ) {
 						timesBetsOnAction[street]++;
 						totalTimesOnAction[street]++;
-						totalValueOfBets[street] += curr.amount * potSize / game.stackSize;
+						totalValueOfBets[street] += curr.amount;
 						
 						System.out.println("INCREMENTED timesBetsOnAction: " + street + "\t\t" + timesBetsOnAction[street]);
 						System.out.println("INCREMENTED totalTimesOnAction: " + street + "\t\t" + totalTimesOnAction[street]);
@@ -321,7 +325,7 @@ public class StatAggregator {
 		}
 		
 		// (0,1) rating of this opponent's aggression (size of bet when he does bet)
-		public float getAggression(int street, int maxBet){
+		public float getAggression(int street){
 			/*
 			int totalValueOfBets = 0;
 			int totalNumberOfBets = 0;
@@ -333,17 +337,17 @@ public class StatAggregator {
 			return (maxBet > 0.0f) ? averageBet/maxBet : DEFAULT_AGGRESSION;
 			*/
 			float totalBetCount = (timesRaisesToBet[street] + timesRaisesToRaise[street] + timesBetsOnAction[street]);
-			return (totalBetCount > 0.0f) ? (float)(totalValueOfBets[street] + totalValueOfRaises[street] ) / (totalBetCount * maxBet) : DEFAULT_AGGRESSION;
+			return (totalBetCount > THRESHOLD_FOR_GENERALIZING[street]) ? (float)(totalValueOfBets[street] + totalValueOfRaises[street] ) / (totalBetCount * startingStackSize) : getTotalAggression();
 		}
 		
-		public float getTotalAggression(int maxBet){
+		public float getTotalAggression(){
 			float totalBetCount = 0;
 			float totalValueOfAllBets = 0;
 			for (int street=0; street<4; street++){
 				totalBetCount += (timesRaisesToBet[street] + timesRaisesToRaise[street] + timesBetsOnAction[street]);
 				totalValueOfAllBets += (float)(totalValueOfBets[street] + totalValueOfRaises[street] );
 			}
-			return (totalBetCount > 0.0f) ? totalValueOfAllBets / (totalBetCount * maxBet) : DEFAULT_AGGRESSION;
+			return (totalBetCount > 0.0f) ? totalValueOfAllBets / (totalBetCount * startingStackSize) : DEFAULT_AGGRESSION;
 		}
 		
 		// (0,1) rating of this opponent's looseness (number of calls+raises over number of calls+raises+folds)
@@ -351,7 +355,7 @@ public class StatAggregator {
 			int calls = timesCallsToBet[street] + timesCallsToRaise[street];
 			int raises = timesRaisesToBet[street] + timesRaisesToRaise[street];
 			int folds = timesFoldsToBet[street] + timesFoldsToRaise[street];
-			return (calls+raises+folds > 0) ? (float)(calls+raises)/(calls+raises+folds) : DEFAULT_LOOSENESS;
+			return (calls+raises+folds > THRESHOLD_FOR_GENERALIZING[street]) ? (float)(calls+raises)/(calls+raises+folds) : getTotalLooseness();
 		}
 		
 		public float getTotalLooseness(){
@@ -371,16 +375,23 @@ public class StatAggregator {
 			for ( int i = 0; i < 4; i++ ) {
 				System.out.println("<<< STREET : " + streets[i]+" >>>");
 				System.out.println("opp \\ us\tBet\t\tRaise\t\tCheck");
-				System.out.println("Fold\t\t" + getPercentFoldToBet(i) +"\t\t"+getPercentFoldToRaise(i)+"\t\tX");
-				System.out.println("Raise\t\t" + getPercentRaiseToBet(i) +"\t\t"+getPercentRaiseToRaise(i)+"\t\tX");
-				System.out.println("Call\t\t" + getPercentCallToBet(i) +"\t\t"+getPercentCallToRaise(i)+"\t\tX");
-				System.out.println("Bet\t\t" + "X\t\tX\t\t" + getPercentBetsOnAction(i));
-				System.out.println("Checks on action: " + getPercentChecksOnAction(i) );
-				System.out.println("Aggression: " + getTotalAggression(myGame.stackSize));
-				System.out.println("Looseness: " + getTotalLooseness() );
+				System.out.println("Fold\t\t" + f(getPercentFoldToBet(i)) +"\t\t"+f(getPercentFoldToRaise(i))+"\t\tX");
+				System.out.println("Raise\t\t" + f(getPercentRaiseToBet(i)) +"\t\t"+f(getPercentRaiseToRaise(i))+"\t\tX");
+				System.out.println("Call\t\t" + f(getPercentCallToBet(i)) +"\t\t"+f(getPercentCallToRaise(i))+"\t\tX");
+				System.out.println("Bet\t\t" + "X\t\tX\t\tX\t\t" + f(getPercentBetsOnAction(i)) );
+				System.out.println("Checks on action: " + f(getPercentChecksOnAction(i)) );
+				System.out.println("Aggression: " + f(getAggression(i)));
+				System.out.println("Looseness: " + f(getLooseness(i)));
 			}
+			System.out.println("Aggregate Aggression: " + f(getTotalAggression()) );
+			System.out.println("Aggregate Looseness: " + f(getTotalLooseness()) );
+			System.out.println("END\n\n\n\n\n");
 		}
 
+	}
+	
+	public String f(float f){
+		return String.format("%.2f", f);
 	}
 
 }
