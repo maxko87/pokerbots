@@ -1,0 +1,113 @@
+1) Instead of figuring out what action to take, we should be determining how much money we want to spend, then take the appropriate action. 
+ -- when calling a bet, be a bit more lenient (don't fold)
+ 
+2) 
+
+
+
+
+
+
+
+
+
+Hand #5, team1 (-2), zeteswithhugedec (2)
+team1 posts the blind of 1
+zeteswithhugedec posts the blind of 2
+Dealt to team1 [3s 6s 6c]
+Dealt to zeteswithhugedec [8c Th Ts]
+team1 raises to 24
+zeteswithhugedec calls
+*** FLOP *** (48) [2c 8s 7s]
+zeteswithhugedec bets 3
+team1 raises to 59
+zeteswithhugedec calls
+zeteswithhugedec discards [8c]
+team1 discards [3s]
+*** TURN *** (166) [2c 8s 7s] [8h]
+zeteswithhugedec bets 12
+team1 raises to 204
+zeteswithhugedec calls
+*** RIVER *** (574) [2c 8s 7s 8h] [Kc]
+zeteswithhugedec bets 53
+team1 raises to 113
+zeteswithhugedec folds
+Uncalled bet of 60 returned to team1
+team1 wins the pot (680)
+
+
+
+
+Hand #13, team1 (308), zeteswithhugedec (-308)
+team1 posts the blind of 1
+zeteswithhugedec posts the blind of 2
+Dealt to team1 [Qh Jd Ah]
+Dealt to zeteswithhugedec [3h 4s 7c]
+team1 raises to 48
+zeteswithhugedec calls
+*** FLOP *** (96) [Jc 7s 4h]
+zeteswithhugedec bets 17
+team1 raises to 184
+zeteswithhugedec calls
+zeteswithhugedec discards [3h]
+team1 discards [Qh]
+*** TURN *** (464) [Jc 7s 4h] [Ts]
+zeteswithhugedec bets 82
+team1 raises to 168
+zeteswithhugedec folds
+Uncalled bet of 86 returned to team1
+team1 wins the pot (628)
+
+
+
+
+Hand #6, team1 (106), zeteswithhugedec (-106)
+team1 posts the blind of 1
+zeteswithhugedec posts the blind of 2
+Dealt to team1 [3d 3h 9c]
+Dealt to zeteswithhugedec [8c 2d Kc]
+team1 calls
+zeteswithhugedec checks
+*** FLOP *** (4) [5h Kd 5s]
+zeteswithhugedec bets 2
+team1 calls
+zeteswithhugedec discards [2d]
+team1 discards [9c]
+*** TURN *** (8) [5h Kd 5s] [Jc]
+zeteswithhugedec bets 2
+team1 calls
+*** RIVER *** (12) [5h Kd 5s Jc] [Jh]
+zeteswithhugedec bets 2
+team1 calls
+team1 shows [3d 3h]
+zeteswithhugedec shows [8c Kc]
+zeteswithhugedec wins the pot (16)
+
+
+
+
+
+
+
+Hand #50, TOMMY (1257), V4 (-1257)
+TOMMY posts the blind of 1
+V4 posts the blind of 2
+Dealt to TOMMY [3h 3d 3s]
+Dealt to V4 [As 2h Ac]
+TOMMY calls
+V4 raises to 4
+TOMMY calls
+*** FLOP *** (8) [8d 4c 4d]
+V4 bets 35
+TOMMY calls
+V4 discards [2h]
+TOMMY discards [3h]
+*** TURN *** (78) [8d 4c 4d] [Ks]
+V4 bets 168
+TOMMY calls
+*** RIVER *** (414) [8d 4c 4d Ks] [Ad]
+V4 bets 106
+TOMMY raises to 193
+V4 folds
+Uncalled bet of 87 returned to TOMMY
+TOMMY wins the pot (626)

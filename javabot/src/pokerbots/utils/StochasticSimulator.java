@@ -23,28 +23,27 @@ public class StochasticSimulator {
 		//
 		float[] rates = StochasticSimulator.computeRates(
 				new int[]{
-						HandEvaluator.stringToCard("Tc"),
+						HandEvaluator.stringToCard("As"),
 						HandEvaluator.stringToCard("Ac")
 				},
 				new int[]{
-						HandEvaluator.stringToCard("3h"),
-						HandEvaluator.stringToCard("Ts"),
-						HandEvaluator.stringToCard("Td"),
+						HandEvaluator.stringToCard("8d"),
+						HandEvaluator.stringToCard("4c"),
 						HandEvaluator.stringToCard("4d"),
-						HandEvaluator.stringToCard("6s")
+						HandEvaluator.stringToCard("Ks"),
+						HandEvaluator.stringToCard("Ad")
 				},
 				50000);
 		time = System.currentTimeMillis();
 		rates = StochasticSimulator.computeRates(
 				new int[]{
-						HandEvaluator.stringToCard("3h")
 				},
 				new int[]{
-						HandEvaluator.stringToCard("3h"),
-						HandEvaluator.stringToCard("Th"),
-						HandEvaluator.stringToCard("Tc"),
-						HandEvaluator.stringToCard("7h"),
-						HandEvaluator.stringToCard("9h")
+						HandEvaluator.stringToCard("8d"),
+						HandEvaluator.stringToCard("4c"),
+						HandEvaluator.stringToCard("4d"),
+						HandEvaluator.stringToCard("Ks"),
+						HandEvaluator.stringToCard("Ad")
 				},
 				5000);
 		

@@ -43,7 +43,7 @@ public class BetterLearningPlayer_4 {
 	//number of iterations for our simulator to calculate probabilities before deciding which card to toss.
 	private final int DISCARD_SIM_ITERS = 1000;
 	//number of iterations for calculating probabilities after each other street.
-	private final int FLOP_SIM_ITERS = 600;
+	private final int FLOP_SIM_ITERS = 800;
 	private final int TURN_SIM_ITERS = 500;
 	private final int RIVER_SIM_ITERS = 500;
 	

@@ -45,4 +45,8 @@ public class Utils {
 		return num;
 	}
 	
+	public static float randomBetween(float min, float max){
+		return min + (int)(Math.random() * ((max - min) + 1));
+	}
+	
 }

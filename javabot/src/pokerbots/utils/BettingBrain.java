@@ -39,34 +39,38 @@ import pokerbots.utils.StatAggregator.OpponentStats;
 
 public class BettingBrain {
 	
-	float val1 = 0.25f;
-	float val2 = 0.45f;
+	float val1 = 0.2f;
+	float val2 = 0.4f;
 	
 	float val3 = 0.7f;
-	float val4 = 0.1f;
+	float val4 = 1.0f;
 	
-	float val5 = 0.4f;
-	float val6 = 0.7f;
+	float val5 = 0.2f;
+	float val6 = 0.3f;
 	
-	float val7 = 0.3f;
-	float val8 = 0.4f;
+	float val7 = 0.2f;
+	float val8 = 0.3f;
 	
-	float val9 = 0.23f;
-	float val10 = 0.35f;
-	float val11 = 0.33f;
-	float val12 = 0.47f;
 	
-	float val13 = 0.6f;
-	float val14 = 0.9f;
+	float val9 = 0.0f;
+	float val10 = 0.0f;
+	float val11 = 0.0f;
+	float val12 = 0.0f;
+	
+	float val13 = 1.0f;
+	float val14 = 1.0f;
 	float val15 = 1.0f;
 	float val16 = 1.0f;
 	
 	float val17 = 0.05f;
 	
+	float val20 = 1.8f;
+	float val21 = 2.5f;
+	
 	//minimum default percentage range of winning to play/raise each street.
 	//private final float[][] MIN_WIN_TO_PLAY = new float[][] {{.2f, .5f}, {.2f, .5f}, {.4f, .5f}, {.4f, .5f}};
 	private final float[][] MIN_WIN_TO_PLAY = new float[][] {{val1, val2}, {val3, val4}, {val5, val6}, {val7, val8}};
-	private final float[] MIN_WIN_TO_RAISE = new float[] {.8f, .8f, .9f, .9f};
+	private final float[] MIN_WIN_TO_RAISE = new float[] {.8f, .8f, .7f, .7f};
 	
 	//scaling for larger bets on later streets.
 	//private final float[] CONTINUATION_FACTORS = new float[] {1.0f, 1.0f, 1.5f, 2.0f};
@@ -140,12 +144,31 @@ public class BettingBrain {
 		bet = Utils.boundInt(bet, (int)(MIN_OF_POT[street]*potSize), (int)(MAX_OF_STACK[street]*myRemainingStack));
 		
 		//factor in opponent looseness
-		bet = (int)(bet*opponent.getTotalLooseness());
+		bet = (int) (bet*opponent.getTotalLooseness());
+		
+		//for good measure, add some randomness
+		//bet = (int) (bet * Utils.randomBetween(val20, val21));
+		
 		
 		//finally, bound to make sure it's valid
 		bet = Utils.boundInt(bet, minBet, maxBet);
 		
 		return bet;
+	}
+	
+	//given odds and stack size, decides how much to raise
+	public int makeRaise(OpponentStats opponent, float expectedWinPercentage, int minBet, int maxBet, int potSize, int street){
+		
+		int raise = 0;
+		if (opponent.getOurAverageRaiseForFold(street) > 1) // if it's a valid number
+			raise = (int) opponent.getOurAverageRaiseForFold(street);
+		else
+			raise = (int) ( potSize + (expectedWinPercentage - MIN_WIN_TO_PLAY[street][1]) );
+		
+		//finally, bound to make sure it's valid
+		raise = Utils.boundInt(raise, minBet, maxBet);
+		
+		return raise;
 	}
 	
 	// uses opponent's looseness to scale our bets -- higher opp looseness = we play more aggressively
@@ -161,7 +184,7 @@ public class BettingBrain {
 			else if ( legalAction.actionType.equalsIgnoreCase("raise") ) {
 				//raise or call? TODO: don't use same formula as betting...
 				if (winChance > MIN_WIN_TO_RAISE[street]){
-					int raise = (int)(makeProportionalBet(opponent, winChance, legalAction.minBet, legalAction.maxBet, getActionObject.potSize, street));
+					int raise = (int)(makeRaise(opponent, winChance, legalAction.minBet, legalAction.maxBet, getActionObject.potSize, street));
 					return "RAISE:"+raise;
 				}
 				else{
