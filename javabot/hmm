@@ -1,6 +1,6 @@
 HEURISTICS (specifically against Tommy, but general too):
 1) If they ALWAYS CALL our RAISE, RAISE THEM ALL IN on THE BEST OF HANDS (PREFLOP and FLOP)
-2) 
+2) add PREFLOP RAISING 
 
 
 
@@ -11,6 +11,26 @@ HEURISTICS (specifically against Tommy, but general too):
  
 2) 
 
+
+Hand #744, TOMMY (-4383), BOT_V4 (4383)
+TOMMY posts the blind of 1
+BOT_V4 posts the blind of 2
+Dealt to TOMMY [Jc 2s Kc]
+Dealt to BOT_V4 [9d Jh Ad]
+TOMMY calls
+BOT_V4 raises to 4
+TOMMY calls
+*** FLOP *** (8) [Ac 5c 5h]
+BOT_V4 bets 42
+TOMMY calls
+BOT_V4 discards [9d]
+TOMMY discards [2s]
+*** TURN *** (92) [Ac 5c 5h] [Tc]
+BOT_V4 bets 91
+TOMMY raises to 354
+BOT_V4 folds
+Uncalled bet of 263 returned to TOMMY
+TOMMY wins the pot (274)
 
 
 Hand #21, BOT_V4 (1122), TOMMY (-1122)
