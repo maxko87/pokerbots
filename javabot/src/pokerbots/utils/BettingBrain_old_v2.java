@@ -122,8 +122,10 @@ public class BettingBrain_old_v2 {
 			float L = opponent.getLooseness(0);
 			float raise_freq = (float)Math.exp(-3.0f*L);
 			float raise_size = (float)(0.04f*Math.exp(Math.log(25*L)*winChance));
-			if ( winChance-raise_freq<0 ) {
-				return validateAndReturn("raise",(int)(raise_size*myGame.stackSize));
+			if ( winChance > MIN_WIN_TO_PLAY[0][1]*(raise_freq*0.5+0.5) ) {
+				if ( winChance>0.8 )
+					return validateAndReturn("raise",(int)(raise_size*myGame.stackSize));
+				return validateAndReturn("raise",(int)(raise_size*myGame.stackSize/5+2));
 			}
 		}
 		
