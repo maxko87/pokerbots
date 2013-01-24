@@ -196,6 +196,14 @@ public class BettingBrain_old_v2 {
 				return validateAndReturn("bet", bet);
 			}
 			else if ( legalAction.actionType.equalsIgnoreCase("raise") ) {
+				//PREFLOP ADJUSTMENTS
+				if ( street == 0 ) {
+					//L = 0.25 --> (Raise often, Raise small)
+					//L = 0.50 --> (Raise less, Raise large)
+					float L = opponent.getLooseness(0);
+					float raise_freq = 1.0f-(1.0f)*L/0.6f;
+				}
+				//
 				if (winChance > MIN_WIN_TO_RAISE[street]){
 					int raise = (int)(makeRaise(legalAction.minBet, legalAction.maxBet, getActionObject.potSize));
 					return validateAndReturn("raise", raise);
