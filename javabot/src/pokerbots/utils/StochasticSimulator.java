@@ -37,16 +37,17 @@ public class StochasticSimulator {
 		time = System.currentTimeMillis();
 		rates = StochasticSimulator.computeRates(
 				new int[]{
-						HandEvaluator.stringToCard("3h")
+						HandEvaluator.stringToCard("As"),
+						HandEvaluator.stringToCard("Ac")
 				},
 				new int[]{
-						HandEvaluator.stringToCard("3h"),
-						HandEvaluator.stringToCard("Th"),
-						HandEvaluator.stringToCard("Tc"),
-						HandEvaluator.stringToCard("7h"),
-						HandEvaluator.stringToCard("9h")
+						HandEvaluator.stringToCard("8d"),
+						HandEvaluator.stringToCard("4c"),
+						HandEvaluator.stringToCard("4d"),
+						HandEvaluator.stringToCard("Ks"),
+						HandEvaluator.stringToCard("Ad")
 				},
-				5000);
+				3000);
 		
 		for ( int i = 0; i < 9; i++ ) {
 			System.out.println("Hand Type ("+handNames[i]+"): [" + rates[i] +", " + rates[i+21] +"],["+rates[i+11]+","+rates[i+31]+"]");
@@ -163,10 +164,25 @@ public class StochasticSimulator {
 			} else {
 				handTypes[type2+31]++;
 			}
+		
 			rounds++;
+		}		
+		
+		for ( int i = 0; i < 10; i++ ) {
+			if ( handTypes[i]>0 )
+				handTypes[21+i] = handTypes[i+21]/handTypes[i];
+			else
+				handTypes[21+i] = 0;
 		}
 		
-		for ( int i = 0; i < handTypes.length; i++ )
+		for ( int i = 0; i < 10; i++ ) {
+			if ( handTypes[i+11]>0 )
+				handTypes[31+i] = handTypes[i+31]/handTypes[i+11];
+			else
+				handTypes[31+i] = 0;
+		}
+		
+		for ( int i = 0; i < 20; i++ )
 			handTypes[i] /= rounds;
 		
 		handTypes[10] = ((float)win)/rounds;
