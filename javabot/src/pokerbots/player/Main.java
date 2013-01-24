@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import pokerbots.botv5.BotV5State;
 import pokerbots.utils.*;
 
 public class Main {
@@ -67,15 +69,10 @@ public class Main {
 			//BasicSafeProportionalPlayer_1 player = new BasicSafeProportionalPlayer_1(outStream, inStream);
 			//ProbabilityCalculatingPlayer_2 player = new ProbabilityCalculatingPlayer_2(outStream, inStream);
 			//LearningPlayer_3 player = new LearningPlayer_3(outStream,inStream);
-			WexBot player = new WexBot(outStream,inStream);
+			//BetterLearningPlayer_4 player = new LearningPlayer_4(outStream,inStream);
+			StatePlayer player = new StatePlayer(outStream,inStream, new BotV5State() );
 			player.run();
-			//BetterLearningPlayer_4 player = new BetterLearningPlayer_4(outStream,inStream);
-			//player.run();
-
-			//WexBot player = new WexBot(outStream,inStream);
-			//player.run();
-			//BetterLearningPlayer_4 player = new BetterLearningPlayer_4(outStream,inStream);
-			//player.run();			
+			
 			socket.close();
 		} catch (IOException e) {
 			System.err.println(e.getMessage());

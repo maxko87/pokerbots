@@ -9,7 +9,7 @@ import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
 import pokerbots.packets.HandOverObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.utils.BettingBrain;
+import pokerbots.utils.BettingBrain_old_v2;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.PreflopTableGen;
@@ -51,7 +51,7 @@ public class BetterLearningPlayer_4 {
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
-	private BettingBrain brain;
+	private BettingBrain_old_v2 brain;
 	private StatAggregator aggregator;
 	private OpponentStats opponent;
 	private MatchHistory history;
@@ -81,7 +81,7 @@ public class BetterLearningPlayer_4 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new BettingBrain(myGame);
+					brain = new BettingBrain_old_v2(myGame);
 					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {

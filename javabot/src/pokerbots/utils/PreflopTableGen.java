@@ -66,6 +66,18 @@ public class PreflopTableGen {
 			suited = 1;
 		int rank1 = card1&0xf;
 		int rank2 = card2&0xf;
+		float[] rates = new float[11];
 		return preflopTable[(suited*13*13) + (rank2*13) + (rank1)];
+	}
+	
+	public static float[] getPreflopWinRates( int card1, int card2 ) {
+		int suited = 0;
+		if ( card1>>4 == card2>>4 )
+			suited = 1;
+		int rank1 = card1&0xf;
+		int rank2 = card2&0xf;
+		float[] rates = new float[11];
+		rates[10] = preflopTable[(suited*13*13) + (rank2*13) + (rank1)];
+		return rates;
 	}
 }
