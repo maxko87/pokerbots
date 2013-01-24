@@ -26,30 +26,25 @@ import pokerbots.utils.StatAggregator.OpponentStats;
  * 5) Check raise bluff. Same as 4 but without the strong hand.
  *  
  * 
- *  
- *  
  *  For the bluffs, we should make use of getOurAverageBetForFold and getOurAverageRaiseForFold, and maybe a comparable 
  *  getOurAverageBetForCall/Raise -- that way, we may be able to identify a value threshold to which the opponent reliably folds.
- * 
- * 
- * 
  * 
  * 
  */
 
 public class BettingBrain_old_v2 {
 	
-	float val1 = 0.3f;
-	float val2 = 0.6f;
+	float val1 = 0.4f;
+	float val2 = 0.7f;
 	
 	float val3 = 0.7f;
 	float val4 = 1.0f;
 	
-	float val5 = 0.4f;
-	float val6 = 0.6f;
+	float val5 = 0.5f;
+	float val6 = 0.7f;
 	
-	float val7 = 0.4f;
-	float val8 = 0.6f;
+	float val7 = 0.5f;
+	float val8 = 0.7f;
 	
 
 	float val17 = 0.05f;
@@ -90,6 +85,8 @@ public class BettingBrain_old_v2 {
 		getActionObject = g;
 		winChance = w;
 		street = s;
+		
+		
 
 		//check heuristics
 		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
@@ -121,11 +118,13 @@ public class BettingBrain_old_v2 {
 			//L = 0.50 --> (Raise less, Raise large)
 			float L = opponent.getLooseness(0);
 			float raise_freq = (float)Math.exp(-3.0f*L);
-			float raise_size = (float)(0.04f*Math.exp(Math.log(25*L)*winChance));
+			float raise_size = L*winChance;//(float)(0.04f*Math.exp(Math.log(25*L)*winChance));
 			if ( winChance > MIN_WIN_TO_PLAY[0][1]*(raise_freq*0.5+0.5) ) {
-				if ( winChance>0.8 )
-					return validateAndReturn("raise",(int)(raise_size*myGame.stackSize));
-				return validateAndReturn("raise",(int)(raise_size*myGame.stackSize/5+2));
+				System.out.println("FUCK TOMMY: " + raise_freq + " " + raise_size);
+				if ( winChance>0.65 )
+					return validateAndReturn("raise",(int)(raise_size*myGame.stackSize/10));
+				return validateAndReturn("raise",(int)(raise_size*myGame.stackSize/40));
+
 			}
 		}
 		

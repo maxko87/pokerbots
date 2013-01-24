@@ -215,6 +215,14 @@ public class StatAggregator {
 							System.out.println("INCREMENTED totalTimesWeRaise: " + street + "\t\t" + totalTimesWeRaise[street]);
 						}
 					}
+					else if ( prevA.equalsIgnoreCase("check") ) {
+						if ( currA.equalsIgnoreCase("bet") ) {
+							timesFoldsToRaise[street]++;
+							totalTimesWeRaise[street]++;
+							totalAmountWeRaiseForFold[street] += curr.amount;
+
+						}
+					}
 				}
 				
 				//IF On-Action behavior is seen
