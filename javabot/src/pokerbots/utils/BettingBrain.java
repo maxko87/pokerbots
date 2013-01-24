@@ -35,9 +35,6 @@ public class BettingBrain {
 	private final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3};
 	
 	
-	///////////////////////////////////////
-	// MAX KOLYSH'S SLAPPY DAPPY DOODADS //
-	///////////////////////////////////////
 
 	//DELEGATES ALL ACTIONS 
 	public String takeAction(OpponentStats o, GetActionObject g, float w, int s) {
@@ -171,7 +168,7 @@ winChance += winChanceIncreaseNeeded;
 	}
 
 	//makes sure that the move we are making is legal, and fixes it automatically if not
-	public String validateAndReturn(String action, int amount,GetActionObject g){
+	public String validateAndReturn(String action, int amount, GetActionObject g){
 		for ( int i = 0; i < g.legalActions.length; i++ ) {
 			LegalActionObject legalAction = g.legalActions[i];
 			if (legalAction.actionType.equalsIgnoreCase(action)){

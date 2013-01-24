@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import pokerbots.botv5.BotV5State;
+import pokerbots.botv5.ValueBettingState;
 import pokerbots.utils.*;
 
 public class Main {
@@ -70,7 +70,7 @@ public class Main {
 			//ProbabilityCalculatingPlayer_2 player = new ProbabilityCalculatingPlayer_2(outStream, inStream);
 			//LearningPlayer_3 player = new LearningPlayer_3(outStream,inStream);
 			//BetterLearningPlayer_4 player = new LearningPlayer_4(outStream,inStream);
-			StatePlayer player = new StatePlayer(outStream,inStream, new BotV5State() );
+			StatePlayer player = new StatePlayer(outStream,inStream, new ValueBettingState() );
 			player.run();
 			
 			socket.close();
