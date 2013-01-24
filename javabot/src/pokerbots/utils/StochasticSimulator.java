@@ -23,18 +23,18 @@ public class StochasticSimulator {
 		//
 		float[] rates = StochasticSimulator.computeRates(
 				new int[]{
-						HandEvaluator.stringToCard("Tc"),
-						HandEvaluator.stringToCard("Ac")
+						HandEvaluator.stringToCard("8s"),
+						HandEvaluator.stringToCard("9h")
 				},
 				new int[]{
-						HandEvaluator.stringToCard("3h"),
-						HandEvaluator.stringToCard("Ts"),
+						HandEvaluator.stringToCard("9d"),
+						HandEvaluator.stringToCard("9s"),
 						HandEvaluator.stringToCard("Td"),
-						HandEvaluator.stringToCard("4d"),
-						HandEvaluator.stringToCard("6s")
+						HandEvaluator.stringToCard("3d")
 				},
-				50000);
+				5000);
 		time = System.currentTimeMillis();
+
 		rates = StochasticSimulator.computeRates(
 				new int[]{
 						HandEvaluator.stringToCard("As"),
@@ -47,8 +47,8 @@ public class StochasticSimulator {
 						HandEvaluator.stringToCard("Ks"),
 						HandEvaluator.stringToCard("Ad")
 				},
-				3000);
-		
+				5000);
+
 		for ( int i = 0; i < 9; i++ ) {
 			System.out.println("Hand Type ("+handNames[i]+"): [" + rates[i] +", " + rates[i+21] +"],["+rates[i+11]+","+rates[i+31]+"]");
 		}

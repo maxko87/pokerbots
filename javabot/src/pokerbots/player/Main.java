@@ -71,7 +71,11 @@ public class Main {
 			player.run();
 			//BetterLearningPlayer_4 player = new BetterLearningPlayer_4(outStream,inStream);
 			//player.run();
-			
+
+			//WexBot player = new WexBot(outStream,inStream);
+			//player.run();
+			//BetterLearningPlayer_4 player = new BetterLearningPlayer_4(outStream,inStream);
+			//player.run();			
 			socket.close();
 		} catch (IOException e) {
 			System.err.println(e.getMessage());

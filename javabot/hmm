@@ -1,0 +1,197 @@
+HEURISTICS (specifically against Tommy, but general too):
+1) If they ALWAYS CALL our RAISE, RAISE THEM ALL IN on THE BEST OF HANDS (PREFLOP and FLOP)
+2) add PREFLOP RAISING 
+
+
+
+
+
+1) Instead of figuring out what action to take, we should be determining how much money we want to spend, then take the appropriate action. 
+ -- when calling a bet, be a bit more lenient (don't fold)
+ 
+2) 
+
+
+Hand #744, TOMMY (-4383), BOT_V4 (4383)
+TOMMY posts the blind of 1
+BOT_V4 posts the blind of 2
+Dealt to TOMMY [Jc 2s Kc]
+Dealt to BOT_V4 [9d Jh Ad]
+TOMMY calls
+BOT_V4 raises to 4
+TOMMY calls
+*** FLOP *** (8) [Ac 5c 5h]
+BOT_V4 bets 42
+TOMMY calls
+BOT_V4 discards [9d]
+TOMMY discards [2s]
+*** TURN *** (92) [Ac 5c 5h] [Tc]
+BOT_V4 bets 91
+TOMMY raises to 354
+BOT_V4 folds
+Uncalled bet of 263 returned to TOMMY
+TOMMY wins the pot (274)
+
+
+Hand #21, BOT_V4 (1122), TOMMY (-1122)
+BOT_V4 posts the blind of 1
+TOMMY posts the blind of 2
+Dealt to BOT_V4 [5h 4c 8s]
+Dealt to TOMMY [Ts 9h Td]
+BOT_V4 calls
+### ILLEGAL ACTION: Call [player=TOMMY]
+TOMMY checks
+*** FLOP *** (4) [8d 6d 8c]
+TOMMY bets 3
+BOT_V4 raises to 368
+TOMMY calls
+TOMMY discards [9h]
+BOT_V4 discards [4c]
+*** TURN *** (740) [8d 6d 8c] [9c]
+TOMMY bets 30
+BOT_V4 folds
+Uncalled bet of 30 returned to TOMMY
+TOMMY wins the pot (740)
+
+
+
+Hand #18, TOMMY (-1120), BOT_V4 (1120)
+TOMMY posts the blind of 1
+BOT_V4 posts the blind of 2
+Dealt to TOMMY [5s Ts Ad]
+Dealt to BOT_V4 [Th Kh Jc]
+TOMMY calls
+### ILLEGAL ACTION: Call [player=BOT_V4]
+BOT_V4 checks
+*** FLOP *** (4) [Tc 9s 8s]
+BOT_V4 checks
+TOMMY bets 3
+BOT_V4 folds
+Uncalled bet of 3 returned to TOMMY
+TOMMY wins the pot (4)
+
+
+Hand #51, BOT_V4 (919), TOMMY (-919)
+BOT_V4 posts the blind of 1
+TOMMY posts the blind of 2
+Dealt to BOT_V4 [8s 9h 5h]
+Dealt to TOMMY [3h 7h Ts]
+BOT_V4 calls
+### ILLEGAL ACTION: Call [player=TOMMY]
+TOMMY checks
+*** FLOP *** (4) [9d 9s Td]
+TOMMY bets 5
+BOT_V4 raises to 364
+TOMMY calls
+TOMMY discards [3h]
+BOT_V4 discards [5h]
+*** TURN *** (732) [9d 9s Td] [3d]
+TOMMY bets 34
+BOT_V4 folds
+Uncalled bet of 34 returned to TOMMY
+TOMMY wins the pot (732)
+
+
+
+
+
+Hand #5, team1 (-2), zeteswithhugedec (2)
+team1 posts the blind of 1
+zeteswithhugedec posts the blind of 2
+Dealt to team1 [3s 6s 6c]
+Dealt to zeteswithhugedec [8c Th Ts]
+team1 raises to 24
+zeteswithhugedec calls
+*** FLOP *** (48) [2c 8s 7s]
+zeteswithhugedec bets 3
+team1 raises to 59
+zeteswithhugedec calls
+zeteswithhugedec discards [8c]
+team1 discards [3s]
+*** TURN *** (166) [2c 8s 7s] [8h]
+zeteswithhugedec bets 12
+team1 raises to 204
+zeteswithhugedec calls
+*** RIVER *** (574) [2c 8s 7s 8h] [Kc]
+zeteswithhugedec bets 53
+team1 raises to 113
+zeteswithhugedec folds
+Uncalled bet of 60 returned to team1
+team1 wins the pot (680)
+
+
+
+
+Hand #13, team1 (308), zeteswithhugedec (-308)
+team1 posts the blind of 1
+zeteswithhugedec posts the blind of 2
+Dealt to team1 [Qh Jd Ah]
+Dealt to zeteswithhugedec [3h 4s 7c]
+team1 raises to 48
+zeteswithhugedec calls
+*** FLOP *** (96) [Jc 7s 4h]
+zeteswithhugedec bets 17
+team1 raises to 184
+zeteswithhugedec calls
+zeteswithhugedec discards [3h]
+team1 discards [Qh]
+*** TURN *** (464) [Jc 7s 4h] [Ts]
+zeteswithhugedec bets 82
+team1 raises to 168
+zeteswithhugedec folds
+Uncalled bet of 86 returned to team1
+team1 wins the pot (628)
+
+
+
+
+Hand #6, team1 (106), zeteswithhugedec (-106)
+team1 posts the blind of 1
+zeteswithhugedec posts the blind of 2
+Dealt to team1 [3d 3h 9c]
+Dealt to zeteswithhugedec [8c 2d Kc]
+team1 calls
+zeteswithhugedec checks
+*** FLOP *** (4) [5h Kd 5s]
+zeteswithhugedec bets 2
+team1 calls
+zeteswithhugedec discards [2d]
+team1 discards [9c]
+*** TURN *** (8) [5h Kd 5s] [Jc]
+zeteswithhugedec bets 2
+team1 calls
+*** RIVER *** (12) [5h Kd 5s Jc] [Jh]
+zeteswithhugedec bets 2
+team1 calls
+team1 shows [3d 3h]
+zeteswithhugedec shows [8c Kc]
+zeteswithhugedec wins the pot (16)
+
+
+
+
+
+
+
+Hand #50, TOMMY (1257), V4 (-1257)
+TOMMY posts the blind of 1
+V4 posts the blind of 2
+Dealt to TOMMY [3h 3d 3s]
+Dealt to V4 [As 2h Ac]
+TOMMY calls
+V4 raises to 4
+TOMMY calls
+*** FLOP *** (8) [8d 4c 4d]
+V4 bets 35
+TOMMY calls
+V4 discards [2h]
+TOMMY discards [3h]
+*** TURN *** (78) [8d 4c 4d] [Ks]
+V4 bets 168
+TOMMY calls
+*** RIVER *** (414) [8d 4c 4d Ks] [Ad]
+V4 bets 106
+TOMMY raises to 193
+V4 folds
+Uncalled bet of 87 returned to TOMMY
+TOMMY wins the pot (626)

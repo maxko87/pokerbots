@@ -39,148 +39,214 @@ import pokerbots.utils.StatAggregator.OpponentStats;
 
 public class BettingBrain {
 	
-	float val1 = 0.4f;
+	float val1 = 0.3f;
 	float val2 = 0.6f;
 	
-	float val3 = 0.6f;
-	float val4 = 0.8f;
+	float val3 = 0.7f;
+	float val4 = 1.0f;
 	
-	float val5 = 0.7f;
-	float val6 = 0.8f;
+	float val5 = 0.4f;
+	float val6 = 0.6f;
 	
-	float val7 = 0.7f;
-	float val8 = 0.8f;
+	float val7 = 0.4f;
+	float val8 = 0.6f;
 	
-	float val9 = 0.2f;
-	float val10 = 0.2f;
-	float val11 = 0.3f;
-	float val12 = 0.4f;
-	
-	float val13 = 0.6f;
-	float val14 = 0.9f;
-	float val15 = 1.0f;
-	float val16 = 1.0f;
-	
+
 	float val17 = 0.05f;
 	
 	//minimum default percentage range of winning to play/raise each street.
-	//private final float[][] MIN_WIN_TO_PLAY = new float[][] {{.2f, .5f}, {.2f, .5f}, {.4f, .5f}, {.4f, .5f}};
 	private final float[][] MIN_WIN_TO_PLAY = new float[][] {{val1, val2}, {val3, val4}, {val5, val6}, {val7, val8}};
-	private final float[] MIN_WIN_TO_RAISE = new float[] {.9f, .8f, .9f, .9f};
+	private final float[] MIN_WIN_TO_RAISE = new float[] {.6f, .8f, .7f, .7f};
 	
 	//scaling for larger bets on later streets.
-	//private final float[] CONTINUATION_FACTORS = new float[] {1.0f, 1.0f, 1.5f, 2.0f};
-	
-	//minimum/maximum percentages of pot we should be betting during value bets
-	//private final float[] MIN_OF_POT = new float[] {.2f, .2f, .3f, .4f};
-	private final float[] MIN_OF_POT = new float[] {val9, val10, val11, val12};
-	//private final float[] MAX_OF_POT = new float[] {1.0f, 1.0f, .8f, .5f};
-	
-	//minimum/maximum percentages of our stack we should be betting during value bets
-	//private final float[] MIN_OF_POT = new float[] {.2f, .2f, .2f, .3f};
-	//private final float[] MIN_OF_STACK = new float[] {.4f, .7f, .8f, 1.0f};
-	private final float[] MAX_OF_STACK = new float[] {val13, val14, val15, val16};
+	private final float[] CONTINUATION_FACTORS = new float[] {1.0f, 1.0f, 1.2f, 1.5f};	
 	
 	//maxmimum reduction in winChance based on a strong bet. TODO: this should be lower when we play against bluffing bots
 	private final float MAX_WIN_CHANCE_REDUCTION = val17;
+	
+	//threshold for learning amounts in order to use heuristics
+	private final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3};
 
 
 	public enum State {VALUE_BET, BLUFF, ETC}
 	
 	public GameObject myGame;
 	
+	//these are updated by takeAction
+	OpponentStats opponent;
+	GetActionObject getActionObject;
+	float winChance;
+	int street;
+	
 	public BettingBrain(GameObject game){
 		myGame = game;
 	}
-	
-	
-	
-	
+
 	
 	
 	//DELEGATES ALL ACTIONS 
-	public String takeAction(OpponentStats opponent, GetActionObject getActionObject, float winChance, int street) {
-		if ( winChance > getMinWinChance(getActionObject, street, opponent) )
-			return betRaiseCall(opponent, getActionObject,winChance,street);
-		else
-			return foldOrCheck(getActionObject);
+	public String takeAction(OpponentStats o, GetActionObject g, float w, int s) {
+		opponent = o;
+		getActionObject = g;
+		winChance = w;
+		street = s;
+
+		//check heuristics
+		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
+			LegalActionObject legalAction = getActionObject.legalActions[i];
+			
+			if (legalAction.actionType.equalsIgnoreCase("bet")){
+				
+				//betting heuristics
+				if (oppNeverFoldsToBet()){
+					System.out.println("BET ALL IN");
+					return validateAndReturn("bet", legalAction.maxBet);
+				}
+				
+			}
+			else if (legalAction.actionType.equalsIgnoreCase("raise")){
+				
+				//raising heuristics
+				if (oppNeverFoldsToRaise()){
+					System.out.println("RAISE ALL IN");
+					return validateAndReturn("raise", legalAction.maxBet);
+				}
+				
+			}
+		}
+		if ( winChance > getMinWinChance() || playAnyways() ){
+			return betRaiseCall();
+		}
+		else{
+			return foldOrCheck();
+		}		
+	}
+	
+	//if the opp made a tiny bet, cover it regardless of percentage of winning
+	private final float[] MAX_PORTION_OF_POT_TO_PLAY = new float[] {.1f, .15f, .2f, .2f};
+	private int MAX_BET_TO_STILL_PLAY = 6;
+	public boolean playAnyways(){
+		if (getActionObject.lastActions.length > 0 && getActionObject.lastActions[getActionObject.lastActions.length-1].amount > 0){
+			int amount  = getActionObject.lastActions[getActionObject.lastActions.length-1].amount;
+			boolean playAnyways =  (amount < MAX_PORTION_OF_POT_TO_PLAY[street] * getActionObject.potSize) || (amount < MAX_BET_TO_STILL_PLAY);
+			System.out.println("PLAY ANYWAYS: " + playAnyways);
+			return playAnyways;
+		}
+		return false;
+	}
+	
+	
+	//HEURISTIC: if they never fold and we have a great hand, bet/raise all
+	private final float[] MIN_HAND_FOR_ALL_IN = new float[] {.7f, .8f, .9f, .9f};
+	public boolean oppNeverFoldsToBet(){
+		return (opponent.getPercentFoldToBet(street) < .05f && winChance > MIN_HAND_FOR_ALL_IN[street] && opponent.timesFoldsToBet[street] > THRESHOLD_FOR_GENERALIZING[street]);
+	}
+	public boolean oppNeverFoldsToRaise(){
+		return (opponent.getPercentFoldToBet(street) < .05f && winChance > MIN_HAND_FOR_ALL_IN[street] && opponent.timesFoldsToBet[street] > THRESHOLD_FOR_GENERALIZING[street]);
 	}
 	
 	
 	
 	// minimum chance of winning we need to play
-	public float getMinWinChance( GetActionObject getActionObject, int street, OpponentStats opponent){
+	public float getMinWinChance(){
 		// use opponent's aggression to scale our looseness -- higher opp aggression = we play tighter
-		float winChance = Utils.scale(opponent.getTotalAggression(myGame.stackSize), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
+		float winChance = Utils.scale(opponent.getAggression(street), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
 		
 		// if the opponent bets a lot compared to the pot, our win chance goes down
+		/*
 		float winChanceIncreaseNeeded = 0f;
 		if (getActionObject.lastActions.length > 0){
 			PerformedActionObject performedAction = getActionObject.lastActions[getActionObject.lastActions.length-1];
-			if ( performedAction.actor.equalsIgnoreCase(myGame.oppName) && performedAction.actionType.equalsIgnoreCase("bet")){
+			if ( performedAction.actor.equalsIgnoreCase(myGame.oppName) && (performedAction.actionType.equalsIgnoreCase("bet") || performedAction.actionType.equalsIgnoreCase("raise")) ) {
 				winChanceIncreaseNeeded = Utils.scale(performedAction.amount, 0, getActionObject.potSize, 0, MAX_WIN_CHANCE_REDUCTION);
 				winChance += winChanceIncreaseNeeded;
 			}		
 		}
+		*/
 		return winChance;
 	}
 	
 	
-	
-	
-	
 	//given odds and stack size, decides how much to bet
-	public int makeProportionalBet(OpponentStats opponent, float expectedWinPercentage, int minBet, int maxBet, int potSize, int street){
-		int myRemainingStack = (myGame.stackSize - potSize/2); //TODO: this is an approximation
-
-		//first, create a reasonable bet based on our winning expectation and stack size
-		int bet = (int) ((expectedWinPercentage - MIN_WIN_TO_PLAY[street][0]) * (maxBet - minBet));
-		
-		//next, make sure this is a reasonable bet for the pot size and stack size
-		bet = Utils.boundInt(bet, (int)(MIN_OF_POT[street]*potSize), (int)(MAX_OF_STACK[street]*myRemainingStack));
-		
-		//factor in opponent looseness
-		bet = (int)(bet*opponent.getTotalLooseness());
-		
-		//finally, bound to make sure it's valid
-		bet = Utils.boundInt(bet, minBet, maxBet);
-		
-		return bet;
+	public int makeBet(int minBet, int maxBet, int potSize){
+		float bet = (winChance - MIN_WIN_TO_PLAY[street][0]) * maxBet;
+		bet = bet * opponent.getLooseness(street); 
+		return (int)bet;
 	}
 	
-	// uses opponent's looseness to scale our bets -- higher opp looseness = we play more aggressively
-	public String betRaiseCall( OpponentStats opponent, GetActionObject getActionObject, float winChance, int street ) {
+	//given odds and stack size, decides how much to raise
+	public int makeRaise(int minBet, int maxBet, int potSize){
+		int raise;
+		if (street == 0){
+			raise = (int) (Utils.randomBetween(5, 10) * potSize * winChance);
+		}
+		else{
+			raise = (int) (potSize * winChance);
+		}		
+		return raise;
+	}
+	
+	public String betRaiseCall() {
 		
 		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
 			LegalActionObject legalAction = getActionObject.legalActions[i];
 		
 			if ( legalAction.actionType.equalsIgnoreCase("bet") ) {
-				int bet = (int)(makeProportionalBet(opponent, winChance, legalAction.minBet, legalAction.maxBet, getActionObject.potSize, street));
-				return "BET:"+bet;
+				int bet = (int)(makeBet(legalAction.minBet, legalAction.maxBet, getActionObject.potSize));
+				return validateAndReturn("bet", bet);
 			}
 			else if ( legalAction.actionType.equalsIgnoreCase("raise") ) {
-				//raise or call? TODO: don't use same formula as betting...
 				if (winChance > MIN_WIN_TO_RAISE[street]){
-					int raise = (int)(makeProportionalBet(opponent, winChance, legalAction.minBet, legalAction.maxBet, getActionObject.potSize, street));
-					return "RAISE:"+raise;
+					int raise = (int)(makeRaise(legalAction.minBet, legalAction.maxBet, getActionObject.potSize));
+					return validateAndReturn("raise", raise);
 				}
 				else{
-					return "CALL";
+					return validateAndReturn("call",0);
 				}
 			}
 		}
-		return "FOLD";
+		return validateAndReturn("call",0);
 	}
 	
 
-	public String foldOrCheck( GetActionObject curr ) {
-		for ( int i = 0; i < curr.legalActions.length; i++ ) {
-			LegalActionObject action = curr.legalActions[i];
+	public String foldOrCheck( ) {
+		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
+			LegalActionObject action = getActionObject.legalActions[i];
 			if ( action.actionType.equalsIgnoreCase("check") ) {
 				return "CHECK";
 			}
 		}
 		return "FOLD";
 	}
+	
+	//makes sure that the move we are making is legal, and fixes it automatically if not
+	public String validateAndReturn(String action, int amount){
+		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
+			LegalActionObject legalAction = getActionObject.legalActions[i];
+			if (legalAction.actionType.equalsIgnoreCase(action)){
+				if (action.equalsIgnoreCase("bet") || action.equalsIgnoreCase("raise")){
+					amount = Utils.boundInt(amount, legalAction.minBet, legalAction.maxBet);
+					return action.toUpperCase()+":"+amount;
+				}
+				else{
+					return action.toUpperCase();
+				}
+			}
+		}
+		// if we get here, we tried to make an erroneous move
+		// 1) if they raise us all in, and we want to raise, we just call instead
+		if (action.equalsIgnoreCase("raise")){
+			System.out.println("SOMETHING FUCKED UP");
+			return "CALL";
+		}
+		// 2) instead of calling, just check
+		return "CHECK";
+	}
 
+	
+	
+	
+	
+	
+	
 }

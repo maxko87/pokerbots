@@ -43,7 +43,7 @@ public class BetterLearningPlayer_4 {
 	//number of iterations for our simulator to calculate probabilities before deciding which card to toss.
 	private final int DISCARD_SIM_ITERS = 1000;
 	//number of iterations for calculating probabilities after each other street.
-	private final int FLOP_SIM_ITERS = 600;
+	private final int FLOP_SIM_ITERS = 800;
 	private final int TURN_SIM_ITERS = 500;
 	private final int RIVER_SIM_ITERS = 500;
 	
@@ -82,11 +82,11 @@ public class BetterLearningPlayer_4 {
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
 					brain = new BettingBrain(myGame);
-					opponent = aggregator.getOrCreateOpponent(myGame.oppName);
+					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
-					history.newRound();
+					history.newRound(myHand.handId);
 					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {

@@ -1,7 +1,7 @@
 # run ./refresh_opponent first
 import os, random, csv, re
 
-NUM_RUNS = 20
+NUM_RUNS = 1000
 
 def replaceVal(valNum, newValue):
     with open("src/pokerbots/utils/BettingBrain.java", "r+") as f:
