@@ -1,20 +1,18 @@
 package pokerbots.utils;
 
-import old.StatAggregator_old.OpponentStats;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
+import pokerbots.utils.StatAggregator.OpponentStats;
 
 public class EVCalculator {
-
-	//as a reference::
-	//
-	//EV folding is 0
-	//
-	//EV calling is (equity)*(size of pot after call)*TIO - (amount to call) - (chance we will have to fold this round*amount to call)
-	//ev_call =   
-	//
-	//EV raising is (equity when called)*(size of pot when called)*TIO + (% chance all fold)* (size of the pot with our raise) - (amount costs us to raise) - (EV loss when we have to fold after we raise)
-	//
+	
+	int startingStack = 400;
+	String[] options = new String[] {"check", "call", "bet", "raise"};
+	
+	MatchHistory history;
+	public EVCalculator( MatchHistory history ) {
+		this.history = history;
+	}
 	
 	public class EVObj {
 		public EVObj(String a, float e) {
@@ -42,8 +40,7 @@ public class EVCalculator {
 	 * TODO: calculate loseChance better. it should be a function of how the opponent has bet on streets leading up to this, compared to their usual betting style and looseness.
 	 */
 	
-	int startingStack = 400;
-	String[] options = new String[] {"check", "call", "bet", "raise"};
+	
 	
 	/*
 	
@@ -102,11 +99,6 @@ public class EVCalculator {
 	
 	*/
 	
-	MatchHistory history;
-	public EVCalculator( MatchHistory history ) {
-		this.history = history;
-	}
-	
 	//returns EV and action to take on the river. 
 	public EVObj getRiverEVandAction(OpponentStats opponent, float winChance, GetActionObject getActionObject){
 		
@@ -122,12 +114,10 @@ public class EVCalculator {
 		int potSize = getActionObject.potSize;
 		int street = 3;
 		
+		/*
+		
 		//calculate opponent's perceived chance of winning this hand: TODO: pull from StatAg, subtract bluffing factor
-		int[] streetvalue = history.getOppLastBetOrRaise();
 		float loseChance = 0.85f - (opponent.getLooseness(street) / 2); //max = .85, min = .3
-		if ( streetvalue[1]>=0 ){
-			loseChance = opponent.getEstimatedWinRate(streetvalue[0],streetvalue[1]);//.85f - (opponent.getLooseness(street) / 2); //max = .85, min = .35
-		}
 			
 		for ( int i = 0; i < legalActions.length; i++ ) {
 			LegalActionObject legalAction = legalActions[i];
@@ -159,6 +149,8 @@ public class EVCalculator {
 						+ opponent.getPercentRaiseToRaise(street) * ( (winChance - loseChance) * (potSize + (2 * opponent.getAverageRaise(street))));
 			}
 		}
+		
+		*/
 		
 		
 		return selectActionWithHighestEV(results);

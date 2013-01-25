@@ -9,7 +9,7 @@ import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.Utils;
 
 
-public class SimpleBrain {
+public class SimpleBrain extends GenericBrain{
 	
 	public boolean playAnywaysFlag = true;
 	public boolean winChanceReductionFlag = true;
@@ -36,14 +36,7 @@ public class SimpleBrain {
 	//maxmimum reduction in winChance based on a strong bet. TODO: this should be lower when we play against bluffing bots
 	private final float MAX_WIN_CHANCE_REDUCTION = val17;
 	
-	public GameObject myGame;
-	
-	//these are updated by takeAction
-	MatchHistory history;
-	OpponentStats opponent;
-	GetActionObject getActionObject;
-	float winChance;
-	int street;
+
 	
 	public SimpleBrain(GameObject game, MatchHistory history){
 		myGame = game;
@@ -55,10 +48,7 @@ public class SimpleBrain {
 	//DELEGATES ALL ACTIONS 
 	public String takeAction(OpponentStats o, GetActionObject g, float w, int s) {
 		
-		opponent = o;
-		getActionObject = g;
-		winChance = w;
-		street = s;
+		super.setVars(o, g, w, s);
 		
 		//PREFLOP ADJUSTMENTS
 		if ( street == 0 ) {
@@ -172,43 +162,10 @@ public class SimpleBrain {
 		return "FOLD";
 	}
 	
-	//makes sure that the move we are making is legal, and fixes it automatically if not
-	public String validateAndReturn(String action, int amount){
-		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
-			LegalActionObject legalAction = getActionObject.legalActions[i];
-			if (legalAction.actionType.equalsIgnoreCase(action)){
-				if (action.equalsIgnoreCase("bet") || action.equalsIgnoreCase("raise")){
-					amount = Utils.boundInt(amount, legalAction.minBet, legalAction.maxBet);
-					return action.toUpperCase()+":"+amount;
-				}
-				else{
-					return action.toUpperCase();
-				}
-			}
-		}
-		// if we get here, we tried to make an erroneous move
-		// 1) if they raise us all in, and we want to raise, we just call instead
-		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
-			LegalActionObject legalAction = getActionObject.legalActions[i];
-			if (legalAction.actionType.equalsIgnoreCase(action)){
-				if (action.equalsIgnoreCase("raise")){
-					return "CALL";
-				}
-				else if (action.equalsIgnoreCase("check")){
-					return "CHECK";
-				}
-				else if (action.equalsIgnoreCase("fold")){
-					return "FOLD";
-				}
-			}
-		}
-		if (action.equalsIgnoreCase("raise")){
-			System.out.println("SOMETHING FUCKED UP");
-			return "CALL";
-		}
-		// 2) instead of calling, just check
-		return "CHECK";
+	public String toString(){
+		return "SimpleBrain";
 	}
+	
 
 	
 	

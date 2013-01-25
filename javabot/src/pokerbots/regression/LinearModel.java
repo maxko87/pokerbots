@@ -27,6 +27,10 @@ public class LinearModel implements Model{
 		this.xAxis = xAxis;
 		this.yAxis = yAxis;
 	}
+	
+	public int getN(){
+		return (int)N;
+	}
 			
 	public void addData( float x, float y ) {
 		N += 1;

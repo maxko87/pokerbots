@@ -5,12 +5,9 @@ import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
 import pokerbots.utils.EVCalculator;
 import pokerbots.utils.EVCalculator.EVObj;
-<<<<<<< HEAD:javabot/src/pokerbots/utils/BettingBrain_old_v2.java
-=======
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.Utils;
->>>>>>> 68f6575f255942f43e24f4298a7f85af79bd47bf:javabot/src/brains/EVBrain.java
 
 /*
  * High-level strategies:
@@ -38,7 +35,7 @@ import pokerbots.utils.Utils;
  * 
  */
 
-public class EVBrain {
+public class EVBrain extends GenericBrain{
 	
 	//which players are in use?
 	boolean EV_Player = true; 
@@ -74,15 +71,7 @@ public class EVBrain {
 	//number of hands to start using expected value and generalizing stuff
 	private final int ENOUGH_HANDS = 100;
 	
-	public GameObject myGame;
 	EVCalculator ev;
-	
-	//these are updated by takeAction
-	MatchHistory history;
-	OpponentStats opponent;
-	GetActionObject getActionObject;
-	float winChance;
-	int street;
 	
 	public EVBrain(GameObject game,MatchHistory history){
 		myGame = game;
@@ -95,41 +84,11 @@ public class EVBrain {
 	//DELEGATES ALL ACTIONS 
 	public String takeAction(OpponentStats o, GetActionObject g, float w, int s) {
 		
-		opponent = o;
-		getActionObject = g;
-		winChance = w;
-		street = s;
+		super.setVars(o, g, w, s);
 		
 		//turn on EV player after enough data is collected
 		if (opponent.totalHandCount > ENOUGH_HANDS)
 			EV_Player = true;
-		
-		
-		/*
-		//check heuristics
-		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
-			LegalActionObject legalAction = getActionObject.legalActions[i];
-			
-			if (legalAction.actionType.equalsIgnoreCase("bet")){
-				
-				//betting heuristics
-				if (oppNeverFoldsToBet()){
-					System.out.println("BET ALL IN");
-					return validateAndReturn("bet", legalAction.maxBet);
-				}
-				
-			}
-			else if (legalAction.actionType.equalsIgnoreCase("raise")){
-				
-				//raising heuristics
-				if (oppNeverFoldsToRaise()){
-					System.out.println("RAISE ALL IN");
-					return validateAndReturn("raise", legalAction.maxBet);
-				}
-				
-			}
-		}
-		*/
 		
 		//PREFLOP ADJUSTMENTS
 		if ( street == 0 ) {
@@ -162,39 +121,13 @@ public class EVBrain {
 		}
 		
 		//original, basic strategy
-		if ( winChance > getMinWinChance() || playAnyways() ){
+		if ( winChance > getMinWinChance() ){
 			return betRaiseCall();
 		}
 		else{
 			return foldOrCheck();
 		}		
 	}
-	
-	//if the opp made a tiny bet, cover it regardless of percentage of winning
-	private final float[] MAX_PORTION_OF_POT_TO_PLAY = new float[] {.1f, .15f, .2f, .2f};
-	private int MAX_BET_TO_STILL_PLAY = 6;
-	public boolean playAnyways(){
-		if (getActionObject.lastActions.length > 0 && getActionObject.lastActions[getActionObject.lastActions.length-1].amount > 0){
-			int amount  = getActionObject.lastActions[getActionObject.lastActions.length-1].amount;
-			boolean playAnyways =  (amount < MAX_PORTION_OF_POT_TO_PLAY[street] * getActionObject.potSize) || (amount < MAX_BET_TO_STILL_PLAY);
-			System.out.println("PLAY ANYWAYS: " + playAnyways);
-			return playAnyways;
-		}
-		return false;
-	}
-	
-	/*
-	//HEURISTIC: if they never fold and we have a great hand, bet/raise all
-	private final float[] MIN_HAND_FOR_ALL_IN = new float[] {.7f, .8f, .9f, .9f};
-	public boolean oppNeverFoldsToBet(){
-		return (opponent.getPercentFoldToBet(street) < .05f && winChance > MIN_HAND_FOR_ALL_IN[street] && opponent.timesFoldsToBet[street] > THRESHOLD_FOR_GENERALIZING[street]);
-	}
-	public boolean oppNeverFoldsToRaise(){
-		return (opponent.getPercentFoldToBet(street) < .05f && winChance > MIN_HAND_FOR_ALL_IN[street] && opponent.timesFoldsToBet[street] > THRESHOLD_FOR_GENERALIZING[street]);
-	}
-	*/
-	
-	
 	
 	// minimum chance of winning we need to play
 	public float getMinWinChance(){
@@ -277,46 +210,9 @@ public class EVBrain {
 		return "FOLD";
 	}
 	
-	//makes sure that the move we are making is legal, and fixes it automatically if not
-	public String validateAndReturn(String action, int amount){
-		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
-			LegalActionObject legalAction = getActionObject.legalActions[i];
-			if (legalAction.actionType.equalsIgnoreCase(action)){
-				if (action.equalsIgnoreCase("bet") || action.equalsIgnoreCase("raise")){
-					amount = Utils.boundInt(amount, legalAction.minBet, legalAction.maxBet);
-					return action.toUpperCase()+":"+amount;
-				}
-				else{
-					return action.toUpperCase();
-				}
-			}
-		}
-		// if we get here, we tried to make an erroneous move
-		// 1) if they raise us all in, and we want to raise, we just call instead
-		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
-			LegalActionObject legalAction = getActionObject.legalActions[i];
-			if (legalAction.actionType.equalsIgnoreCase(action)){
-				if (action.equalsIgnoreCase("raise")){
-					return "CALL";
-				}
-				else if (action.equalsIgnoreCase("check")){
-					return "CHECK";
-				}
-				else if (action.equalsIgnoreCase("fold")){
-					return "FOLD";
-				}
-			}
-		}
-		if (action.equalsIgnoreCase("raise")){
-			System.out.println("SOMETHING FUCKED UP");
-			return "CALL";
-		}
-		// 2) instead of calling, just check
-		return "CHECK";
+	public String toString(){
+		return "EVBrain";
 	}
-
-	
-	
 	
 	
 	

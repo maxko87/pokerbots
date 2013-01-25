@@ -58,8 +58,13 @@ public class StatAggregator {
 	
 	
 	public class OpponentStats{
-
+		
+		//store data about how different brains perform against different opponents
+		HashMap<String, Integer> brainScores;
+		
 		String name = "Undefined";
+		int startingStackSize = 400;
+		public int totalHandCount;
 		
 		Model[] P_Check_given_Check;  	// Prob = a + b*theirPredWin
 		Model[] P_Bet_given_Check;		// Prob = a + b*theirPredWin
@@ -83,10 +88,14 @@ public class StatAggregator {
 		*/
 		
 		GameObject game;
+	
 		
-		public OpponentStats( String name, GameObject game){
+		//TODO: make sure this constructor doesn't get run when pulling from KeyValues!!
+		public OpponentStats( String name, GameObject game ){
+			
 			this.name = name;
-			this.game = game;
+			this.totalHandCount = 0;
+			this.brainScores = new HashMap<String, Integer>();
 			
 			//initialize all regression lines
 			for ( int i = 0; i < 4; i++ ) {
@@ -222,6 +231,27 @@ public class StatAggregator {
 				
 			}
 		}
+		
+		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3};
+		
+		/*
+		// (0,1) rating of this opponent's aggression (size of bet when he does bet)
+		final float DEFAULT_AGGRESSION = .3f;
+		public float getAggression(int street){
+			float totalBetCount = (P_Raise_given_Bet[street].getN() + P_Raise_given_Raise[street].getN() + P_Bet_given_Check[street].getN());
+			return (totalBetCount > THRESHOLD_FOR_GENERALIZING[street]) ? (float)(totalValueOfBets[street] + totalValueOfRaises[street] ) / (totalBetCount * startingStackSize) : DEFAULT_AGGRESSION;
+		}
+		*/
+		
+		// (0,1) rating of this opponent's looseness (number of calls+raises over number of calls+raises+folds)
+		final float DEFAULT_LOOSENESS= .5f;
+		public float getLooseness(int street){
+			int calls = P_Call_given_Bet[street].getN() + P_Call_given_Raise[street].getN();
+			int raises = P_Raise_given_Bet[street].getN() + P_Raise_given_Raise[street].getN();
+			int folds = P_Fold_given_Bet[street].getN() + P_Fold_given_Raise[street].getN();
+			return (calls+raises+folds > THRESHOLD_FOR_GENERALIZING[street]) ? (float)(calls+raises)/(calls+raises+folds) : DEFAULT_LOOSENESS;
+		}
+		
 		
 		public void printStats(GameObject myGame) {
 			String[] streets = new String[]{"Preflop","Flop","Turn","River"};

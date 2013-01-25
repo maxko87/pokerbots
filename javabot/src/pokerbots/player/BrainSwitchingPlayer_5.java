@@ -4,11 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import old.StatAggregator_old;
-import old.StatAggregator_old.OpponentStats;
-
-import brains.SimpleBrain;
-
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
@@ -17,57 +12,49 @@ import pokerbots.packets.LegalActionObject;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.PreflopTableGen;
+import pokerbots.utils.StatAggregator;
+import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.StochasticSimulator;
 import pokerbots.utils.Utils;
+import brains.EVBrain;
+import brains.GenericBrain;
+import brains.SimpleBrain;
 
 
 /**
  * Improvements made:
- * - move logic into BettingBrain 
- * - scale bets proportional to pot size
- * - allow raising
- * - factor in opponents bet sizes 
+ * - switches between brains
  * 
  * Todo:
- * - fix looseness (use REFUND!) -- do it better
+ * - 
  * 
- * 
- * Future bot todo:
- * - implement states with semi-random transitions between them
- * - populate and use getPercentFoldToBet, getPercentCallToBet, getOurAverageBetForFold, getOurAverageRaiseForFold
- * 
- * 
- * As of Player 4, the Player class only takes care of managing the object references and calculating standard probabilities.
- * All the advanced logic has been moved into BettingBrain.
  */
 public class BrainSwitchingPlayer_5 {
 	
 	//number of iterations for our simulator to calculate probabilities before deciding which card to toss.
 	private final int DISCARD_SIM_ITERS = 1000;
 	//number of iterations for calculating probabilities after each other street.
-	private final int FLOP_SIM_ITERS = 800;
-	private final int TURN_SIM_ITERS = 500;
-	private final int RIVER_SIM_ITERS = 500;
+	private final int FLOP_SIM_ITERS = 1000;
+	private final int TURN_SIM_ITERS = 700;
+	private final int RIVER_SIM_ITERS = 700;
 	
 	private final PrintWriter outStream;
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
-<<<<<<< HEAD:javabot/src/pokerbots/player/EVCalculatingPlayer_5.java
-	private BettingBrain_old_v2 brain;
-	private StatAggregator_old aggregator;
-=======
-	private SimpleBrain brain;
 	private StatAggregator aggregator;
->>>>>>> 68f6575f255942f43e24f4298a7f85af79bd47bf:javabot/src/pokerbots/player/BrainSwitchingPlayer_5.java
 	private OpponentStats opponent;
 	private MatchHistory history;
 	private int potSize;
 
-	public BrainSwitchingPlayer_5(PrintWriter output, BufferedReader input) {
+	private GenericBrain brain;
+	private SimpleBrain simpleBrain;
+	private EVBrain evBrain;
+
+	BrainSwitchingPlayer_5(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
-		aggregator = new StatAggregator_old(); // TODO: initialize with past data?
+		aggregator = new StatAggregator(); // TODO: initialize with past data?
 		history = new MatchHistory();
 		potSize = 0;
 	}
@@ -88,8 +75,13 @@ public class BrainSwitchingPlayer_5 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new SimpleBrain(myGame,history);
-					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
+					//instantiate all brains
+					simpleBrain = new SimpleBrain(myGame,history);
+					EVBrain evBrain = new EVBrain(myGame,history);
+					//choose initial brain
+					brain = simpleBrain;
+					//instantiate opponent
+					opponent = aggregator.getOrCreateOpponent(myGame);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
@@ -97,12 +89,15 @@ public class BrainSwitchingPlayer_5 {
 					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
+					//store data from current round
 					HandOverObject HOobj = new HandOverObject(input);
 					history.appendRoundData(HOobj.lastActions);
-					opponent.analyzeRoundData(myGame, myHand, history.getCurrentRound(), potSize);
+					opponent.analyzeRoundData(myHand, history.getCurrentRound());
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
 					opponent.printStats(myGame);
+					//choose a brain
+					brain = chooseBrain();
 					
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
 					//none
@@ -126,6 +121,13 @@ public class BrainSwitchingPlayer_5 {
 		}
 	}
 	
+	private GenericBrain chooseBrain() {
+		if (opponent.totalHandCount > 100){
+			return evBrain;
+		}
+		return simpleBrain;
+	}
+
 	public String respondToGetAction( GetActionObject getActionObject) {
 		int numBoardCards = getActionObject.boardCards.length;
 		float winChance0;

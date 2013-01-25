@@ -42,13 +42,8 @@ public class LearningPlayer_3 {
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
-<<<<<<< HEAD
-	private BettingBrain_old_v2 brain;
 	private StatAggregator_old aggregator;
-=======
 	private SimpleBrain brain;
-	private StatAggregator aggregator;
->>>>>>> 68f6575f255942f43e24f4298a7f85af79bd47bf
 	private OpponentStats opponent;
 	private MatchHistory history;
 	private int potSize;
