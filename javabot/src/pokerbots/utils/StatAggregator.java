@@ -170,6 +170,7 @@ public class StatAggregator {
 					float det = N[i]*SXX[i]-SX[i]*SX[i];
 					REG_A[i] = 1.0f/det * (SY[i]*SXX[i]-SX[i]*SXY[i]);
 					REG_B[i] = 1.0f/det * (N[i]*SXY[i]-SX[i]*SY[i]);
+					System.out.println("Det: " + det);
 					System.out.println("Street: " + i + ", eq: win = a+b*bet, a=" + REG_A[i] + ", b=" + REG_B[i]);
 				}
 			}

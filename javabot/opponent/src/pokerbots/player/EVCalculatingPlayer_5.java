@@ -81,12 +81,12 @@ public class EVCalculatingPlayer_5 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new BettingBrain_old_v2(myGame);
+					brain = new BettingBrain_old_v2(myGame,history);
 					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
-					history.newRound(myHand.handId);
+					history.newRound(myHand.handId,myGame.oppName);
 					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {

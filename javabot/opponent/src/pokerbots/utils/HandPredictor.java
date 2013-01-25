@@ -34,7 +34,7 @@ public class HandPredictor {
 		GameObject game = new GameObject("NEWGAME yourName oppName 400 2 1000 20.000");
 		GetActionObject msg = new GetActionObject("GETACTION 400 0 1 BET:100:"+game.oppName+" 0 20.000");
 		MatchHistory history = new MatchHistory();
-		history.newRound(game.stackSize);
+		history.newRound(game.stackSize,game.oppName);
 		history.appendRoundData( new PerformedActionObject[]{new PerformedActionObject("BET:100:"+game.oppName)} );
 		hp.updatePredictions( history, msg, game );
 		
@@ -53,7 +53,7 @@ public class HandPredictor {
 		hp.populate(rates);
 		
 		msg = new GetActionObject("GETACTION 50 0 1 BET:30:"+game.oppName+" 0 20.000");
-		history.newRound(game.stackSize);
+		history.newRound(game.stackSize,game.oppName);
 		history.appendRoundData( new PerformedActionObject[]{new PerformedActionObject("BET:1:"+game.oppName)} );
 		hp.updatePredictions( history, msg, game );
 	}

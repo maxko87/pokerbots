@@ -35,7 +35,7 @@ import pokerbots.utils.StatAggregator.OpponentStats;
 public class BettingBrain_old_v2 {
 	
 	//which players are in use?
-	boolean EV_Player = false; 
+	boolean EV_Player = true; 
 	
 	
 	
@@ -50,7 +50,7 @@ public class BettingBrain_old_v2 {
 	float val6 = 0.8f;
 	
 	float val7 = 0.5f;
-	float val8 = 0.7f;
+	float val8 = 0.8f;
 	
 
 	float val17 = 0.05f;
@@ -208,7 +208,8 @@ public class BettingBrain_old_v2 {
 	}
 	
 	public float getMinWinChanceForRaisePreflop(){
-		float winChance = Utils.inverseScale(opponent.getLooseness(street), 0.0f, 1.0f, .7f, .8f);
+		float winChance = Utils.inverseScale(opponent.getLooseness(street), 0.0f, 1.0f, .75f, .9f);
+		//winChance = Utils.scale(winChance, 0f, 1f, .65f, 1f);
 		System.out.println("WINCHANCE FOR RERAISE PREFLOP: " + winChance);
 		return winChance;
 	}

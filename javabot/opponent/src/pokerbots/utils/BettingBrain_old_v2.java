@@ -3,6 +3,7 @@ package pokerbots.utils;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
+import pokerbots.utils.EVCalculator.EVObj;
 import pokerbots.utils.StatAggregator.OpponentStats;
 
 /*
@@ -43,10 +44,10 @@ public class BettingBrain_old_v2 {
 	float val2 = 0.8f;
 	
 	float val3 = 0.6f;
-	float val4 = 0.85f;
+	float val4 = 0.8f;
 	
 	float val5 = 0.5f;
-	float val6 = 0.7f;
+	float val6 = 0.8f;
 	
 	float val7 = 0.5f;
 	float val8 = 0.7f;
@@ -56,7 +57,7 @@ public class BettingBrain_old_v2 {
 	
 	//minimum default percentage range of winning to play/raise each street.
 	private final float[][] MIN_WIN_TO_PLAY = new float[][] {{val1, val2}, {val3, val4}, {val5, val6}, {val7, val8}};
-	private final float[] MIN_WIN_TO_RAISE = new float[] {.6f, .8f, .7f, .7f};
+	private final float[] MIN_WIN_TO_RAISE = new float[] {.8f, .8f, .7f, .7f};
 	
 	//maxmimum reduction in winChance based on a strong bet. TODO: this should be lower when we play against bluffing bots
 	private final float MAX_WIN_CHANCE_REDUCTION = val17;
@@ -65,22 +66,32 @@ public class BettingBrain_old_v2 {
 	private final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3};
 	
 	public GameObject myGame;
-	EVCalculator ev = new EVCalculator();
+	EVCalculator ev;
 	
 	//these are updated by takeAction
+	MatchHistory history;
 	OpponentStats opponent;
 	GetActionObject getActionObject;
 	float winChance;
 	int street;
 	
-	public BettingBrain_old_v2(GameObject game){
+	public BettingBrain_old_v2(GameObject game,MatchHistory history){
 		myGame = game;
+		ev = new EVCalculator(history);
+		this.history = history;
 	}
 
 	
 	
 	//DELEGATES ALL ACTIONS 
 	public String takeAction(OpponentStats o, GetActionObject g, float w, int s) {
+		
+		
+		//turn on EV player after enough data is collected
+		if (myGame.numHands > 50)
+			EV_Player = true;
+		
+		
 		opponent = o;
 		getActionObject = g;
 		winChance = w;
@@ -117,8 +128,8 @@ public class BettingBrain_old_v2 {
 		if ( street == 0 ) {
 			float raise_size = winChance * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (myGame.stackSize / 10) + 2;
 			if ( winChance > getMinWinChance() ) {
-				if (getActionObject.potSize > raise_size){
-					return validateAndReturn("call",0);
+				if (winChance < getMinWinChanceForRaisePreflop() && raise_size > 30){
+					return validateAndReturn("call",0); //don't continuously reraise preflop
 				}
 				return validateAndReturn("raise",(int)(raise_size));
 			}
@@ -126,15 +137,15 @@ public class BettingBrain_old_v2 {
 		
 		//USING EV CALCULATOR
 		if (EV_Player && street == 3){
-			String action = ev.getRiverAction(opponent, winChance, getActionObject);
+			EVObj evObj = ev.getRiverEVandAction(opponent, winChance, getActionObject);
 			int maxBet = Utils.boundInt(myGame.stackSize - (getActionObject.potSize / 2), 1, myGame.stackSize);
-			if (action.equalsIgnoreCase("bet")){
+			if (evObj.action.equalsIgnoreCase("bet")){
 				return validateAndReturn("bet", makeBet(maxBet, getActionObject.potSize));
 			}
-			else if (action.equalsIgnoreCase("raise")){
+			else if (evObj.action.equalsIgnoreCase("raise")){
 				return validateAndReturn("raise", makeRaise(maxBet, getActionObject.potSize));
 			}
-			else if (action.equalsIgnoreCase("call")){
+			else if (evObj.action.equalsIgnoreCase("call")){
 				return validateAndReturn("call", 0);
 			}
 			return validateAndReturn("check", 0);
@@ -195,6 +206,14 @@ public class BettingBrain_old_v2 {
 		*/
 		return winChance;
 	}
+	
+	public float getMinWinChanceForRaisePreflop(){
+		float winChance = Utils.inverseScale(opponent.getLooseness(street), 0.0f, 1.0f, .75f, .9f);
+		//winChance = Utils.scale(winChance, 0f, 1f, .65f, 1f);
+		System.out.println("WINCHANCE FOR RERAISE PREFLOP: " + winChance);
+		return winChance;
+	}
+		
 	
 	
 	//given odds and stack size, decides how much to bet
