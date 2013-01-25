@@ -47,6 +47,7 @@ public class MatchHistory {
 			float[] ratesTURN = StochasticSimulator.computeRates(oppCards, boardCards[2], 500);
 			float[] ratesRIVER = StochasticSimulator.computeRates(oppCards, boardCards[3], 500);
 			oppWinRates = new float[]{ratesPF[10],ratesFLOP[10],ratesTURN[10],ratesRIVER[10]};
+			oppAmounts = new int[4];
 			
 			int street = 0;
 			int wager = 0;
