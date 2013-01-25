@@ -184,7 +184,7 @@ public class StatAggregator {
 					float SSyy = SYY[i] - (SY[i])*(SY[i]/N[i]);
 					float SSxy = SXY[i] - (SX[i])*(SY[i]/N[i]);
 					
-					System.out.println("Street: " + i + ", eq: win = a+b*bet, a=" + REG_A[i] + ", b=" + REG_B[i] +", data points=" + N[i] +", SSxy = " + SSxy);
+					System.out.println("Street: " + i + ", eq: win = a+b*bet, a=" + REG_A[i] + ", b=" + REG_B[i]*100 +" %/400$, data points=" + N[i] +", SSxy = " + SSxy);
 				}
 			}
 		}
