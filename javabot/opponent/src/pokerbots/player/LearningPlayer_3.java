@@ -10,7 +10,7 @@ import pokerbots.packets.GetActionObject;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.HandObject;
 import pokerbots.packets.PerformedActionObject;
-import pokerbots.utils.BettingBrain;
+import pokerbots.utils.BettingBrain_old_v2;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.PreflopTableGen;
@@ -40,7 +40,7 @@ public class LearningPlayer_3 {
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
-	private BettingBrain brain;
+	private BettingBrain_old_v2 brain;
 	private StatAggregator aggregator;
 	private OpponentStats opponent;
 	private MatchHistory history;
@@ -70,12 +70,12 @@ public class LearningPlayer_3 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new BettingBrain(myGame);
-					opponent = aggregator.getOrCreateOpponent(myGame.oppName);
+					brain = new BettingBrain_old_v2(myGame);
+					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
-					history.newRound();
+					history.newRound(myHand.handId);
 					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
@@ -190,7 +190,7 @@ public class LearningPlayer_3 {
 
 	// uses opponent's aggression to scale our looseness -- higher opp aggression = we play tighter
 	public float getMinWinChance(int street){
-		return Utils.scale(opponent.getTotalAggression(myGame.stackSize), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
+		return Utils.scale(opponent.getTotalAggression(), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
 	}
 	
 	public int makeProportionalBet(float expectedWinPercentage, int minBet, int maxBet, int myRemainingStack){

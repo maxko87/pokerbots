@@ -16,15 +16,15 @@ public abstract class DecisionState {
 		float[] r0 = StochasticSimulator.computeRates( 
 				new int[]{
 					myHand.cards3[1],myHand.cards3[2]
-				}, actions.boardCards, 400);
+				}, actions.boardCards, 1000);
 		float[] r1 = StochasticSimulator.computeRates( 
 				new int[]{
 					myHand.cards3[0],myHand.cards3[2]
-				}, actions.boardCards, 400);
+				}, actions.boardCards, 1000);
 		float[] r2 = StochasticSimulator.computeRates( 
 				new int[]{
 					myHand.cards3[0],myHand.cards3[1]
-				}, actions.boardCards, 400);
+				}, actions.boardCards, 1000);
 		
 		int remove = 0;
 		if ( r0[10]>r1[10] && r0[10]>r2[10] )

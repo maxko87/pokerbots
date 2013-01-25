@@ -2,6 +2,17 @@ package pokerbots.utils;
 
 public class StochasticSimulator {
 	private static HandEvaluator he = new HandEvaluator();
+	private static String[] handNames = new String[]{
+		"High Card ",
+		"Pair      ",
+		"Two Pair  ",
+		"Triple    ",
+		"Straight  ",
+		"Flush     ",
+		"Full House",
+		"Four      ",
+		"Str. Flush"
+	};
 	
 	public static void main ( String[] args ) {
 		StochasticSimulator SS = new StochasticSimulator();
@@ -10,22 +21,36 @@ public class StochasticSimulator {
 		// [3h 6h 5h 4d] [6s]
 		// [9h 7h]
 		//
-		float[] rates = SS.computeRates(
+		float[] rates = StochasticSimulator.computeRates(
 				new int[]{
-						HandEvaluator.stringToCard("9h"),
-						HandEvaluator.stringToCard("7h")
+						HandEvaluator.stringToCard("8s"),
+						HandEvaluator.stringToCard("9h")
 				},
 				new int[]{
-						HandEvaluator.stringToCard("3h"),
-						HandEvaluator.stringToCard("6h"),
-						HandEvaluator.stringToCard("5h"),
+						HandEvaluator.stringToCard("9d"),
+						HandEvaluator.stringToCard("9s"),
+						HandEvaluator.stringToCard("Td"),
+						HandEvaluator.stringToCard("3d")
+				},
+				5000);
+		time = System.currentTimeMillis();
+
+		rates = StochasticSimulator.computeRates(
+				new int[]{
+						HandEvaluator.stringToCard("As"),
+						HandEvaluator.stringToCard("Ac")
+				},
+				new int[]{
+						HandEvaluator.stringToCard("8d"),
+						HandEvaluator.stringToCard("4c"),
 						HandEvaluator.stringToCard("4d"),
-						HandEvaluator.stringToCard("6s")
+						HandEvaluator.stringToCard("Ks"),
+						HandEvaluator.stringToCard("Ad")
 				},
-				3000);
-		
+				5000);
+
 		for ( int i = 0; i < 9; i++ ) {
-			System.out.println("Hand Type ("+i+"): " + rates[i] );
+			System.out.println("Hand Type ("+handNames[i]+"): [" + rates[i] +", " + rates[i+21] +"],["+rates[i+11]+","+rates[i+31]+"]");
 		}
 		
 		System.out.println("Win rate: " + rates[10] );
@@ -35,30 +60,93 @@ public class StochasticSimulator {
 	public StochasticSimulator() {
 	}
 	
-	public static float[] computeRates( int[] myHand, int[] table, int iters ) {
-		float[] handTypes = new float[11];
+	public static float[] computeRates( int[] myTrueHand, int[] table, int iters ) {
+		float[] handTypes = new float[41];
 		int rounds = 0;
 		int win = 0;
 		
 		//Determine what needs to be simulated
+		int[] myHand = new int[2];
 		int[] hisHand = new int[2];
 		int[] simTable = new int[5];
 		for ( int i = 0; i < table.length; i++ )
 			simTable[i] = table[i];
 		
+		//use only existing cards
+		int[] restricted = new int[9];
+		int restrict_ptr = 0;
+		for ( int i = 0; i < myTrueHand.length; i++ ) {
+			myHand[i] = myTrueHand[i];
+			restricted[restrict_ptr] = myTrueHand[i];
+			restrict_ptr++;
+		}
+		for ( int i = 0; i < table.length; i++ ) {
+			restricted[restrict_ptr] = table[i];
+			restrict_ptr++;
+		}
+		int reset_ptr = restrict_ptr;
+		
 		for ( int trials = 0; trials < iters; trials++ ) {
-			//fill out the table and opponent hand
+			restrict_ptr = reset_ptr;
+			//fill out my hand
+			for ( int i = myTrueHand.length; i < 2; i++ ) {
+				int suit = (int)(Math.random()*3.99);
+				int rank = (int)(Math.random()*12.99);
+				int card = suit<<4 | rank;
+				boolean used = false;
+				for( int e = 0; e < restrict_ptr; e++ ) {
+					if ( restricted[e]==card ) {
+						used=true;
+						break;
+					}
+				}
+				if ( used ) {
+					i--;
+					continue;
+				}
+				myHand[i] = card;
+				restricted[restrict_ptr] = card;
+				restrict_ptr++;
+			}
+			//fill out the table
 			for ( int i = table.length; i < 5; i++ ) {
 				int suit = (int)(Math.random()*3.99);
 				int rank = (int)(Math.random()*12.99);
 				int card = suit<<4 | rank;
+				boolean used = false;
+				for( int e = 0; e < restrict_ptr; e++ ) {
+					if ( restricted[e]==card ) {
+						used=true;
+						break;
+					}
+				}
+				if ( used ) {
+					i--;
+					continue;
+				}
 				simTable[i] = card;
+				restricted[restrict_ptr] = card;
+				restrict_ptr++;
 			}
+			//fill out the opponent hand
 			for ( int i = 0; i < 2; i++ ) {
 				int suit = (int)(Math.random()*3.99);
 				int rank = (int)(Math.random()*12.99);
 				int card = suit<<4 | rank;
+				boolean used = false;
+				for( int e = 0; e < restrict_ptr; e++ ) {
+					if ( restricted[e]==card ) {
+						used=true;
+						break;
+					}
+				}
+				if ( used ) {
+					i--;
+					continue;
+				}
 				hisHand[i] = card;
+				restricted[restrict_ptr] = card;
+				restrict_ptr++;
 			}
 			
 			//find my best hand.
@@ -67,13 +155,34 @@ public class StochasticSimulator {
 			
 			int type = (int)(myBestHand>>39);
 			handTypes[type]++;
+			int type2 = (int)(hisBestHand>>39);
+			handTypes[11+type2]++;
 			
-			if ( myBestHand > hisBestHand )
+			if ( myBestHand > hisBestHand ) {
 				win++;
+				handTypes[type+21]++;
+			} else {
+				handTypes[type2+31]++;
+			}
+		
 			rounds++;
+		}		
+		
+		for ( int i = 0; i < 10; i++ ) {
+			if ( handTypes[i]>0 )
+				handTypes[21+i] = handTypes[i+21]/handTypes[i];
+			else
+				handTypes[21+i] = 0;
 		}
 		
-		for ( int i = 0; i < handTypes.length; i++ )
+		for ( int i = 0; i < 10; i++ ) {
+			if ( handTypes[i+11]>0 )
+				handTypes[31+i] = handTypes[i+31]/handTypes[i+11];
+			else
+				handTypes[31+i] = 0;
+		}
+		
+		for ( int i = 0; i < 20; i++ )
 			handTypes[i] /= rounds;
 		
 		handTypes[10] = ((float)win)/rounds;

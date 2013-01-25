@@ -4,13 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import pokerbots.packets.GameObject;
+import pokerbots.packets.GetActionObject;
+import pokerbots.packets.HandObject;
 import pokerbots.packets.HandOverObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.packets.GetActionObject;
-import pokerbots.packets.GameObject;
-import pokerbots.packets.HandObject;
-import pokerbots.packets.PerformedActionObject;
-import pokerbots.utils.BettingBrain;
+import pokerbots.utils.BettingBrain_old_v2;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.PreflopTableGen;
@@ -24,7 +23,17 @@ import pokerbots.utils.Utils;
  * Improvements made:
  * - move logic into BettingBrain 
  * - scale bets proportional to pot size
- * - allow raising 
+ * - allow raising
+ * - factor in opponents bet sizes 
+ * 
+ * Todo:
+ * - fix looseness (use REFUND!) -- do it better
+ * 
+ * 
+ * Future bot todo:
+ * - implement states with semi-random transitions between them
+ * - populate and use getPercentFoldToBet, getPercentCallToBet, getOurAverageBetForFold, getOurAverageRaiseForFold
+ * 
  * 
  * As of Player 4, the Player class only takes care of managing the object references and calculating standard probabilities.
  * All the advanced logic has been moved into BettingBrain.
@@ -32,17 +41,17 @@ import pokerbots.utils.Utils;
 public class BetterLearningPlayer_4 {
 	
 	//number of iterations for our simulator to calculate probabilities before deciding which card to toss.
-	private final int DISCARD_SIM_ITERS = 600;
-	//number of iterations for calculating probabilities after each other street .
-	private final int FLOP_SIM_ITERS = 600;
-	private final int TURN_SIM_ITERS = 400;
-	private final int RIVER_SIM_ITERS = 400;
+	private final int DISCARD_SIM_ITERS = 1000;
+	//number of iterations for calculating probabilities after each other street.
+	private final int FLOP_SIM_ITERS = 800;
+	private final int TURN_SIM_ITERS = 500;
+	private final int RIVER_SIM_ITERS = 500;
 	
 	private final PrintWriter outStream;
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
-	private BettingBrain brain;
+	private BettingBrain_old_v2 brain;
 	private StatAggregator aggregator;
 	private OpponentStats opponent;
 	private MatchHistory history;
@@ -72,12 +81,12 @@ public class BetterLearningPlayer_4 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new BettingBrain(myGame);
-					opponent = aggregator.getOrCreateOpponent(myGame.oppName);
+					brain = new BettingBrain_old_v2(myGame);
+					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
-					history.newRound();
+					history.newRound(myHand.handId);
 					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
