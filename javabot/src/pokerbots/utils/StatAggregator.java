@@ -88,7 +88,6 @@ public class StatAggregator {
 		*/
 		
 		GameObject game;
-	
 		
 		//TODO: make sure this constructor doesn't get run when pulling from KeyValues!!
 		public OpponentStats( String name, GameObject game ){
@@ -115,6 +114,15 @@ public class StatAggregator {
 			}
 		}
 		
+		//helper for storing data into values
+		public void updateBrain(String brainName, int amount){
+			if (brainScores.containsKey(brainName)){
+				brainScores.put(brainName, brainScores.get(brainName) + amount);
+			}
+			else{
+				brainScores.put(brainName, amount);
+			}
+		}
 
 		public void analyzeRoundData( HandObject hand, Round data ){
 

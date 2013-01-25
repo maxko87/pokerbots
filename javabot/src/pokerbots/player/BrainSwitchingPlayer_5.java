@@ -89,13 +89,15 @@ public class BrainSwitchingPlayer_5 {
 					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
-					//store data from current round
+					//store analytics from current round
 					HandOverObject HOobj = new HandOverObject(input);
 					history.appendRoundData(HOobj.lastActions);
 					opponent.analyzeRoundData(myHand, history.getCurrentRound());
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
 					opponent.printStats(myGame);
+					//store cumulative earnings
+					opponent.updateBrain(brain.toString(), HOobj.getEarnings(myGame.myName));
 					//choose a brain
 					brain = chooseBrain();
 					
