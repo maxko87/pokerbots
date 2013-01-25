@@ -75,7 +75,7 @@ public class LearningPlayer_3 {
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
-					history.newRound(myHand.handId);
+					history.newRound(myHand.handId,myGame.oppName);
 					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {

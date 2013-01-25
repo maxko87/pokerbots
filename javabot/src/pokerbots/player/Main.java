@@ -6,9 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import pokerbots.botv5.ValueBettingState;
-import pokerbots.utils.*;
-
 public class Main {
 	
 	private static final String USAGE = "Usage: pokerbot [-h HOST] PORT";
