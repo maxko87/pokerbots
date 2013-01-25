@@ -14,7 +14,7 @@ public class MatchHistory {
 		public List<PerformedActionObject> actions = new ArrayList<PerformedActionObject>();
 		
 		public void printRound() {
-			System.out.println("-------\n--------");
+			System.out.println("-------\n");
 			System.out.println("NEW ROUND (Hand #" + roundId + ")");
 			
 			for ( int i = 0; i < actions.size(); i++ ) {

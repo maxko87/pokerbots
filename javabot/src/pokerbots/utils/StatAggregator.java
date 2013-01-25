@@ -66,6 +66,10 @@ public class StatAggregator {
 		public final float DEFAULT_LOOSENESS = 0.3f;
 		public final float DEFAULT_AGGRESSION = 0.25f;
 		
+		
+		public int[] timesChecksToCheck;
+		public int[] timesBetsToCheck;
+
 		public int[] timesFoldsToBet;
 		public int[] timesCallsToBet;
 		public int[] timesRaisesToBet;
@@ -77,6 +81,7 @@ public class StatAggregator {
 		public int[] timesChecksOnAction;
 		public int[] timesBetsOnAction;
 
+		public int[] totalTimesWeCheck;
 		public int[] totalTimesWeBet;
 		public int[] totalTimesWeRaise;
 		public int[] totalTimesOnAction;
@@ -97,6 +102,9 @@ public class StatAggregator {
 			this.name = name;
 			this.startingStackSize = startingStackSize;
 			
+			//times they ___ to our ___
+			timesChecksToCheck = new int[] {0,0,0,0};
+			timesBetsToCheck = new int[] {0,0,0,0};
 			timesFoldsToBet = new int[] {0,0,0,0};
 			timesCallsToBet = new int[] {0,0,0,0};
 			timesRaisesToBet = new int[] {0,0,0,0};
@@ -107,6 +115,7 @@ public class StatAggregator {
 			timesBetsOnAction = new int[] {0,0,0,0};
 			totalTimesWeBet = new int[] {0,0,0,0};
 			totalTimesWeRaise = new int[] {0,0,0,0};
+			totalTimesWeCheck = new int[] {0,0,0,0};
 			totalTimesOnAction = new int[] {0,0,0,0};
 			
 			totalAmountWeBetForFold = new int[] {0,0,0,0};
@@ -215,21 +224,31 @@ public class StatAggregator {
 						}
 					}
 					else if ( prevA.equalsIgnoreCase("check") ) {
-						if ( currA.equalsIgnoreCase("bet") || currA.equalsIgnoreCase("raise") ) {
-							timesBetsOnAction[street]++;
-							totalTimesOnAction[street]++;
+						if ( currA.equalsIgnoreCase("bet") || currA.equalsIgnoreCase("raise") ) { //can't really raise unless preflop
+
+							timesBetsToCheck[street]++;
+							totalTimesWeCheck[street]++;
 							totalValueOfBets[street] += curr.amount;
 							
-							System.out.println("INCREMENTED timesBetsOnAction: " + street + "\t\t" + timesBetsOnAction[street]);
-							System.out.println("INCREMENTED totalTimesOnAction: " + street + "\t\t" + totalTimesOnAction[street]);
+							System.out.println("INCREMENTED timesBetsToCheck: " + street + "\t\t" + timesBetsToCheck[street]);
+							System.out.println("INCREMENTED totalTimesWeCheck: " + street + "\t\t" + totalTimesWeCheck[street]);
 							System.out.println("INCREMENTED totalValueOfBets: " + street + "\t\t" + totalValueOfBets[street]);
+
+						}
+						else if ( currA.equalsIgnoreCase("check") ) {
+
+							timesChecksToCheck[street]++;
+							totalTimesWeCheck[street]++;
+							
+							System.out.println("INCREMENTED timesChecksToCheck: " + street + "\t\t" + timesChecksToCheck[street]);
+							System.out.println("INCREMENTED totalTimesWeCheck: " + street + "\t\t" + totalTimesWeCheck[street]);
 
 						}
 					}
 				}
 				
 				//IF On-Action behavior is seen
-				if ( curr.actor.equalsIgnoreCase(game.oppName) ) {
+				else if ( (prevA.equalsIgnoreCase("DEAL") || prevA.equalsIgnoreCase("POST")) && curr.actor.equalsIgnoreCase(game.oppName) ) {
 					if ( currA.equalsIgnoreCase("check") ) {
 						timesChecksOnAction[street]++;
 						totalTimesOnAction[street]++;
@@ -303,6 +322,14 @@ public class StatAggregator {
 
 		public float getPercentBetsOnAction(int street){
 			return fractionOrGeneralize(timesBetsOnAction, totalTimesOnAction, street);
+		}
+		
+		public float getPercentChecksToCheck(int street){
+			return fractionOrGeneralize(timesChecksToCheck, totalTimesWeCheck, street);
+		}
+		
+		public float getPercentBetsToCheck(int street){
+			return fractionOrGeneralize(timesBetsToCheck, totalTimesWeCheck, street);
 		}
 
 		public float getOurAverageBetForFold(int street){
@@ -415,7 +442,7 @@ public class StatAggregator {
 			}
 			System.out.println("Aggregate Aggression: " + f(getTotalAggression()) );
 			System.out.println("Aggregate Looseness: " + f(getTotalLooseness()) );
-			System.out.println("END\n\n\n\n\n");
+			System.out.println("END\n\n\n\n\n\n\n\n\n");
 		}
 
 	}
