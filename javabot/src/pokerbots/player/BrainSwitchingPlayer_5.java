@@ -4,12 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import brains.SimpleBrain;
+
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
 import pokerbots.packets.HandOverObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.utils.BettingBrain_old_v2;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.PreflopTableGen;
@@ -38,7 +39,7 @@ import pokerbots.utils.Utils;
  * As of Player 4, the Player class only takes care of managing the object references and calculating standard probabilities.
  * All the advanced logic has been moved into BettingBrain.
  */
-public class EVCalculatingPlayer_5 {
+public class BrainSwitchingPlayer_5 {
 	
 	//number of iterations for our simulator to calculate probabilities before deciding which card to toss.
 	private final int DISCARD_SIM_ITERS = 1000;
@@ -51,13 +52,13 @@ public class EVCalculatingPlayer_5 {
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
-	private BettingBrain_old_v2 brain;
+	private SimpleBrain brain;
 	private StatAggregator aggregator;
 	private OpponentStats opponent;
 	private MatchHistory history;
 	private int potSize;
 
-	public EVCalculatingPlayer_5(PrintWriter output, BufferedReader input) {
+	public BrainSwitchingPlayer_5(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
 		aggregator = new StatAggregator(); // TODO: initialize with past data?
@@ -81,7 +82,7 @@ public class EVCalculatingPlayer_5 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new BettingBrain_old_v2(myGame,history);
+					brain = new SimpleBrain(myGame,history);
 					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {

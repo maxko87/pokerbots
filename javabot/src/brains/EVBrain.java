@@ -1,10 +1,13 @@
-package pokerbots.utils;
+package brains;
 
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
+import pokerbots.utils.EVCalculator;
 import pokerbots.utils.EVCalculator.EVObj;
+import pokerbots.utils.MatchHistory;
 import pokerbots.utils.StatAggregator.OpponentStats;
+import pokerbots.utils.Utils;
 
 /*
  * High-level strategies:
@@ -32,7 +35,7 @@ import pokerbots.utils.StatAggregator.OpponentStats;
  * 
  */
 
-public class BettingBrain_old_v2 {
+public class EVBrain {
 	
 	//which players are in use?
 	boolean EV_Player = true; 
@@ -78,7 +81,7 @@ public class BettingBrain_old_v2 {
 	float winChance;
 	int street;
 	
-	public BettingBrain_old_v2(GameObject game,MatchHistory history){
+	public EVBrain(GameObject game,MatchHistory history){
 		myGame = game;
 		ev = new EVCalculator(history);
 		this.history = history;
@@ -138,13 +141,16 @@ public class BettingBrain_old_v2 {
 		
 		//USING EV CALCULATOR
 		if (EV_Player && street == 3){
+			System.out.println("using EV Calc");
 			EVObj evObj = ev.getRiverEVandAction(opponent, winChance, getActionObject);
 			int maxBet = Utils.boundInt(myGame.stackSize - (getActionObject.potSize / 2), 1, myGame.stackSize);
 			if (evObj.action.equalsIgnoreCase("bet")){
-				return validateAndReturn("bet", makeBet(maxBet, getActionObject.potSize));
+				//return validateAndReturn("bet", makeBet(maxBet, getActionObject.potSize));
+				return validateAndReturn("bet", (int)evObj.EV);
 			}
 			else if (evObj.action.equalsIgnoreCase("raise")){
-				return validateAndReturn("raise", makeRaise(maxBet, getActionObject.potSize));
+				//return validateAndReturn("raise", makeRaise(maxBet, getActionObject.potSize));
+				return validateAndReturn("bet", (int)evObj.EV);
 			}
 			else if (evObj.action.equalsIgnoreCase("call")){
 				return validateAndReturn("call", 0);
@@ -284,6 +290,20 @@ public class BettingBrain_old_v2 {
 		}
 		// if we get here, we tried to make an erroneous move
 		// 1) if they raise us all in, and we want to raise, we just call instead
+		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
+			LegalActionObject legalAction = getActionObject.legalActions[i];
+			if (legalAction.actionType.equalsIgnoreCase(action)){
+				if (action.equalsIgnoreCase("raise")){
+					return "CALL";
+				}
+				else if (action.equalsIgnoreCase("check")){
+					return "CHECK";
+				}
+				else if (action.equalsIgnoreCase("fold")){
+					return "FOLD";
+				}
+			}
+		}
 		if (action.equalsIgnoreCase("raise")){
 			System.out.println("SOMETHING FUCKED UP");
 			return "CALL";
