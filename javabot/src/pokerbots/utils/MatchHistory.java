@@ -106,7 +106,6 @@ public class MatchHistory {
 		int value = -1;
 		for ( int i = 0; i<actions.size(); i++ ) {
 			PerformedActionObject ACTION = actions.get(i);
-			current.actions.add(ACTION);
 			if ( ACTION.actionType.equals("DEAL") )
 				street++;
 			if ( ACTION.actor.equalsIgnoreCase(current.opponentName) ) {
