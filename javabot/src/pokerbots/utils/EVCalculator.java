@@ -2,7 +2,7 @@ package pokerbots.utils;
 
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.utils.StatAggregator.OpponentStats;
+import pokerbots.utils.StatAggregator_old.OpponentStats;
 
 public class EVCalculator {
 

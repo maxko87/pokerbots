@@ -14,8 +14,8 @@ import pokerbots.utils.BettingBrain_old_v2;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.PreflopTableGen;
-import pokerbots.utils.StatAggregator;
-import pokerbots.utils.StatAggregator.OpponentStats;
+import pokerbots.utils.StatAggregator_old;
+import pokerbots.utils.StatAggregator_old.OpponentStats;
 import pokerbots.utils.StochasticSimulator;
 import pokerbots.utils.Utils;
 
@@ -41,7 +41,7 @@ public class LearningPlayer_3 {
 	private GameObject myGame;
 	private HandObject myHand;
 	private BettingBrain_old_v2 brain;
-	private StatAggregator aggregator;
+	private StatAggregator_old aggregator;
 	private OpponentStats opponent;
 	private MatchHistory history;
 	private int potSize;
@@ -49,7 +49,7 @@ public class LearningPlayer_3 {
 	public LearningPlayer_3(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
-		aggregator = new StatAggregator(); // TODO: initialize?
+		aggregator = new StatAggregator_old(); // TODO: initialize?
 		history = new MatchHistory();
 		potSize = 0;
 	}

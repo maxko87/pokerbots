@@ -4,7 +4,7 @@ import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
 import pokerbots.utils.EVCalculator.EVObj;
-import pokerbots.utils.StatAggregator.OpponentStats;
+import pokerbots.utils.StatAggregator_old.OpponentStats;
 
 /*
  * High-level strategies:

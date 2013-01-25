@@ -57,11 +57,7 @@ public class StatAggregator {
 	public class OpponentStats{
 
 		String name = "Undefined";
-		int startingStackSize = 400;
-		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3}; // must be at least 1
-		public final float DEFAULT_PERCENT = 0.3f;
-		public final int NUM_OPP_WIN_PERCENTAGE_BUCKETS = 5;
-		
+
 		//these two parameters should be learned later
 		public final float DEFAULT_LOOSENESS = 0.3f;
 		public final float DEFAULT_AGGRESSION = 0.25f;
@@ -514,24 +510,3 @@ public class StatAggregator {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

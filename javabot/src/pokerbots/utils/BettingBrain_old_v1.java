@@ -3,7 +3,7 @@ package pokerbots.utils;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.utils.StatAggregator.OpponentStats;
+import pokerbots.utils.StatAggregator_old.OpponentStats;
 
 
 public class BettingBrain_old_v1 {
