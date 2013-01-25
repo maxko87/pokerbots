@@ -154,7 +154,9 @@ public class StatAggregator {
 		//b = 1/det * (N*SXY-SX*SY)
 		float[] REG_A = new float[4];
 		float[] REG_B = new float[4];
+		
 		public void addEWRdata( Round r ) {
+			System.out.println("EWR data added");
 			for ( int i = 0; i < 4; i++ ) {
 				float y = r.oppWinRates[i];
 				int x = r.oppAmounts[i];
@@ -168,6 +170,7 @@ public class StatAggregator {
 					float det = N[i]*SXX[i]-SX[i]*SX[i];
 					REG_A[i] = 1.0f/det * (SY[i]*SXX[i]-SX[i]*SXY[i]);
 					REG_B[i] = 1.0f/det * (N[i]*SXY[i]-SX[i]*SY[i]);
+					System.out.println("Street: " + i + ", eq: win = a+b*bet, a=" + REG_A[i] + ", b=" + REG_B[i]);
 				}
 			}
 		}
