@@ -136,9 +136,9 @@ public class HandEvaluator {
 		return highCard | handType<<39;
 	}
 	
-	public static float[] handOdds( HandObject myHand, GetActionObject action, int iters ) {
+	public static float[] handOdds( HandObject myHand, int[] boardCards, int iters ) {
 		float[] rates = null;
-		if ( action.boardCards.length==0 ) {
+		if ( boardCards.length==0 ) {
 			float[] r0 = PreflopTableGen.getPreflopWinRates(myHand.cards3[1],myHand.cards3[2]);
 			float[] r1 = PreflopTableGen.getPreflopWinRates(myHand.cards3[0],myHand.cards3[2]);
 			float[] r2 = PreflopTableGen.getPreflopWinRates(myHand.cards3[0],myHand.cards3[1]);
@@ -148,27 +148,27 @@ public class HandEvaluator {
 				rates = r1;
 			else
 				rates = r2;
-		} else if( action.boardCards.length<=3 ) {
-			rates = simulate3cards(myHand,action,iters);
+		} else if( boardCards.length<=3 ) {
+			rates = simulate3cards(myHand,boardCards,iters);
 		} else {
-			rates = simulate2cards(myHand,action,iters);
+			rates = simulate2cards(myHand,boardCards,iters);
 		}
 		return rates;
 	}
 	
-	private static float[] simulate3cards( HandObject myHand, GetActionObject msg,int iters ) {
+	private static float[] simulate3cards( HandObject myHand, int[] boardCards,int iters ) {
 		float[] r0 = StochasticSimulator.computeRates( 
 					new int[]{
 						myHand.cards3[1],myHand.cards3[2]
-					}, msg.boardCards, iters);
+					}, boardCards, iters);
 		float[] r1 = StochasticSimulator.computeRates( 
 				new int[]{
 					myHand.cards3[0],myHand.cards3[2]
-				}, msg.boardCards, iters);
+				}, boardCards, iters);
 		float[] r2 = StochasticSimulator.computeRates( 
 				new int[]{
 					myHand.cards3[0],myHand.cards3[1]
-				}, msg.boardCards, iters);
+				}, boardCards, iters);
 		
 		if ( r0[10]>r1[10] && r0[10]>r2[10] )
 			return r0;
@@ -178,11 +178,11 @@ public class HandEvaluator {
 			return r2;
 	}
 	
-	private static float[] simulate2cards( HandObject myHand, GetActionObject msg, int iters ) {
+	private static float[] simulate2cards( HandObject myHand, int[] boardCards, int iters ) {
 		float[] r0 = StochasticSimulator.computeRates( 
 					new int[]{
 						myHand.cards2[0],myHand.cards2[1]
-					}, msg.boardCards, iters);
+					}, boardCards, iters);
 		
 		return r0;
 	}

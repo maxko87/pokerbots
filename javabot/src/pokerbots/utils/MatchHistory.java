@@ -55,7 +55,6 @@ public class MatchHistory {
 			int prevPot = 0;
 			int street = 0;
 			int wager = 0;
-			boolean touched = false;
 			for ( int i = 0; i < actions.size(); i++ ) {
 				PerformedActionObject action = actions.get(i);
 				if ( action.actionType.equalsIgnoreCase("deal") ) {
@@ -64,21 +63,6 @@ public class MatchHistory {
 					prevPot = potSizes[street];
 					street++;
 					wager = 0;
-					touched = false;
-				}
-				if ( action.actor.equalsIgnoreCase(opponentName) ) {
-					if ( action.actionType.equalsIgnoreCase("bet")) {
-						wager += action.amount;
-						touched = true;
-					}
-					if ( action.actionType.equalsIgnoreCase("raise")) {
-						wager += action.amount;
-						touched = true;
-					}
-					if ( action.actionType.equalsIgnoreCase("call")) {
-						wager = potSizes[street]-prevPot;
-						touched = true;
-					}
 				}
 			}
 			
@@ -94,6 +78,23 @@ public class MatchHistory {
 				}
 				System.out.println("Hand["+i+"] cards: { " + cards +"}, boards: { " + board + "}, wager = " + oppAmounts[i] +", winChance = " + oppWinRates[i] + ", potSize = " + potSizes[i]);
 			}
+		}
+		
+		public int[] getOppLastBetOrRaise() {
+			List<PerformedActionObject> actions = current.actions;
+			int street = 0;
+			int value = -1;
+			for ( int i = 0; i<actions.size(); i++ ) {
+				PerformedActionObject ACTION = actions.get(i);
+				if ( ACTION.actionType.equals("DEAL") )
+					street++;
+				if ( ACTION.actor.equalsIgnoreCase(current.opponentName) ) {
+					if ( ACTION.actionType.equals("BET") || ACTION.actionType.equals("RAISE") ) {
+						value = ACTION.amount;
+					}
+				}
+			}
+			return new int[]{street,value};
 		}
 	}
 	
@@ -121,23 +122,6 @@ public class MatchHistory {
 				}
 			}
 		}
-	}
-	
-	public int[] getOppLastBetOrRaise() {
-		List<PerformedActionObject> actions = current.actions;
-		int street = 0;
-		int value = -1;
-		for ( int i = 0; i<actions.size(); i++ ) {
-			PerformedActionObject ACTION = actions.get(i);
-			if ( ACTION.actionType.equals("DEAL") )
-				street++;
-			if ( ACTION.actor.equalsIgnoreCase(current.opponentName) ) {
-				if ( ACTION.actionType.equals("BET") || ACTION.actionType.equals("RAISE") ) {
-					value = ACTION.amount;
-				}
-			}
-		}
-		return new int[]{street,value};
 	}
 	
 	public void setStreetData( GetActionObject msg ) {

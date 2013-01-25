@@ -1,8 +1,8 @@
 package pokerbots.utils;
 
+import old.StatAggregator_old.OpponentStats;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.utils.StatAggregator_old.OpponentStats;
 
 public class EVCalculator {
 
@@ -125,9 +125,10 @@ public class EVCalculator {
 		//calculate opponent's perceived chance of winning this hand: TODO: pull from StatAg, subtract bluffing factor
 		int[] streetvalue = history.getOppLastBetOrRaise();
 		float loseChance = 0.85f - (opponent.getLooseness(street) / 2); //max = .85, min = .3
-		if ( streetvalue[1]>=0 )
+		if ( streetvalue[1]>=0 ){
 			loseChance = opponent.getEstimatedWinRate(streetvalue[0],streetvalue[1]);//.85f - (opponent.getLooseness(street) / 2); //max = .85, min = .35
-		
+		}
+			
 		for ( int i = 0; i < legalActions.length; i++ ) {
 			LegalActionObject legalAction = legalActions[i];
 			
