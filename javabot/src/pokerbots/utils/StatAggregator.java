@@ -146,6 +146,7 @@ public class StatAggregator {
 		float[] SX = new float[4];
 		float[] SXX = new float[4];
 		float[] SY = new float[4];
+		float[] SYY = new float[4];
 		float[] SXY = new float[4];
 		
 		//Regression equations for y = a+bx;
@@ -154,6 +155,11 @@ public class StatAggregator {
 		//b = 1/det * (N*SXY-SX*SY)
 		float[] REG_A = new float[4];
 		float[] REG_B = new float[4];
+		
+		//Correlation of data
+		//SSxx = SXX - N*(SX/N)*(SX/N)
+		//SSyy = SYY - N*(SY/N)*(SY/N)
+		//SSxy = SXY - N*(SX/N)*(SY/N)
 		
 		public void addEWRdata( Round r ) {
 			System.out.println("EWR data added");
@@ -165,6 +171,7 @@ public class StatAggregator {
 					SX[i] += x;
 					SXX[i] += x*x;
 					SY[i] += y;
+					SYY[i] += y*y;
 					SXY[i] += x*y;
 				}
 				
@@ -172,8 +179,12 @@ public class StatAggregator {
 					float det = N[i]*SXX[i]-SX[i]*SX[i];
 					REG_A[i] = 1.0f/det * (SY[i]*SXX[i]-SX[i]*SXY[i]);
 					REG_B[i] = 1.0f/det * (N[i]*SXY[i]-SX[i]*SY[i]);
-					System.out.println("Det: " + det);
-					System.out.println("Street: " + i + ", eq: win = a+b*bet, a=" + REG_A[i] + ", b=" + REG_B[i]);
+					
+					float SSxx = SXX[i] - (SX[i])*(SX[i]/N[i]);
+					float SSyy = SYY[i] - (SY[i])*(SY[i]/N[i]);
+					float SSxy = SXY[i] - (SX[i])*(SY[i]/N[i]);
+					
+					System.out.println("Street: " + i + ", eq: win = a+b*bet, a=" + REG_A[i] + ", b=" + REG_B[i] +", data points=" + N[i] +", SSxy = " + SSxy);
 				}
 			}
 		}
@@ -181,7 +192,8 @@ public class StatAggregator {
 		public float getEstimatedWinRate(int street,int value) {
 			if ( N[street]<2 )
 				return 0.5f;
-			return REG_A[street]+REG_B[street]*value;
+			float v = REG_A[street]+REG_B[street]*value;
+			return Utils.boundFloat(v, 0, 1);
 		}
 		
 

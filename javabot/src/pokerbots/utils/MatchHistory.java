@@ -18,6 +18,7 @@ public class MatchHistory {
 		public int[][] boardCards = new int[][]{
 				{},{0,0,0},{0,0,0,0},{0,0,0,0,0}	
 		};
+		public int[] potSizes = new int[4];
 		public int[] oppCards = null;
 		
 		public boolean showdown = false;
@@ -49,29 +50,50 @@ public class MatchHistory {
 			oppWinRates = new float[]{ratesPF[10],ratesFLOP[10],ratesTURN[10],ratesRIVER[10]};
 			oppAmounts = new int[4];
 			
+			System.out.println("Round Analysis:");
+			
+			int prevPot = 0;
 			int street = 0;
 			int wager = 0;
 			boolean touched = false;
 			for ( int i = 0; i < actions.size(); i++ ) {
 				PerformedActionObject action = actions.get(i);
 				if ( action.actionType.equalsIgnoreCase("deal") ) {
+					wager = potSizes[street]-prevPot;
 					oppAmounts[street] = wager;
+					prevPot = potSizes[street];
 					street++;
 					wager = 0;
 					touched = false;
 				}
-				if ( action.actor.equalsIgnoreCase(opponentName) && !touched ) {
+				if ( action.actor.equalsIgnoreCase(opponentName) ) {
 					if ( action.actionType.equalsIgnoreCase("bet")) {
-						wager = action.amount;
+						wager += action.amount;
 						touched = true;
 					}
 					if ( action.actionType.equalsIgnoreCase("raise")) {
-						wager = action.amount;
+						wager += action.amount;
+						touched = true;
+					}
+					if ( action.actionType.equalsIgnoreCase("call")) {
+						wager = potSizes[street]-prevPot;
 						touched = true;
 					}
 				}
 			}
+			
 			oppAmounts[street] = wager;
+			
+			for ( int i = 0; i < 4; i++ ) {
+				String cards = "";
+				cards += HandEvaluator.cardToString(oppCards[0])+" ";
+				cards += HandEvaluator.cardToString(oppCards[1]);
+				String board = "";
+				for ( int j = 0; j < boardCards[i].length; j++ ) {
+					board += HandEvaluator.cardToString(boardCards[i][j])+" ";
+				}
+				System.out.println("Hand["+i+"] cards: { " + cards +"}, boards: { " + board + "}, wager = " + oppAmounts[i] +", winChance = " + oppWinRates[i] + ", potSize = " + potSizes[i]);
+			}
 		}
 	}
 	
@@ -119,9 +141,11 @@ public class MatchHistory {
 	}
 	
 	public void setStreetData( GetActionObject msg ) {
-		int idx = msg.boardCards.length-3;
+		//System.out.println("SET STREET SESAME: " + msg.boardCards.length );
+		int idx = msg.boardCards.length-2;
 		if ( idx<0 ) idx = 0;
 		current.boardCards[idx] = msg.boardCards;
+		current.potSizes[idx] = msg.potSize;
 	}
 	
 	public void saveRoundData() {

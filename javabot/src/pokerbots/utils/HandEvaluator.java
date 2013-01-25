@@ -65,6 +65,8 @@ public class HandEvaluator {
 	};
 	
 	public static String cardToString( int card ) {
+		if ( card==0x3f )
+			return "Xx";
 		// club, spade, diamond, heart
 		int rank = card&0xf;
 		int suit = card>>4;
