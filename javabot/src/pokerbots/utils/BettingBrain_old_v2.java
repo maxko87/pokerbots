@@ -66,16 +66,19 @@ public class BettingBrain_old_v2 {
 	private final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3};
 	
 	public GameObject myGame;
-	EVCalculator ev = new EVCalculator();
+	EVCalculator ev;
 	
 	//these are updated by takeAction
+	MatchHistory history;
 	OpponentStats opponent;
 	GetActionObject getActionObject;
 	float winChance;
 	int street;
 	
-	public BettingBrain_old_v2(GameObject game){
+	public BettingBrain_old_v2(GameObject game,MatchHistory history){
 		myGame = game;
+		ev = new EVCalculator(history);
+		this.history = history;
 	}
 
 	

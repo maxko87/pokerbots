@@ -100,6 +100,24 @@ public class MatchHistory {
 		}
 	}
 	
+	public int[] getOppLastBetOrRaise() {
+		List<PerformedActionObject> actions = current.actions;
+		int street = 0;
+		int value = -1;
+		for ( int i = 0; i<actions.size(); i++ ) {
+			PerformedActionObject ACTION = actions.get(i);
+			current.actions.add(ACTION);
+			if ( ACTION.actionType.equals("DEAL") )
+				street++;
+			if ( ACTION.actor.equalsIgnoreCase(current.opponentName) ) {
+				if ( ACTION.actionType.equals("BET") || ACTION.actionType.equals("RAISE") ) {
+					value = ACTION.amount;
+				}
+			}
+		}
+		return new int[]{street,value};
+	}
+	
 	public void setStreetData( GetActionObject msg ) {
 		int idx = msg.boardCards.length-3;
 		if ( idx<0 ) idx = 0;
