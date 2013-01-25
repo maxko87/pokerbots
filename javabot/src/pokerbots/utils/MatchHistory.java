@@ -31,7 +31,7 @@ public class MatchHistory {
 		public int[] oppAmounts;
 		
 		public void printRound() {
-			System.out.println("-------\n--------");
+			System.out.println("-------\n");
 			System.out.println("NEW ROUND (Hand #" + roundId + ")");
 			
 			for ( int i = 0; i < actions.size(); i++ ) {

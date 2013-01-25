@@ -3,6 +3,7 @@ package pokerbots.utils;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
+import pokerbots.utils.EVCalculator.EVObj;
 import pokerbots.utils.StatAggregator.OpponentStats;
 
 /*
@@ -133,15 +134,15 @@ public class BettingBrain_old_v2 {
 		
 		//USING EV CALCULATOR
 		if (EV_Player && street == 3){
-			String action = ev.getRiverAction(opponent, winChance, getActionObject);
+			EVObj evObj = ev.getRiverEVandAction(opponent, winChance, getActionObject);
 			int maxBet = Utils.boundInt(myGame.stackSize - (getActionObject.potSize / 2), 1, myGame.stackSize);
-			if (action.equalsIgnoreCase("bet")){
+			if (evObj.action.equalsIgnoreCase("bet")){
 				return validateAndReturn("bet", makeBet(maxBet, getActionObject.potSize));
 			}
-			else if (action.equalsIgnoreCase("raise")){
+			else if (evObj.action.equalsIgnoreCase("raise")){
 				return validateAndReturn("raise", makeRaise(maxBet, getActionObject.potSize));
 			}
-			else if (action.equalsIgnoreCase("call")){
+			else if (evObj.action.equalsIgnoreCase("call")){
 				return validateAndReturn("call", 0);
 			}
 			return validateAndReturn("check", 0);
