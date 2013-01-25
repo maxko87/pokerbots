@@ -58,6 +58,7 @@ public class StatAggregator {
 
 		String name = "Undefined";
 		int startingStackSize = 400;
+		int totalHandCount = 0;
 		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3}; // must be at least 1
 		public final float DEFAULT_PERCENT = 0.3f;
 		public final int NUM_OPP_WIN_PERCENTAGE_BUCKETS = 5;
@@ -205,6 +206,8 @@ public class StatAggregator {
 			
 			int street = 0;
 			for ( int i = 0; i < data.actions.size() - 1; i++ ) {
+				totalHandCount++;
+				
 				PerformedActionObject prev = data.actions.get(i);
 				PerformedActionObject curr = data.actions.get(i+1);
 

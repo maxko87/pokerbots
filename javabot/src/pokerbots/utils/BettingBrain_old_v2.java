@@ -65,6 +65,9 @@ public class BettingBrain_old_v2 {
 	//threshold for learning amounts in order to use heuristics
 	private final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3};
 	
+	//number of hands to start using expected value and generalizing stuff
+	private final int ENOUGH_HANDS = 100;
+	
 	public GameObject myGame;
 	EVCalculator ev;
 	
@@ -86,16 +89,14 @@ public class BettingBrain_old_v2 {
 	//DELEGATES ALL ACTIONS 
 	public String takeAction(OpponentStats o, GetActionObject g, float w, int s) {
 		
-		
-		//turn on EV player after enough data is collected
-		if (myGame.numHands > 50)
-			EV_Player = true;
-		
-		
 		opponent = o;
 		getActionObject = g;
 		winChance = w;
 		street = s;
+		
+		//turn on EV player after enough data is collected
+		if (opponent.totalHandCount > ENOUGH_HANDS)
+			EV_Player = true;
 		
 		
 		/*
@@ -128,11 +129,11 @@ public class BettingBrain_old_v2 {
 		if ( street == 0 ) {
 			float raise_size = winChance * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (myGame.stackSize / 10) + 2;
 			if ( winChance > getMinWinChance() ) {
-				if (winChance < getMinWinChanceForRaisePreflop() && raise_size > 30){
-					return validateAndReturn("call",0); //don't continuously reraise preflop
+				if (winChance > getMinWinChanceForRaisePreflop() && raise_size < 30 && opponent.totalHandCount > ENOUGH_HANDS){
+					return validateAndReturn("raise",(int)(raise_size));
 				}
-				return validateAndReturn("raise",(int)(raise_size));
 			}
+			return validateAndReturn("call",0); //don't continuously reraise preflop
 		}
 		
 		//USING EV CALCULATOR
@@ -191,6 +192,10 @@ public class BettingBrain_old_v2 {
 		// use opponent's aggression to scale our looseness -- higher opp aggression = we play tighter
 		//float winChance = Utils.scale(opponent.getAggression(street), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
 		float winChance = Utils.inverseScale(opponent.getLooseness(street), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
+		if (opponent.totalHandCount < ENOUGH_HANDS){
+			winChance = MIN_WIN_TO_PLAY[street][0];
+		}
+			
 		System.out.println("WINCHANCE: " + winChance);
 		
 		// if the opponent bets a lot compared to the pot, our win chance goes down
@@ -201,7 +206,7 @@ public class BettingBrain_old_v2 {
 			if ( performedAction.actor.equalsIgnoreCase(myGame.oppName) && (performedAction.actionType.equalsIgnoreCase("bet") || performedAction.actionType.equalsIgnoreCase("raise")) ) {
 				winChanceIncreaseNeeded = Utils.scale(performedAction.amount, 0, getActionObject.potSize, 0, MAX_WIN_CHANCE_REDUCTION);
 				winChance += winChanceIncreaseNeeded;
-			}		
+			}
 		}
 		*/
 		return winChance;
