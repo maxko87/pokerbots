@@ -160,11 +160,13 @@ public class StatAggregator {
 			for ( int i = 0; i < 4; i++ ) {
 				float y = r.oppWinRates[i];
 				int x = r.oppAmounts[i];
-				N[i] += 1;
-				SX[i] += x;
-				SXX[i] += x*x;
-				SY[i] += y;
-				SXY[i] += x*y;
+				if ( x>0 ) {
+					N[i] += 1;
+					SX[i] += x;
+					SXX[i] += x*x;
+					SY[i] += y;
+					SXY[i] += x*y;
+				}
 				
 				if ( N[i]>1 ) {
 					float det = N[i]*SXX[i]-SX[i]*SX[i];
