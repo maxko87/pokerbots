@@ -59,7 +59,7 @@ public class StatAggregator {
 		String name = "Undefined";
 		int startingStackSize = 400;
 		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3}; // must be at least 1
-		public final float DEFAULT_PERCENT = 0.5f;
+		public final float DEFAULT_PERCENT = 0.3f;
 		public final int NUM_OPP_WIN_PERCENTAGE_BUCKETS = 5;
 		
 		//these two parameters should be learned later
@@ -109,7 +109,6 @@ public class StatAggregator {
 			totalTimesWeRaise = new int[] {0,0,0,0};
 			totalTimesOnAction = new int[] {0,0,0,0};
 			
-			// TODO: COMPUTE THESE.
 			totalAmountWeBetForFold = new int[] {0,0,0,0};
 			totalAmountWeRaiseForFold = new int[] {0,0,0,0};
 			
@@ -130,6 +129,46 @@ public class StatAggregator {
 			}
 
 		}
+		
+		//Estimate win-rate data analysis with linear regression
+		//[ n		S(x)  ]^-1	[ S(y)   ] = [ a ]
+		//[ S(x)	S(x*x)]		[ S(x*y) ] = [ b ]
+		float[] N = new float[4];
+		float[] SX = new float[4];
+		float[] SXX = new float[4];
+		float[] SY = new float[4];
+		float[] SXY = new float[4];
+		
+		//Regression equations for y = a+bx;
+		//det = N*SXX-SX*SX
+		//a = 1/det * (SY*SXX-SX*SXY)
+		//b = 1/det * (N*SXY-SX*SY)
+		float[] REG_A = new float[4];
+		float[] REG_B = new float[4];
+		public void addEWRdata( Round r ) {
+			for ( int i = 0; i < 4; i++ ) {
+				float y = r.oppWinRates[i];
+				int x = r.oppAmounts[i];
+				N[i] += 1;
+				SX[i] += x;
+				SXX[i] += x*x;
+				SY[i] += y;
+				SXY[i] += x*y;
+				
+				if ( N[i]>1 ) {
+					float det = N[i]*SXX[i]-SX[i]*SX[i];
+					REG_A[i] = 1.0f/det * (SY[i]*SXX[i]-SX[i]*SXY[i]);
+					REG_B[i] = 1.0f/det * (N[i]*SXY[i]-SX[i]*SY[i]);
+				}
+			}
+		}
+		
+		public float getEstimatedWinRate(int street,int value) {
+			if ( N[street]<2 )
+				return 0.5f;
+			return REG_A[street]+REG_B[street]*value;
+		}
+		
 
 		/* Parses the lines between every "HAND #" and "__ wins the pot" in the match.txt file to update this class accordingly. 
 		 * TODO
@@ -215,6 +254,18 @@ public class StatAggregator {
 							System.out.println("INCREMENTED totalTimesWeRaise: " + street + "\t\t" + totalTimesWeRaise[street]);
 						}
 					}
+					else if ( prevA.equalsIgnoreCase("check") ) {
+						if ( currA.equalsIgnoreCase("bet") || currA.equalsIgnoreCase("raise") ) {
+							timesBetsOnAction[street]++;
+							totalTimesOnAction[street]++;
+							totalValueOfBets[street] += curr.amount;
+							
+							System.out.println("INCREMENTED timesBetsOnAction: " + street + "\t\t" + timesBetsOnAction[street]);
+							System.out.println("INCREMENTED totalTimesOnAction: " + street + "\t\t" + totalTimesOnAction[street]);
+							System.out.println("INCREMENTED totalValueOfBets: " + street + "\t\t" + totalValueOfBets[street]);
+
+						}
+					}
 				}
 				
 				//IF On-Action behavior is seen
@@ -240,6 +291,10 @@ public class StatAggregator {
 				
 			}
 			
+			//Add Showdown data!
+			if (data.showdown) {
+				addEWRdata(data);
+			}
 		}	
 
 		/* Helper that either returns the percentage of action over total for a specific street,
@@ -302,6 +357,23 @@ public class StatAggregator {
 			return fractionOrGeneralize(totalAmountWeRaiseForFold, timesFoldsToRaise, street);
 		}
 		
+		public int[] getTimesRaises(){
+			int[] res = new int[4];
+			for (int i=0; i<4; i++){
+				res[i] = timesRaisesToBet[i] + timesRaisesToRaise[i];
+			}
+			return res;
+		}
+		
+		public float getAverageRaise(int street){
+			return fractionOrGeneralize(totalValueOfRaises, getTimesRaises(), street);
+		}
+		
+		public float getAverageBet(int street){
+			return fractionOrGeneralize(totalValueOfBets, timesBetsOnAction, street);
+		}
+		
+		/*
 		// showdowns only: retroactively determine opponent's bet size given a win percentage on specific street
 		// we can tell how much an opponent would bet on a street if he had a certain win percentage.
 		public float getBetAmount(int street, float oppWinPercentage){
@@ -323,6 +395,7 @@ public class StatAggregator {
 			}
 			return (bucket*bucketWidth) + (bucketWidth/2);
 		}
+		*/
 		
 		// (0,1) rating of this opponent's aggression (size of bet when he does bet)
 		public float getAggression(int street){
@@ -378,10 +451,11 @@ public class StatAggregator {
 				System.out.println("Fold\t\t" + f(getPercentFoldToBet(i)) +"\t\t"+f(getPercentFoldToRaise(i))+"\t\tX");
 				System.out.println("Raise\t\t" + f(getPercentRaiseToBet(i)) +"\t\t"+f(getPercentRaiseToRaise(i))+"\t\tX");
 				System.out.println("Call\t\t" + f(getPercentCallToBet(i)) +"\t\t"+f(getPercentCallToRaise(i))+"\t\tX");
-				System.out.println("Bet\t\t" + "X\t\tX\t\tX\t\t" + f(getPercentBetsOnAction(i)) );
+				System.out.println("Bet\t\t" + "X\t\tX\t\t" + f(getPercentBetsOnAction(i)) );
 				System.out.println("Checks on action: " + f(getPercentChecksOnAction(i)) );
 				System.out.println("Aggression: " + f(getAggression(i)));
 				System.out.println("Looseness: " + f(getLooseness(i)));
+				System.out.println("Average bet, raise: " + (int)getAverageBet(i) + ", " + (int)getAverageRaise(i));
 			}
 			System.out.println("Aggregate Aggression: " + f(getTotalAggression()) );
 			System.out.println("Aggregate Looseness: " + f(getTotalLooseness()) );

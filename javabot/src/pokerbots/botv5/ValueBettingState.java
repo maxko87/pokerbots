@@ -5,15 +5,15 @@ import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
 import pokerbots.states.DecisionState;
 import pokerbots.states.ResponseObject;
-import pokerbots.utils.BettingBrain;
+import pokerbots.utils.BettingBrain_ariel;
 import pokerbots.utils.HandEvaluator;
 
 public class ValueBettingState extends DecisionState {
 	
-	BettingBrain bettingBrain;
+	BettingBrain_ariel bettingBrain;
 	
 	public ValueBettingState() {
-		bettingBrain = new BettingBrain();
+		bettingBrain = new BettingBrain_ariel();
 	}
 	
 	public ResponseObject preflop( GameObject myGame, HandObject myHand, GetActionObject actions ) {

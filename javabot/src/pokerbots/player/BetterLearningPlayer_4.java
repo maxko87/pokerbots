@@ -76,6 +76,7 @@ public class BetterLearningPlayer_4 {
 					GetActionObject msg = new GetActionObject(input);
 					potSize = msg.potSize;
 					history.appendRoundData(msg.lastActions);
+					history.setStreetData(msg);
 					String action = respondToGetAction(msg);
 					outStream.println(action);
 					
@@ -86,7 +87,7 @@ public class BetterLearningPlayer_4 {
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
-					history.newRound(myHand.handId);
+					history.newRound(myHand.handId,myGame.oppName);
 					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
