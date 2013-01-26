@@ -26,6 +26,7 @@ import pokerbots.utils.Utils;
  * - switches between brains
  * 
  * Todo:
+ * - ROUND ANALYSIS WTF
  * - 
  * 
  */
@@ -50,6 +51,7 @@ public class BrainSwitchingPlayer_5 {
 	private GenericBrain brain;
 	private SimpleBrain simpleBrain;
 	private EVBrain evBrain;
+	private GenericBrain[] brains;
 
 	BrainSwitchingPlayer_5(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
@@ -75,13 +77,12 @@ public class BrainSwitchingPlayer_5 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					//instantiate all brains
-					simpleBrain = new SimpleBrain(myGame,history);
-					EVBrain evBrain = new EVBrain(myGame,history);
-					//choose initial brain
-					brain = simpleBrain;
 					//instantiate opponent
 					opponent = aggregator.getOrCreateOpponent(myGame);
+					//instantiate all brains
+					instantiateBrains();
+					//choose initial brain
+					brain = simpleBrain;
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
@@ -98,6 +99,7 @@ public class BrainSwitchingPlayer_5 {
 					opponent.printStats(myGame);
 					//store cumulative earnings
 					opponent.updateBrain(brain.toString(), HOobj.getEarnings(myGame.myName));
+					System.out.println("I JUST WON: " + HOobj.getEarnings(myGame.myName));
 					//choose a brain
 					brain = chooseBrain();
 					
@@ -105,9 +107,9 @@ public class BrainSwitchingPlayer_5 {
 					//none
 					
 				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
+					opponent.printFinalBrainScores(myGame, brains);
 					//none
 					
-					opponent.printFinalStats(myGame);
 					outStream.println("FINISH");
 				}
 			}
@@ -124,14 +126,27 @@ public class BrainSwitchingPlayer_5 {
 		}
 	}
 	
+	private void instantiateBrains() {
+		simpleBrain = new SimpleBrain(myGame,history);
+		evBrain = new EVBrain(history,myGame);
+		brains = new GenericBrain[] {simpleBrain, evBrain};
+		//make sure OpponentStats knows about them all
+		for (int i=0; i<brains.length; i++){
+			opponent.updateBrain(brains[i].toString(), 0);
+		}
+		
+	}
+
 	private GenericBrain chooseBrain() {
-		//do some learning
-		if (opponent.totalHandCount < 50){
+		//do some learning/training
+		if (opponent.totalHandCount < 100){
 			return simpleBrain;
+		}
+		else if (opponent.totalHandCount < 200){
+			return evBrain;
 		}
 		
 		//calculate average score per brain so far, decide best brain to use
-		GenericBrain[] brains = new GenericBrain[] {simpleBrain, evBrain};
 		float[] brainAvgScores = new float[brains.length];
 		float topScore = opponent.brainScores.get(brains[0].toString()) / opponent.brainHands.get(brains[0].toString());
 		GenericBrain topBrain = simpleBrain; 
@@ -142,8 +157,8 @@ public class BrainSwitchingPlayer_5 {
 				topBrain = brains[i];
 			}
 		}
+		return evBrain;
 		//return topBrain;
-		return simpleBrain;
 	}
 
 	public String respondToGetAction( GetActionObject getActionObject) {

@@ -64,6 +64,10 @@ public class StatAggregator {
 		public HashMap<String, Integer> brainScores;
 		public HashMap<String, Integer> brainHands;
 		
+		public float getAvgBrainScore(String brainName){
+			return (float)(brainScores.get(brainName)) / brainHands.get(brainName);
+		}
+		
 		String name;
 		int startingStackSize;
 		public int totalHandCount;
@@ -143,7 +147,7 @@ public class StatAggregator {
 		}
 
 		public void analyzeRoundData( HandObject hand, Round data ){
-
+			
 			int street = 0;
 			int myWagerSize = 0; 	//Size of MY wager
 			float hisEstimatedWinChance = 0;
@@ -257,6 +261,8 @@ public class StatAggregator {
 				prev = curr;
 				
 			}
+			
+			totalHandCount++;
 		}
 		
 		public final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3};
@@ -298,16 +304,17 @@ public class StatAggregator {
 				
 				value_Raise_given_their_winChance[i].print();
 				value_Bet_given_their_winChance[i].print();
-				System.out.println("");
+				System.out.println("\n\n\n\n\n\n");
 			}
 		}
 		
-		public void printFinalStats(GameObject myGame) {
-			String[] brains = new String[] {"simpleBrain", "evBrain"};
-			System.out.println("\n Brain scores:");
-			System.out.println("Brain name \t score \t total hands \t avg per hand");
+		public void printFinalBrainScores(GameObject myGame, GenericBrain[] brains) {
+			System.out.println("\nBrain scores:");
+			System.out.println("Brain name \t\t score \t\t hands \t\t avg");
 			for (int i=0; i<brainScores.size(); i++){
-				System.out.println(brains[i] + "\t" + brainScores.get(brains[i]) + "\t" + brainHands.get(brains[i]) + "\t" + brainScores.get(brains[i])/(float)(brainHands.get(brains[i])));
+				int thisBrainScore = brainScores.get(brains[i].toString());
+				int thisBrainHands = brainHands.get(brains[i].toString());
+				System.out.println(brains[i].toString() + "\t\t" + thisBrainScore + "\t\t" + thisBrainHands + "\t\t" + f(getAvgBrainScore(brains[i].toString())));
 			}
 			System.out.println("END\n\n\n\n\n\n\n\n\n");
 		}

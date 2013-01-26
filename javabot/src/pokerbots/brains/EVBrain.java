@@ -2,219 +2,195 @@ package pokerbots.brains;
 
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
-import pokerbots.packets.LegalActionObject;
-import pokerbots.utils.EVCalculator;
-import pokerbots.utils.EVCalculator.EVObj;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.Utils;
+import pokerots.strategy.BasicStrategy;
+import pokerots.strategy.BettingStrategy;
 
-/*
- * High-level strategies:
- * 
- * 1) Value betting. This is what we are doing normally -- bet based on our own chance of winning, thus playing good hands harder. This will be enough
- * to beat at least 75% of the bots, and we should stick to it as much as we can (the rest of the strategies rely increasingly on psychology, which
- * bots may or may not have).
- * 
- * turn and river (maybe even check/call on the turn and hold off the betting until the river). 
- * 
- * 3) Holding out bluff. Similar to above, but instead of actually having a strong hand, we wait for a board that might make us seem like we have a 
- * better hand than the opponent (e.g. three queens on the board after the turn) and we bet hard. This is essentially hoping that our opponent's bot
- * is factoring in our bet sizes in its decisions of whether or not to play -- this might backfire against worse bots that don't do this.
- * 
- * 4) Check raise. If we have a very strong hand on any street and we are on action, we may want to check, let the opponent bet, and then raise them
- * hard. This works well if the opponent is tight and aggressive -- if we can be confident they will bet after our check, we can be sure to take at
- * least some money from them (as opposed to coming out with a strong bet that they might fold to).
- * 
- * 5) Check raise bluff. Same as 4 but without the strong hand.
- *  
- * 
- *  For the bluffs, we should make use of getOurAverageBetForFold and getOurAverageRaiseForFold, and maybe a comparable 
- *  getOurAverageBetForCall/Raise -- that way, we may be able to identify a value threshold to which the opponent reliably folds.
- * 
- * 
- */
-
-public class EVBrain extends GenericBrain{
+public class EVBrain extends GenericBrain {
 	
-	//which players are in use?
-	boolean EV_Player = true; 
+	MatchHistory history;
+	GameObject game;
+	BettingStrategy strategy;
 	
-	
-	
-	
-	float val1 = 0.5f;
-	float val2 = 0.8f;
-	
-	float val3 = 0.6f;
-	float val4 = 0.8f;
-	
-	float val5 = 0.5f;
-	float val6 = 0.8f;
-	
-	float val7 = 0.5f;
-	float val8 = 0.8f;
-	
-
-	float val17 = 0.05f;
-	
-	//minimum default percentage range of winning to play/raise each street.
-	private final float[][] MIN_WIN_TO_PLAY = new float[][] {{val1, val2}, {val3, val4}, {val5, val6}, {val7, val8}};
-	private final float[] MIN_WIN_TO_RAISE = new float[] {.8f, .8f, .7f, .7f};
-	
-	//maxmimum reduction in winChance based on a strong bet. TODO: this should be lower when we play against bluffing bots
-	private final float MAX_WIN_CHANCE_REDUCTION = val17;
-	
-	//threshold for learning amounts in order to use heuristics
-	private final int[] THRESHOLD_FOR_GENERALIZING = new int[] {3, 3, 3, 3};
-	
-	//number of hands to start using expected value and generalizing stuff
-	private final int ENOUGH_HANDS = 100;
-	
-	EVCalculator ev;
-	
-	public EVBrain(GameObject game,MatchHistory history){
-		myGame = game;
-		ev = new EVCalculator(history);
+	public EVBrain( MatchHistory history, GameObject game ) {
 		this.history = history;
+		this.game = game;
+		this.strategy = new BasicStrategy();
 	}
-
 	
-	
-	//DELEGATES ALL ACTIONS 
 	public String takeAction(OpponentStats o, GetActionObject g, float w, int s) {
+		this.opponent = o;
+		this.getActionObject = g;
+		this.street = s;
 		
-		super.setVars(o, g, w, s);
+		float myWinChance = w;
+		float theirWinChance = 0.8f-o.getLooseness(s)*0.5f;
 		
-		//turn on EV player after enough data is collected
-		if (opponent.totalHandCount > ENOUGH_HANDS)
-			EV_Player = true;
-		
-		//PREFLOP ADJUSTMENTS
-		if ( street == 0 ) {
-			float raise_size = winChance * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (myGame.stackSize / 10) + 2;
-			if ( winChance > getMinWinChance() ) {
-				if (winChance > getMinWinChanceForRaisePreflop() && raise_size < 30 && opponent.totalHandCount > ENOUGH_HANDS){
-					return validateAndReturn("raise",(int)(raise_size));
-				}
-			}
-			return validateAndReturn("call",0); //don't continuously reraise preflop
-		}
-		
-		//USING EV CALCULATOR
-		if (EV_Player && street == 3){
-			System.out.println("using EV Calc");
-			EVObj evObj = ev.getRiverEVandAction(opponent, winChance, getActionObject);
-			int maxBet = Utils.boundInt(myGame.stackSize - (getActionObject.potSize / 2), 1, myGame.stackSize);
-			if (evObj.action.equalsIgnoreCase("bet")){
-				//return validateAndReturn("bet", makeBet(maxBet, getActionObject.potSize));
-				return validateAndReturn("bet", (int)evObj.EV);
-			}
-			else if (evObj.action.equalsIgnoreCase("raise")){
-				//return validateAndReturn("raise", makeRaise(maxBet, getActionObject.potSize));
-				return validateAndReturn("bet", (int)evObj.EV);
-			}
-			else if (evObj.action.equalsIgnoreCase("call")){
-				return validateAndReturn("call", 0);
-			}
-			return validateAndReturn("check", 0);
-		}
-		
-		//original, basic strategy
-		if ( winChance > getMinWinChance() ){
-			return betRaiseCall();
-		}
-		else{
-			return foldOrCheck();
-		}		
+		return EV(g.potSize,myWinChance,theirWinChance,street);
 	}
 	
-	// minimum chance of winning we need to play
-	public float getMinWinChance(){
-		// use opponent's aggression to scale our looseness -- higher opp aggression = we play tighter
-		//float winChance = Utils.scale(opponent.getAggression(street), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
-		float winChance = Utils.inverseScale(opponent.getLooseness(street), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
-		if (opponent.totalHandCount < ENOUGH_HANDS){
-			winChance = MIN_WIN_TO_PLAY[street][0];
-		}
+	public float WF( float w, float t ) {
+		//return (w-t);
+		return w-t;//((w + (1-t))*0.5f) - 0.5f;
+	}
+	
+	public String EV( int potSize, float w, float t, int s ) {
+		//Compute EV trees
+		System.out.println("EV CALCULATOR");
+		System.out.println("*****************************");
+		
+		if ( s==0 )
+			return validateAndReturn("call", 0);
+		
+		//EVs when on action
+		String bestAction = validateAndReturn("check", 0);
+		float EV_BEST = -100000;
+		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
+		
+			String action = getActionObject.legalActions[i].actionType;
 			
-		System.out.println("WINCHANCE: " + winChance);
-		
-		// if the opponent bets a lot compared to the pot, our win chance goes down
-		/*
-		float winChanceIncreaseNeeded = 0f;
-		if (getActionObject.lastActions.length > 0){
-			PerformedActionObject performedAction = getActionObject.lastActions[getActionObject.lastActions.length-1];
-			if ( performedAction.actor.equalsIgnoreCase(myGame.oppName) && (performedAction.actionType.equalsIgnoreCase("bet") || performedAction.actionType.equalsIgnoreCase("raise")) ) {
-				winChanceIncreaseNeeded = Utils.scale(performedAction.amount, 0, getActionObject.potSize, 0, MAX_WIN_CHANCE_REDUCTION);
-				winChance += winChanceIncreaseNeeded;
-			}
-		}
-		*/
-		return winChance;
-	}
-	
-	public float getMinWinChanceForRaisePreflop(){
-		float winChance = Utils.inverseScale(opponent.getLooseness(street), 0.0f, 1.0f, .75f, .9f);
-		//winChance = Utils.scale(winChance, 0f, 1f, .65f, 1f);
-		System.out.println("WINCHANCE FOR RERAISE PREFLOP: " + winChance);
-		return winChance;
-	}
-		
-	
-	
-	//given odds and stack size, decides how much to bet
-	public int makeBet(int maxBet, int potSize){
-		float bet = (winChance - MIN_WIN_TO_PLAY[street][0]) * maxBet;
-		bet = bet * opponent.getLooseness(street); 
-		return (int)bet;
-	}
-	
-	//given odds and stack size, decides how much to raise
-	public int makeRaise(int maxBet, int potSize){
-		int raise;
-		raise = (int) (potSize * winChance);		
-		return raise;
-	}
-	
-	public String betRaiseCall() {
-		
-		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
-			LegalActionObject legalAction = getActionObject.legalActions[i];
-		
-			if ( legalAction.actionType.equalsIgnoreCase("bet") ) {
-				int bet = (int)(makeBet(legalAction.maxBet, getActionObject.potSize));
-				return validateAndReturn("bet", bet);
-			}
-			else if ( legalAction.actionType.equalsIgnoreCase("raise") ) {
-				if (winChance > MIN_WIN_TO_RAISE[street]){
-					int raise = (int)(makeRaise(legalAction.maxBet, getActionObject.potSize));
-					return validateAndReturn("raise", raise);
-				}
-				else{
-					return validateAndReturn("call",0);
+			if ( action.equalsIgnoreCase("check") ) {
+				float EV_CHECK = EV_myCheck(potSize, s, w, t);
+				if ( EV_CHECK > EV_BEST ) {
+					EV_BEST = EV_CHECK;
+					bestAction = validateAndReturn("check", 0);
 				}
 			}
+			
+			if ( action.equalsIgnoreCase("bet") ) {
+				int minBet = getActionObject.legalActions[i].minBet;
+				int maxBet = getActionObject.legalActions[i].maxBet;
+				for ( int myBetSize = minBet; myBetSize <= maxBet; myBetSize+=5 ) {
+					float ev = EV_myBet(potSize, myBetSize, s, w, t);
+					if ( ev > EV_BEST ) {
+						EV_BEST = ev;
+						bestAction = validateAndReturn("bet", myBetSize);
+					}
+				}
+			}
+			
+			if ( action.equalsIgnoreCase("raise") ) {
+				int minRaise = getActionObject.legalActions[i].minBet;
+				int maxRaise = getActionObject.legalActions[i].maxBet;
+				for ( int myRaiseSize = minRaise; myRaiseSize <= maxRaise; myRaiseSize+=5 ) {
+					float ev = EV_myRaise(potSize, myRaiseSize, s, w, t);
+					if ( ev > EV_BEST ) {
+						EV_BEST = ev;
+						bestAction = validateAndReturn("raise", myRaiseSize);
+					}
+				}
+			}
+			
+			if ( action.equalsIgnoreCase("call") ) {
+				int theirLastWager= history.getCurrentRound().getOppLastBetOrRaise()[1];
+				float EV_CALL = EV_myCall(potSize, theirLastWager, s, w, t); //can also dual as check with theirBet = 0
+				if ( EV_CALL > EV_BEST ) {
+					EV_BEST = EV_CALL;
+					bestAction = validateAndReturn("call", 0);
+				}
+			}
+			
+			if ( action.equalsIgnoreCase("fold") ) {
+				if ( 0 > EV_BEST ) {
+					bestAction = validateAndReturn("fold", 0);
+					EV_BEST = 0;
+				}
+			}
+			
+			System.out.println("BEST EV: " + EV_BEST);
+			System.out.println("BEST ACTION: " + bestAction);
 		}
-		return validateAndReturn("call",0);
+		
+		return bestAction;
 	}
 	
+	public float EV_myCheck( int potSize, int s, float w, float t ) {
+		float P_he_checks = Utils.boundFloat(opponent.P_Check_given_Check[s].getEstimate(t),0,1);
+		float P_he_bets = Utils.boundFloat(opponent.P_Bet_given_Check[s].getEstimate(t),0,1);
+				
+		//Compute EV cumulative
+		float EV = 	P_he_checks * ( potSize ) * WF(w,t) +
+					P_he_bets * ( EV_myResponseToHisBet(potSize,s,w,t) );
+		
+		return EV;
+	}
+	
+	public float EV_myCall( int potSize, int theirBet, int s, float w, float t ) {
+		float EV = 	(potSize + theirBet*2) * WF(w,t);
+		return EV;
+	}
+	
+	public float EV_myBet( int potSize, float betSize, int s, float w, float t ) {
+		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Bet[s].getEstimate(betSize),0,1);
+		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Bet[s].getEstimate(betSize),0,1);
+		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Bet[s].getEstimate(betSize),0,1);
 
-	public String foldOrCheck( ) {
-		for ( int i = 0; i < getActionObject.legalActions.length; i++ ) {
-			LegalActionObject action = getActionObject.legalActions[i];
-			if ( action.actionType.equalsIgnoreCase("check") ) {
-				return "CHECK";
-			}
-		}
-		return "FOLD";
+		// TUNE P_call and P_raise based on P_fold
+		// P_fold + P_call + P_raise = 1
+		P_he_calls = (P_he_calls/2 + (1-P_he_folds)/4);
+		P_he_raises = (P_he_raises/2 + (1-P_he_folds)/4);
+				
+		//Compute EV cumulative
+		float EV = 	P_he_calls * (potSize + betSize*2) * WF(w,t) +
+					P_he_raises * ( EV_myResponseToHisRaise(potSize,s,w,t) );
+		
+		return EV;
+	}
+	
+	public float EV_myRaise( int potSize, float raiseSize, int s, float w, float t ) {
+		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Raise[s].getEstimate(raiseSize),0,1);
+		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Raise[s].getEstimate(raiseSize),0,1);
+		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Raise[s].getEstimate(raiseSize),0,1);
+
+		// TUNE P_call and P_raise based on P_fold
+		// P_fold + P_call + P_raise = 1
+		P_he_calls = (P_he_calls/2 + (1-P_he_folds)/4);
+		P_he_raises = (P_he_raises/2 + (1-P_he_folds)/4);
+				
+		//Compute EV cumulative
+		float EV = 	P_he_calls * ( potSize + raiseSize*2) * WF(w,t) +
+					P_he_raises * ( EV_myResponseToHisRaise(potSize,s,w,t) );
+		
+		return EV;
+	}
+	
+	public float EV_myResponseToHisRaise( int potSize, int s, float w, float t ) {
+		float P_fold = Utils.boundFloat(strategy.probFold(w, t, s),0,1);
+		float P_call = Utils.boundFloat(strategy.probCall(w, t, s),0,1);
+		float P_raise = Utils.boundFloat(strategy.probRaise(w, t, s),0,1);
+		float VALUE_raise = Utils.boundFloat(strategy.valueRaise(w, t, s),0,1)*game.stackSize;
+		
+		P_call = (P_call/2 + (1-P_fold)/4);
+		P_raise = (P_raise/2 + (1-P_fold)/4);
+		
+		float hisPredictedRaise = opponent.value_Raise_given_their_winChance[s].getEstimate(t);
+		
+		float EV = 	P_call*(potSize + hisPredictedRaise*2)*WF(w,t) +
+					P_raise*(potSize + VALUE_raise)*WF(w,t);
+		
+		return EV;
+	}
+	
+	public float EV_myResponseToHisBet( int potSize, int s, float w, float t ) {
+		float P_fold = Utils.boundFloat(strategy.probFold(w, t, s),0,1);
+		float P_call = Utils.boundFloat(strategy.probCall(w, t, s),0,1);
+		float P_raise = Utils.boundFloat(strategy.probRaise(w, t, s),0,1);
+		float VALUE_raise = Utils.boundFloat(strategy.valueRaise(w, t, s),0,1)*game.stackSize;
+		
+		P_call = (P_call/2 + (1-P_fold)/4);
+		P_raise = (P_raise/2 + (1-P_fold)/4);
+		
+		float hisPredictedBet = opponent.value_Bet_given_their_winChance[s].getEstimate(t);
+		
+		float EV = 	P_call*(potSize + hisPredictedBet*2)*WF(w,t) +
+					P_raise*(potSize + VALUE_raise)*WF(w,t);
+		
+		return EV;
 	}
 	
 	public String toString(){
-		return "EVBrain";
+		return "ExpValBrain";
 	}
-	
-	
-	
-	
 }
