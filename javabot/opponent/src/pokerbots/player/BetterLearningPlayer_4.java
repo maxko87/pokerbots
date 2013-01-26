@@ -9,14 +9,13 @@ import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
 import pokerbots.packets.HandOverObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.utils.BettingBrain_old_v2;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.PreflopTableGen;
 import pokerbots.utils.StatAggregator;
-import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.StochasticSimulator;
 import pokerbots.utils.Utils;
+import brains.SimpleBrain;
 
 
 /**
@@ -51,9 +50,9 @@ public class BetterLearningPlayer_4 {
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
-	private BettingBrain_old_v2 brain;
+	private SimpleBrain brain;
 	private StatAggregator aggregator;
-	private OpponentStats opponent;
+	private pokerbots.utils.StatAggregator.OpponentStats opponent;
 	private MatchHistory history;
 	private int potSize;
 
@@ -82,8 +81,8 @@ public class BetterLearningPlayer_4 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new BettingBrain_old_v2(myGame,history);
-					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
+					brain = new SimpleBrain(myGame,history);
+					opponent = aggregator.getOrCreateOpponent(myGame);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
@@ -93,7 +92,7 @@ public class BetterLearningPlayer_4 {
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
 					HandOverObject HOobj = new HandOverObject(input);
 					history.appendRoundData(HOobj.lastActions);
-					opponent.analyzeRoundData(myGame, myHand, history.getCurrentRound(), potSize);
+					opponent.analyzeRoundData(myHand, history.getCurrentRound());
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
 					opponent.printStats(myGame);

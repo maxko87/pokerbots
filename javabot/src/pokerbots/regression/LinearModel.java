@@ -1,6 +1,5 @@
 package pokerbots.regression;
 
-import pokerbots.utils.Utils;
 
 public class LinearModel implements Model{
 	//[ n		S(x)  ]^-1	[ S(y)   ] = [ a ]

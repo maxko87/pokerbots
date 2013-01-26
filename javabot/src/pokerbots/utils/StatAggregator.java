@@ -2,6 +2,7 @@ package pokerbots.utils;
 
 import java.util.HashMap;
 
+import pokerbots.brains.GenericBrain;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.HandObject;
 import pokerbots.packets.PerformedActionObject;
@@ -60,10 +61,11 @@ public class StatAggregator {
 	public class OpponentStats{
 		
 		//store data about how different brains perform against different opponents
-		HashMap<String, Integer> brainScores;
+		public HashMap<String, Integer> brainScores;
+		public HashMap<String, Integer> brainHands;
 		
-		String name = "Undefined";
-		int startingStackSize = 400;
+		String name;
+		int startingStackSize;
 		public int totalHandCount;
 		
 		public Model[] P_Check_given_Check;  	// Prob = a + b*theirPredWin
@@ -92,10 +94,12 @@ public class StatAggregator {
 		//TODO: make sure this constructor doesn't get run when pulling from KeyValues!!
 		public OpponentStats( String name, GameObject game ){
 			
+			this.startingStackSize = game.stackSize;
 			this.name = name;
 			this.game = game;
 			this.totalHandCount = 0;
-			this.brainScores = new HashMap<String, Integer>();
+			this.brainScores = new HashMap<String, Integer>(); //total score of each brain
+			this.brainHands = new HashMap<String, Integer>(); //total hands played by each brain
 			
 			P_Check_given_Check = new Model[4];
 			P_Bet_given_Check = new Model[4];
@@ -130,9 +134,11 @@ public class StatAggregator {
 		public void updateBrain(String brainName, int amount){
 			if (brainScores.containsKey(brainName)){
 				brainScores.put(brainName, brainScores.get(brainName) + amount);
+				brainHands.put(brainName, brainHands.get(brainName) + 1); 
 			}
 			else{
 				brainScores.put(brainName, amount);
+				brainHands.put(brainName, 1);
 			}
 		}
 
@@ -293,6 +299,15 @@ public class StatAggregator {
 				value_Raise_given_their_winChance[i].print();
 				value_Bet_given_their_winChance[i].print();
 				System.out.println("");
+			}
+		}
+		
+		public void printFinalStats(GameObject myGame) {
+			String[] brains = new String[] {"simpleBrain", "evBrain"};
+			System.out.println("\n Brain scores:");
+			System.out.println("Brain name \t score \t total hands \t avg per hand");
+			for (int i=0; i<brainScores.size(); i++){
+				System.out.println(brains[i] + "\t" + brainScores.get(brains[i]) + "\t" + brainHands.get(brains[i]) + "\t" + brainScores.get(brains[i])/(float)(brainHands.get(brains[i])));
 			}
 			System.out.println("END\n\n\n\n\n\n\n\n\n");
 		}

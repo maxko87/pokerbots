@@ -4,18 +4,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import old.StatAggregator_old;
+import old.StatAggregator_old.OpponentStats;
+
+import brains.SimpleBrain;
+
 import pokerbots.packets.HandOverObject;
 import pokerbots.packets.LegalActionObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.HandObject;
 import pokerbots.packets.PerformedActionObject;
-import pokerbots.utils.BettingBrain_old_v2;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.PreflopTableGen;
-import pokerbots.utils.StatAggregator;
-import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.StochasticSimulator;
 import pokerbots.utils.Utils;
 
@@ -40,8 +42,8 @@ public class LearningPlayer_3 {
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
-	private BettingBrain_old_v2 brain;
-	private StatAggregator aggregator;
+	private StatAggregator_old aggregator;
+	private SimpleBrain brain;
 	private OpponentStats opponent;
 	private MatchHistory history;
 	private int potSize;
@@ -49,7 +51,7 @@ public class LearningPlayer_3 {
 	public LearningPlayer_3(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
-		aggregator = new StatAggregator(); // TODO: initialize?
+		aggregator = new StatAggregator_old(); // TODO: initialize?
 		history = new MatchHistory();
 		potSize = 0;
 	}
@@ -70,7 +72,7 @@ public class LearningPlayer_3 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new BettingBrain_old_v2(myGame, history);
+					brain = new SimpleBrain(myGame, history);
 					opponent = aggregator.getOrCreateOpponent(myGame.oppName, myGame.stackSize);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {

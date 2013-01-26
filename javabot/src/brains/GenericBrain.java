@@ -4,8 +4,8 @@ import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
 import pokerbots.utils.MatchHistory;
-import pokerbots.utils.Utils;
 import pokerbots.utils.StatAggregator.OpponentStats;
+import pokerbots.utils.Utils;
 
 public abstract class GenericBrain {
 	

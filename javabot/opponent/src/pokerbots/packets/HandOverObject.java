@@ -35,4 +35,15 @@ public class HandOverObject{
 
 		timebank = Float.parseFloat(values[values.length-1]);
 	}
+	
+	//tells us how much we won this hand
+	public int getEarnings(String myName){
+		PerformedActionObject winningAction = lastActions[lastActions.length-1];
+		if (winningAction.actionType.equalsIgnoreCase("win"))
+			return 9000000;
+		if (winningAction.actor.equalsIgnoreCase(myName))
+			return winningAction.amount;
+		else
+			return -winningAction.amount;
+	}
 }

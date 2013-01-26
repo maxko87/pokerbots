@@ -1,6 +1,5 @@
 package pokerbots.utils;
 
-import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
 
 public class HandEvaluator {

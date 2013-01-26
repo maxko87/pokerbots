@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import pokerbots.brains.EVBrain;
+import pokerbots.brains.GenericBrain;
+import pokerbots.brains.SimpleBrain;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
@@ -16,9 +19,6 @@ import pokerbots.utils.StatAggregator;
 import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.StochasticSimulator;
 import pokerbots.utils.Utils;
-import brains.EVBrain;
-import brains.GenericBrain;
-import brains.SimpleBrain;
 
 
 /**
@@ -107,6 +107,7 @@ public class BrainSwitchingPlayer_5 {
 				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
 					//none
 					
+					opponent.printFinalStats(myGame);
 					outStream.println("FINISH");
 				}
 			}
@@ -124,9 +125,24 @@ public class BrainSwitchingPlayer_5 {
 	}
 	
 	private GenericBrain chooseBrain() {
-		if (opponent.totalHandCount > 100){
-			return evBrain;
+		//do some learning
+		if (opponent.totalHandCount < 50){
+			return simpleBrain;
 		}
+		
+		//calculate average score per brain so far, decide best brain to use
+		GenericBrain[] brains = new GenericBrain[] {simpleBrain, evBrain};
+		float[] brainAvgScores = new float[brains.length];
+		float topScore = opponent.brainScores.get(brains[0].toString()) / opponent.brainHands.get(brains[0].toString());
+		GenericBrain topBrain = simpleBrain; 
+		for (int i=1; i<brains.length; i++){
+			brainAvgScores[i] = (float)(opponent.brainScores.get(brains[i].toString())) / opponent.brainHands.get(brains[i].toString());
+			if (brainAvgScores[i] > topScore){
+				topScore = brainAvgScores[i];
+				topBrain = brains[i];
+			}
+		}
+		//return topBrain;
 		return simpleBrain;
 	}
 

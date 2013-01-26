@@ -4,10 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import brains.EV_template_Brain;
-import brains.GenericBrain;
-import brains.SimpleBrain;
-
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
@@ -20,6 +16,8 @@ import pokerbots.utils.StatAggregator;
 import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.StochasticSimulator;
 import pokerbots.utils.Utils;
+import brains.EV_template_Brain;
+import brains.GenericBrain;
 
 
 /**

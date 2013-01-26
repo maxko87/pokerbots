@@ -1,5 +1,8 @@
 package pokerbots.utils;
 
+import pokerbots.packets.GetActionObject;
+import pokerbots.packets.LegalActionObject;
+
 public class Utils {
 	
 	public static float getMin(float a, float b, float c){
