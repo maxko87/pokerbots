@@ -7,7 +7,7 @@ import pokerbots.utils.MatchHistory;
 import pokerbots.utils.Utils;
 import pokerbots.utils.StatAggregator.OpponentStats;
 
-public class GenericBrain {
+public abstract class GenericBrain {
 	
 	public GameObject myGame;
 	
@@ -25,10 +25,7 @@ public class GenericBrain {
 		street = s;
 	}
 	
-	public String takeAction(OpponentStats o, GetActionObject g, float w, int s) {
-		//overriden in children classes
-		return null;
-	}
+	public abstract String takeAction(OpponentStats o, GetActionObject g, float w, int s);
 	
 	//makes sure that the move we are making is legal, and fixes it automatically if not
 	public String validateAndReturn(String action, int amount){

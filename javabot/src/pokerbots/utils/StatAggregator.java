@@ -66,19 +66,19 @@ public class StatAggregator {
 		int startingStackSize = 400;
 		public int totalHandCount;
 		
-		Model[] P_Check_given_Check;  	// Prob = a + b*theirPredWin
-		Model[] P_Bet_given_Check;		// Prob = a + b*theirPredWin
+		public Model[] P_Check_given_Check;  	// Prob = a + b*theirPredWin
+		public Model[] P_Bet_given_Check;		// Prob = a + b*theirPredWin
 		
-		Model[] P_Fold_given_Bet;
-		Model[] P_Call_given_Bet;
-		Model[] P_Raise_given_Bet;
+		public Model[] P_Fold_given_Bet;
+		public Model[] P_Call_given_Bet;
+		public Model[] P_Raise_given_Bet;
 		
-		Model[] P_Fold_given_Raise;
-		Model[] P_Call_given_Raise;
-		Model[] P_Raise_given_Raise;
+		public Model[] P_Fold_given_Raise;
+		public Model[] P_Call_given_Raise;
+		public Model[] P_Raise_given_Raise;
 		
-		Model[] value_Raise_given_their_winChance;
-		Model[] value_Bet_given_their_winChance;
+		public Model[] value_Raise_given_their_winChance;
+		public Model[] value_Bet_given_their_winChance;
 		
 		/*
 		float[] Looseness;
@@ -93,8 +93,20 @@ public class StatAggregator {
 		public OpponentStats( String name, GameObject game ){
 			
 			this.name = name;
+			this.game = game;
 			this.totalHandCount = 0;
 			this.brainScores = new HashMap<String, Integer>();
+			
+			P_Check_given_Check = new Model[4];
+			P_Bet_given_Check = new Model[4];
+			P_Fold_given_Bet = new Model[4];
+			P_Call_given_Bet = new Model[4];
+			P_Raise_given_Bet = new Model[4];
+			P_Fold_given_Raise = new Model[4];
+			P_Call_given_Raise = new Model[4];
+			P_Raise_given_Raise = new Model[4];
+			value_Raise_given_their_winChance = new Model[4];
+			value_Bet_given_their_winChance = new Model[4];
 			
 			//initialize all regression lines
 			for ( int i = 0; i < 4; i++ ) {
@@ -106,8 +118,8 @@ public class StatAggregator {
 				P_Raise_given_Bet[i] = new LinearModel("P(Raise|Bet)","wager","P");
 				
 				P_Fold_given_Raise[i] = new LinearModel("P(Fold|Raise)","wager","P");
-				P_Call_given_Raise[i] = new LinearModel("P(Fold|Raise)","wager","P");
-				P_Raise_given_Raise[i] = new LinearModel("P(Fold|Raise)","wager","P");
+				P_Call_given_Raise[i] = new LinearModel("P(Call|Raise)","wager","P");
+				P_Raise_given_Raise[i] = new LinearModel("P(Raise|Raise)","wager","P");
 				
 				value_Raise_given_their_winChance[i] = new LinearModel("$ Raise per % win","%win","$");
 				value_Bet_given_their_winChance[i] = new LinearModel("$ Bet per % win","%win","$");
@@ -148,6 +160,7 @@ public class StatAggregator {
 				//Increment street
 				if ( currA.equalsIgnoreCase("deal") ) {
 					street++;
+					System.out.println("######### NEXT STREET ##########");
 					prev = curr;
 					
 					// Set the opponents win chance on fact or prediction (FOR ALL STREETS)
@@ -266,6 +279,20 @@ public class StatAggregator {
 			for ( int i = 0; i < 4; i++ ) {
 				System.out.println("<<< STREET : " + streets[i]+" >>>");
 				
+				P_Fold_given_Bet[i].print();
+				P_Call_given_Bet[i].print();
+				P_Raise_given_Bet[i].print();
+				
+				P_Fold_given_Raise[i].print();
+				P_Call_given_Raise[i].print();
+				P_Raise_given_Raise[i].print();
+				
+				P_Check_given_Check[i].print();
+				P_Bet_given_Check[i].print();
+				
+				value_Raise_given_their_winChance[i].print();
+				value_Bet_given_their_winChance[i].print();
+				System.out.println("");
 			}
 			System.out.println("END\n\n\n\n\n\n\n\n\n");
 		}

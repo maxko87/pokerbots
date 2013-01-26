@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import brains.EV_template_Brain;
+import brains.GenericBrain;
 import brains.SimpleBrain;
 
 import pokerbots.packets.GameObject;
@@ -52,18 +54,16 @@ public class BetterLearningPlayer_4 {
 	private final BufferedReader inStream;
 	private GameObject myGame;
 	private HandObject myHand;
-	private SimpleBrain brain;
+	private GenericBrain brain;
 	private StatAggregator aggregator;
 	private OpponentStats opponent;
 	private MatchHistory history;
-	private int potSize;
 
 	public BetterLearningPlayer_4(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
 		this.inStream = input;
 		aggregator = new StatAggregator(); // TODO: initialize with past data?
 		history = new MatchHistory();
-		potSize = 0;
 	}
 	
 	public void run() {
@@ -75,7 +75,6 @@ public class BetterLearningPlayer_4 {
 				
 				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
 					GetActionObject msg = new GetActionObject(input);
-					potSize = msg.potSize;
 					history.appendRoundData(msg.lastActions);
 					history.setStreetData(msg);
 					String action = respondToGetAction(msg);
@@ -83,13 +82,12 @@ public class BetterLearningPlayer_4 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new SimpleBrain(myGame,history);
+					brain = new EV_template_Brain(history,myGame);
 					opponent = aggregator.getOrCreateOpponent(myGame);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
 					history.newRound(myHand.handId,myGame.oppName);
-					potSize = 0;
 					
 				} else if ("HANDOVER".compareToIgnoreCase(packetType) == 0) {
 					HandOverObject HOobj = new HandOverObject(input);
