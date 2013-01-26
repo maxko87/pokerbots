@@ -168,7 +168,7 @@ public class EV_template_Brain extends GenericBrain {
 		float hisPredictedRaise = opponent.value_Raise_given_their_winChance[s].getEstimate(t);
 		
 		float EV = 	P_call*(potSize + hisPredictedRaise*2)*WF(w,t) +
-					P_raise*(potSize + VALUE_raise*2)*WF(w,t);
+					P_raise*(potSize + VALUE_raise)*WF(w,t);
 		
 		return EV;
 	}
@@ -185,7 +185,7 @@ public class EV_template_Brain extends GenericBrain {
 		float hisPredictedBet = opponent.value_Bet_given_their_winChance[s].getEstimate(t);
 		
 		float EV = 	P_call*(potSize + hisPredictedBet*2)*WF(w,t) +
-					P_raise*(potSize + VALUE_raise*2)*WF(w,t);
+					P_raise*(potSize + VALUE_raise)*WF(w,t);
 		
 		return EV;
 	}

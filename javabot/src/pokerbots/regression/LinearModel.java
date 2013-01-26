@@ -43,13 +43,13 @@ public class LinearModel implements Model{
 		System.out.println("&&& Train Data &&& " + name + " ("+xAxis +"="+x+", "+yAxis+"="+y+")");
 		
 		if ( N<2 ) {
-			REG_A = y/2;
+			REG_A = 0.5f;
 			REG_B = 0;
 		}
 		else {
 			float det = N*SXX-SX*SX;
 			if ( det == 0 ) {
-				REG_A = SY/N;
+				REG_A = 0.5f;
 				REG_B = 0;
 			} else {
 				REG_A = 1.0f/det*(SY*SXX-SX*SXY);
