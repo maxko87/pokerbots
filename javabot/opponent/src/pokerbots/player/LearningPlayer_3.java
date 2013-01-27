@@ -4,17 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import old.StatAggregator_old;
-import old.StatAggregator_old.OpponentStats;
-
-import brains.SimpleBrain;
-
+import pokerbots.brains.SimpleBrain;
+import pokerbots.old_stuff.StatAggregator_old;
+import pokerbots.old_stuff.StatAggregator_old.OpponentStats;
+import pokerbots.packets.GameObject;
+import pokerbots.packets.GetActionObject;
+import pokerbots.packets.HandObject;
 import pokerbots.packets.HandOverObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.packets.GetActionObject;
-import pokerbots.packets.GameObject;
-import pokerbots.packets.HandObject;
-import pokerbots.packets.PerformedActionObject;
 import pokerbots.utils.HandEvaluator;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.PreflopTableGen;

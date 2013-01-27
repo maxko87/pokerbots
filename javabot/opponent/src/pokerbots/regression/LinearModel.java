@@ -1,6 +1,5 @@
 package pokerbots.regression;
 
-import pokerbots.utils.Utils;
 
 public class LinearModel implements Model{
 	//[ n		S(x)  ]^-1	[ S(y)   ] = [ a ]
@@ -40,14 +39,21 @@ public class LinearModel implements Model{
 		SYY += y*y;
 		SXY += x*y;
 		
+		System.out.println("&&& Train Data &&& " + name + " ("+xAxis +"="+x+", "+yAxis+"="+y+")");
+		
 		if ( N<2 ) {
-			REG_A = y/2;
+			REG_A = 0.5f;
 			REG_B = 0;
 		}
 		else {
 			float det = N*SXX-SX*SX;
-			REG_A = 1.0f/det*(SY*SXX-SX*SXY);
-			REG_B = 1.0f/det*(N*SXY-SX*SY);
+			if ( det == 0 ) {
+				REG_A = 0.5f;
+				REG_B = 0;
+			} else {
+				REG_A = 1.0f/det*(SY*SXX-SX*SXY);
+				REG_B = 1.0f/det*(N*SXY-SX*SY);
+			}
 		}
 	}
 	

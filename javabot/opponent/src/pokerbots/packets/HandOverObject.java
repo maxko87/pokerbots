@@ -38,12 +38,21 @@ public class HandOverObject{
 	
 	//tells us how much we won this hand
 	public int getEarnings(String myName){
-		PerformedActionObject winningAction = lastActions[lastActions.length-1];
-		if (winningAction.actionType.equalsIgnoreCase("win"))
-			return 9000000;
-		if (winningAction.actor.equalsIgnoreCase(myName))
-			return winningAction.amount;
-		else
-			return -winningAction.amount;
+		
+		for (int i=0; i<lastActions.length; i++){
+			PerformedActionObject winningAction = lastActions[i];
+			if (winningAction.actionType.equalsIgnoreCase("win")){
+				if (winningAction.actor.equalsIgnoreCase(myName))
+					return winningAction.amount/2;
+				else
+					return -winningAction.amount/2;
+			}
+			else if (winningAction.actionType.equalsIgnoreCase("tie")){
+				return 0;
+			}
+		}
+		System.out.println("BAD");
+		return 90000000;
+		
 	}
 }

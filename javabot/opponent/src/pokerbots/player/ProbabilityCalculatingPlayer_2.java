@@ -4,14 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import pokerbots.packets.LegalActionObject;
-import pokerbots.packets.GetActionObject;
 import pokerbots.packets.GameObject;
+import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
+import pokerbots.packets.LegalActionObject;
 import pokerbots.utils.HandEvaluator;
-import pokerbots.utils.Utils;
 import pokerbots.utils.PreflopTableGen;
 import pokerbots.utils.StochasticSimulator;
+import pokerbots.utils.Utils;
 
 
 /**

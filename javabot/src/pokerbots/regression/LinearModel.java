@@ -1,7 +1,7 @@
 package pokerbots.regression;
 
 
-public class LinearModel implements Model{
+public class LinearModel implements Model2D{
 	//[ n		S(x)  ]^-1	[ S(y)   ] = [ a ]
 	//[ S(x)	S(x*x)]		[ S(x*y) ] = [ b ]
 	float N;

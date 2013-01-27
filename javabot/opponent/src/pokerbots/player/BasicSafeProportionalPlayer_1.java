@@ -1,11 +1,15 @@
 package pokerbots.player;
 
-import pokerbots.packets.*;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import pokerbots.utils.*;
+
+import pokerbots.packets.GameObject;
+import pokerbots.packets.GetActionObject;
+import pokerbots.packets.HandObject;
+import pokerbots.packets.LegalActionObject;
+import pokerbots.utils.HandEvaluator;
+import pokerbots.utils.PreflopTableGen;
 
 /**
  * Simple example pokerbot, written in Java.

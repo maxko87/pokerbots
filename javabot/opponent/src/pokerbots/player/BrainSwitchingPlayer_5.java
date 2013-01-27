@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import pokerbots.brains.EVBrain;
+import pokerbots.brains.GenericBrain;
+import pokerbots.brains.SimpleBrain;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.HandObject;
@@ -16,9 +19,6 @@ import pokerbots.utils.StatAggregator;
 import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.StochasticSimulator;
 import pokerbots.utils.Utils;
-import brains.EVBrain;
-import brains.GenericBrain;
-import brains.SimpleBrain;
 
 
 /**
@@ -26,6 +26,7 @@ import brains.SimpleBrain;
  * - switches between brains
  * 
  * Todo:
+ * - ROUND ANALYSIS WTF
  * - 
  * 
  */
@@ -50,6 +51,7 @@ public class BrainSwitchingPlayer_5 {
 	private GenericBrain brain;
 	private SimpleBrain simpleBrain;
 	private EVBrain evBrain;
+	private GenericBrain[] brains;
 
 	BrainSwitchingPlayer_5(PrintWriter output, BufferedReader input) {
 		this.outStream = output;
@@ -69,19 +71,19 @@ public class BrainSwitchingPlayer_5 {
 				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
 					GetActionObject msg = new GetActionObject(input);
 					potSize = msg.potSize;
+					history.setStreetData(msg);
 					history.appendRoundData(msg.lastActions);
 					String action = respondToGetAction(msg);
 					outStream.println(action);
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					//instantiate all brains
-					simpleBrain = new SimpleBrain(myGame,history);
-					EVBrain evBrain = new EVBrain(myGame,history);
-					//choose initial brain
-					brain = simpleBrain;
 					//instantiate opponent
 					opponent = aggregator.getOrCreateOpponent(myGame);
+					//instantiate all brains
+					instantiateBrains();
+					//choose initial brain
+					brain = chooseBrain();
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
@@ -100,11 +102,13 @@ public class BrainSwitchingPlayer_5 {
 					opponent.updateBrain(brain.toString(), HOobj.getEarnings(myGame.myName));
 					//choose a brain
 					brain = chooseBrain();
+					opponent.printFinalBrainScores(myGame, brains);
 					
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
 					//none
 					
 				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
+					opponent.printFinalBrainScores(myGame, brains);
 					//none
 					
 					outStream.println("FINISH");
@@ -123,26 +127,43 @@ public class BrainSwitchingPlayer_5 {
 		}
 	}
 	
-	private GenericBrain chooseBrain() {
-		//do some learning
-		if (opponent.totalHandCount < 50){
-			return simpleBrain;
+	private void instantiateBrains() {
+		simpleBrain = new SimpleBrain(myGame,history);
+		evBrain = new EVBrain(history,myGame);
+		brains = new GenericBrain[] {simpleBrain, evBrain};
+		//make sure OpponentStats knows about them all
+		for (int i=0; i<brains.length; i++){
+			opponent.updateBrain(brains[i].toString(), 0);
 		}
 		
+	}
+
+	private GenericBrain chooseBrain() {
+		return evBrain;
+		/*
+		int N = opponent.totalHandCount;
+		//do some learning/training
+		if (N < 100){
+			return simpleBrain;
+		}
+		else if (N < 1000){
+			return evBrain;
+		}
+		
+		
 		//calculate average score per brain so far, decide best brain to use
-		GenericBrain[] brains = new GenericBrain[] {simpleBrain, evBrain};
 		float[] brainAvgScores = new float[brains.length];
-		float topScore = opponent.brainScores.get(0) / opponent.brainHands.get(0);
+		float topScore = opponent.brainScores.get(brains[0].toString()) / opponent.brainHands.get(brains[0].toString());
 		GenericBrain topBrain = simpleBrain; 
 		for (int i=1; i<brains.length; i++){
-			brainAvgScores[i] = opponent.brainScores.get(i) / opponent.brainHands.get(i);
+			brainAvgScores[i] = (float)(opponent.brainScores.get(brains[i].toString())) / opponent.brainHands.get(brains[i].toString());
 			if (brainAvgScores[i] > topScore){
 				topScore = brainAvgScores[i];
 				topBrain = brains[i];
 			}
 		}
-		//return topBrain;
-		return simpleBrain;
+		return topBrain;
+		*/
 	}
 
 	public String respondToGetAction( GetActionObject getActionObject) {

@@ -1,7 +1,5 @@
 package pokerbots.utils;
 
-import pokerbots.packets.GetActionObject;
-import pokerbots.packets.LegalActionObject;
 
 public class Utils {
 	
