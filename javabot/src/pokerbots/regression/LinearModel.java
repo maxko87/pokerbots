@@ -10,6 +10,7 @@ public class LinearModel implements Model{
 	float SY;
 	float SYY;
 	float SXY;
+	int counter;
 	
 	//Regression equations for y = a+bx;
 	//det = N*SXX-SX*SX
@@ -28,10 +29,12 @@ public class LinearModel implements Model{
 	}
 	
 	public int getN(){
-		return (int)N;
+		return (int)counter;
 	}
 			
 	public void addData( float x, float y ) {
+		if (y > 0)
+			counter += 1;
 		N += 1;
 		SX += x;
 		SXX += x*x;

@@ -21,6 +21,8 @@ import pokerbots.utils.Utils;
 
 
 /**
+ * IMPORTANT: this class is no longer backwards compatible
+ * 
  * Improvements made:
  * - move logic into BettingBrain 
  * - scale bets proportional to pot size

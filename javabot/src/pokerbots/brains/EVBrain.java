@@ -28,6 +28,8 @@ public class EVBrain extends GenericBrain {
 		float myWinChance = w;
 		float theirWinChance = 0.8f-o.getLooseness(s)*0.5f;
 		
+		this.setVars(o, g, w, s);
+		
 		return EV(g.potSize,myWinChance,theirWinChance,street);
 	}
 	
@@ -41,8 +43,15 @@ public class EVBrain extends GenericBrain {
 		System.out.println("EV CALCULATOR");
 		System.out.println("*****************************");
 		
-		if ( s==0 )
-			return validateAndReturn("call", 0);
+		//PREFLOP ADJUSTMENTS
+		if ( street == 0 ) {
+			float raise_size = Utils.scale(w, .6f, .9f, 0f, 1f) * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (game.stackSize / 10) + 2;
+			if (winChance > Utils.inverseScale(opponent.getLooseness(0), 0.0f, 1.0f, .6f, .8f) && raise_size < 30){
+				System.out.println("preflop winchance: " + w + ", min win required: " + Utils.inverseScale(opponent.getLooseness(0), 0.0f, 1.0f, .6f, .8f) + ", looseness: " + opponent.getLooseness(0) + ", raise size: " + raise_size);
+				return validateAndReturn("raise",(int)(raise_size));
+			}
+			return validateAndReturn("call",0); //don't continuously reraise preflop
+		}
 		
 		//EVs when on action
 		String bestAction = validateAndReturn("check", 0);

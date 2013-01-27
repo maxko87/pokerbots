@@ -197,7 +197,7 @@ public class StatAggregator {
 				
 				//IF I perform an action THEN OPP performs action
 				if ( prev.actor.equalsIgnoreCase(game.myName) && curr.actor.equals(game.oppName) ) {
-					if ( prevA.equalsIgnoreCase("bet") ) {
+					if ( prevA.equalsIgnoreCase("bet") || prevA.equalsIgnoreCase("post")) {
 						if ( currA.equalsIgnoreCase("fold") ) {
 							P_Fold_given_Bet[street].addData(myWagerSize, 1);
 							P_Raise_given_Bet[street].addData(myWagerSize, 0);
@@ -279,10 +279,12 @@ public class StatAggregator {
 		// (0,1) rating of this opponent's looseness (number of calls+raises over number of calls+raises+folds)
 		final float DEFAULT_LOOSENESS= .5f;
 		public float getLooseness(int street){
+			int checks = P_Check_given_Check[street].getN();
 			int calls = P_Call_given_Bet[street].getN() + P_Call_given_Raise[street].getN();
 			int raises = P_Raise_given_Bet[street].getN() + P_Raise_given_Raise[street].getN();
 			int folds = P_Fold_given_Bet[street].getN() + P_Fold_given_Raise[street].getN();
-			return (calls+raises+folds > THRESHOLD_FOR_GENERALIZING[street]) ? (float)(calls+raises)/(calls+raises+folds) : DEFAULT_LOOSENESS;
+			System.out.println("Weird preflop numbers: " + checks + " checks, " + calls + " calls, " + raises + " raises, " + folds + " folds");
+			return (calls+raises+folds+checks > THRESHOLD_FOR_GENERALIZING[street]) ? (float)(calls+raises+checks)/(calls+raises+checks+folds) : DEFAULT_LOOSENESS;
 		}
 		
 		
