@@ -28,8 +28,6 @@ public class EVBrain extends GenericBrain {
 		float myWinChance = w;
 		float theirWinChance = 0.8f-o.getLooseness(s)*0.5f;
 		
-		this.setVars(o, g, w, s);
-		
 		return EV(g.potSize,myWinChance,theirWinChance,street);
 	}
 	
@@ -43,15 +41,8 @@ public class EVBrain extends GenericBrain {
 		System.out.println("EV CALCULATOR");
 		System.out.println("*****************************");
 		
-		//PREFLOP ADJUSTMENTS
-		if ( street == 0 ) {
-			float raise_size = Utils.scale(w, .6f, .9f, 0f, 1f) * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (game.stackSize / 10) + 2;
-			if (winChance > Utils.inverseScale(opponent.getLooseness(0), 0.0f, 1.0f, .6f, .8f) && raise_size < 30){
-				System.out.println("preflop winchance: " + w + ", min win required: " + Utils.inverseScale(opponent.getLooseness(0), 0.0f, 1.0f, .6f, .8f) + ", looseness: " + opponent.getLooseness(0) + ", raise size: " + raise_size);
-				return validateAndReturn("raise",(int)(raise_size));
-			}
-			return validateAndReturn("call",0); //don't continuously reraise preflop
-		}
+		if ( s==0 )
+			return validateAndReturn("call", 0);
 		
 		//EVs when on action
 		String bestAction = validateAndReturn("check", 0);
@@ -84,7 +75,8 @@ public class EVBrain extends GenericBrain {
 				int minRaise = getActionObject.legalActions[i].minBet;
 				int maxRaise = getActionObject.legalActions[i].maxBet;
 				for ( int myRaiseSize = minRaise; myRaiseSize <= maxRaise; myRaiseSize+=5 ) {
-					float ev = EV_myRaise(potSize, myRaiseSize, s, w, t);
+					float ev = EV_myRaise(potSize, myRaiseSize, s, w, t,0);
+					System.out.println("Raise EV ("+myRaiseSize+") = " + ev);
 					if ( ev > EV_BEST ) {
 						EV_BEST = ev;
 						bestAction = validateAndReturn("raise", myRaiseSize);
@@ -107,10 +99,10 @@ public class EVBrain extends GenericBrain {
 					EV_BEST = 0;
 				}
 			}
-			
-			System.out.println("BEST EV: " + EV_BEST);
-			System.out.println("BEST ACTION: " + bestAction);
 		}
+		
+		System.out.println("---> BEST EV: " + EV_BEST);
+		System.out.println("---> BEST ACTION: " + bestAction);
 		
 		return bestAction;
 	}
@@ -121,7 +113,7 @@ public class EVBrain extends GenericBrain {
 				
 		//Compute EV cumulative
 		float EV = 	P_he_checks * ( potSize ) * WF(w,t) +
-					P_he_bets * ( EV_myResponseToHisBet(potSize,s,w,t) );
+					P_he_bets * ( EV_myResponseToHisBet(potSize,s,w,t,0) );
 		
 		return EV;
 	}
@@ -132,9 +124,9 @@ public class EVBrain extends GenericBrain {
 	}
 	
 	public float EV_myBet( int potSize, float betSize, int s, float w, float t ) {
-		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Bet[s].getEstimate(betSize),0,1);
-		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Bet[s].getEstimate(betSize),0,1);
-		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Bet[s].getEstimate(betSize),0,1);
+		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Bet[s].getEstimate(betSize,t),0,1);
+		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Bet[s].getEstimate(betSize,t),0,1);
+		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Bet[s].getEstimate(betSize,t),0,1);
 
 		// TUNE P_call and P_raise based on P_fold
 		// P_fold + P_call + P_raise = 1
@@ -143,15 +135,15 @@ public class EVBrain extends GenericBrain {
 				
 		//Compute EV cumulative
 		float EV = 	P_he_calls * (potSize + betSize*2) * WF(w,t) +
-					P_he_raises * ( EV_myResponseToHisRaise(potSize,s,w,t) );
+					P_he_raises * ( EV_myResponseToHisRaise(potSize,s,w,t,0) );
 		
 		return EV;
 	}
 	
-	public float EV_myRaise( int potSize, float raiseSize, int s, float w, float t ) {
-		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Raise[s].getEstimate(raiseSize),0,1);
-		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Raise[s].getEstimate(raiseSize),0,1);
-		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Raise[s].getEstimate(raiseSize),0,1);
+	public float EV_myRaise( int potSize, float raiseSize, int s, float w, float t, int depth ) {
+		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Raise[s].getEstimate(raiseSize,t),0,1);
+		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Raise[s].getEstimate(raiseSize,t),0,1);
+		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Raise[s].getEstimate(raiseSize,t),0,1);
 
 		// TUNE P_call and P_raise based on P_fold
 		// P_fold + P_call + P_raise = 1
@@ -159,13 +151,17 @@ public class EVBrain extends GenericBrain {
 		P_he_raises = (P_he_raises/2 + (1-P_he_folds)/4);
 				
 		//Compute EV cumulative
-		float EV = 	P_he_calls * ( potSize + raiseSize*2) * WF(w,t) +
-					P_he_raises * ( EV_myResponseToHisRaise(potSize,s,w,t) );
+		float myResponseToRaise = 0; //always fold
+		if ( depth<3 )
+			myResponseToRaise = EV_myResponseToHisRaise(potSize,s,w,t,depth);
+			
+		float EV = 	P_he_calls * ( potSize + raiseSize*2 ) * WF(w,t) +
+					P_he_raises * ( myResponseToRaise  );
 		
 		return EV;
 	}
 	
-	public float EV_myResponseToHisRaise( int potSize, int s, float w, float t ) {
+	public float EV_myResponseToHisRaise( int potSize, int s, float w, float t, int depth ) {
 		float P_fold = Utils.boundFloat(strategy.probFold(w, t, s),0,1);
 		float P_call = Utils.boundFloat(strategy.probCall(w, t, s),0,1);
 		float P_raise = Utils.boundFloat(strategy.probRaise(w, t, s),0,1);
@@ -177,12 +173,12 @@ public class EVBrain extends GenericBrain {
 		float hisPredictedRaise = opponent.value_Raise_given_their_winChance[s].getEstimate(t);
 		
 		float EV = 	P_call*(potSize + hisPredictedRaise*2)*WF(w,t) +
-					P_raise*(potSize + VALUE_raise)*WF(w,t);
+					P_raise*(EV_myRaise(potSize,VALUE_raise,s,w,t,depth+1));
 		
 		return EV;
 	}
 	
-	public float EV_myResponseToHisBet( int potSize, int s, float w, float t ) {
+	public float EV_myResponseToHisBet( int potSize, int s, float w, float t, int depth ) {
 		float P_fold = Utils.boundFloat(strategy.probFold(w, t, s),0,1);
 		float P_call = Utils.boundFloat(strategy.probCall(w, t, s),0,1);
 		float P_raise = Utils.boundFloat(strategy.probRaise(w, t, s),0,1);
@@ -194,7 +190,7 @@ public class EVBrain extends GenericBrain {
 		float hisPredictedBet = opponent.value_Bet_given_their_winChance[s].getEstimate(t);
 		
 		float EV = 	P_call*(potSize + hisPredictedBet*2)*WF(w,t) +
-					P_raise*(potSize + VALUE_raise)*WF(w,t);
+					P_raise*(EV_myRaise(potSize,VALUE_raise,s,w,t,depth+1));
 		
 		return EV;
 	}
