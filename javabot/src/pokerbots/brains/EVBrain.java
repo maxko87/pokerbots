@@ -2,11 +2,11 @@ package pokerbots.brains;
 
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
+import pokerbots.strategy.BasicStrategy;
+import pokerbots.strategy.BettingStrategy;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.Utils;
-import pokerots.strategy.BasicStrategy;
-import pokerots.strategy.BettingStrategy;
 
 public class EVBrain extends GenericBrain {
 	
@@ -124,9 +124,9 @@ public class EVBrain extends GenericBrain {
 	}
 	
 	public float EV_myBet( int potSize, float betSize, int s, float w, float t ) {
-		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Bet[s].getEstimate(betSize,t),0,1);
-		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Bet[s].getEstimate(betSize,t),0,1);
-		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Bet[s].getEstimate(betSize,t),0,1);
+		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Bet[s].getEstimate(betSize/game.stackSize,t),0,1);
+		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Bet[s].getEstimate(betSize/game.stackSize,t),0,1);
+		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Bet[s].getEstimate(betSize/game.stackSize,t),0,1);
 
 		// TUNE P_call and P_raise based on P_fold
 		// P_fold + P_call + P_raise = 1
@@ -141,9 +141,9 @@ public class EVBrain extends GenericBrain {
 	}
 	
 	public float EV_myRaise( int potSize, float raiseSize, int s, float w, float t, int depth ) {
-		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Raise[s].getEstimate(raiseSize,t),0,1);
-		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Raise[s].getEstimate(raiseSize,t),0,1);
-		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Raise[s].getEstimate(raiseSize,t),0,1);
+		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Raise[s].getEstimate(raiseSize/game.stackSize,t),0,1);
+		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Raise[s].getEstimate(raiseSize/game.stackSize,t),0,1);
+		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Raise[s].getEstimate(raiseSize/game.stackSize,t),0,1);
 
 		// TUNE P_call and P_raise based on P_fold
 		// P_fold + P_call + P_raise = 1
@@ -173,7 +173,7 @@ public class EVBrain extends GenericBrain {
 		float hisPredictedRaise = opponent.value_Raise_given_their_winChance[s].getEstimate(t);
 		
 		float EV = 	P_call*(potSize + hisPredictedRaise*2)*WF(w,t) +
-					P_raise*(EV_myRaise(potSize,VALUE_raise,s,w,t,depth+1));
+					P_raise*(EV_myRaise(potSize+(int)VALUE_raise,VALUE_raise,s,w,t,depth+1));
 		
 		return EV;
 	}
@@ -190,7 +190,7 @@ public class EVBrain extends GenericBrain {
 		float hisPredictedBet = opponent.value_Bet_given_their_winChance[s].getEstimate(t);
 		
 		float EV = 	P_call*(potSize + hisPredictedBet*2)*WF(w,t) +
-					P_raise*(EV_myRaise(potSize,VALUE_raise,s,w,t,depth+1));
+					P_raise*(EV_myRaise(potSize+(int)VALUE_raise,VALUE_raise,s,w,t,depth+1));
 		
 		return EV;
 	}
