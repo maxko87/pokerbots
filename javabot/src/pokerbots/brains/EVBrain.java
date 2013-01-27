@@ -32,8 +32,8 @@ public class EVBrain extends GenericBrain {
 	}
 	
 	public float WF( float w, float t ) {
-		//return (w-t);
-		return w-t;//((w + (1-t))*0.5f) - 0.5f;
+		return (w-t);
+		//return ((w + (1-t))*0.5f) - 0.5f;
 	}
 	
 	public String EV( int potSize, float w, float t, int s ) {

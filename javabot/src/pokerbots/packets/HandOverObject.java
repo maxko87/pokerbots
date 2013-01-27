@@ -48,7 +48,7 @@ public class HandOverObject{
 					return -winningAction.amount/2;
 			}
 			else if (winningAction.actionType.equalsIgnoreCase("tie")){
-				return winningAction.amount;
+				return 0;
 			}
 		}
 		System.out.println("BAD");

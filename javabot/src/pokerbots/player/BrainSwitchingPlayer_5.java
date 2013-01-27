@@ -71,6 +71,7 @@ public class BrainSwitchingPlayer_5 {
 				if ("GETACTION".compareToIgnoreCase(packetType) == 0) {
 					GetActionObject msg = new GetActionObject(input);
 					potSize = msg.potSize;
+					history.setStreetData(msg);
 					history.appendRoundData(msg.lastActions);
 					String action = respondToGetAction(msg);
 					outStream.println(action);
@@ -82,7 +83,7 @@ public class BrainSwitchingPlayer_5 {
 					//instantiate all brains
 					instantiateBrains();
 					//choose initial brain
-					brain = simpleBrain;
+					brain = chooseBrain();
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {
 					myHand = new HandObject(input);
@@ -99,9 +100,9 @@ public class BrainSwitchingPlayer_5 {
 					opponent.printStats(myGame);
 					//store cumulative earnings
 					opponent.updateBrain(brain.toString(), HOobj.getEarnings(myGame.myName));
-					System.out.println("I JUST WON: " + HOobj.getEarnings(myGame.myName));
 					//choose a brain
 					brain = chooseBrain();
+					opponent.printFinalBrainScores(myGame, brains);
 					
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
 					//none
@@ -138,13 +139,17 @@ public class BrainSwitchingPlayer_5 {
 	}
 
 	private GenericBrain chooseBrain() {
+		return evBrain;
+		/*
+		int N = opponent.totalHandCount;
 		//do some learning/training
-		if (opponent.totalHandCount < 100){
+		if (N < 100){
 			return simpleBrain;
 		}
-		else if (opponent.totalHandCount < 200){
+		else if (N < 1000){
 			return evBrain;
 		}
+		
 		
 		//calculate average score per brain so far, decide best brain to use
 		float[] brainAvgScores = new float[brains.length];
@@ -157,8 +162,8 @@ public class BrainSwitchingPlayer_5 {
 				topBrain = brains[i];
 			}
 		}
-		return evBrain;
-		//return topBrain;
+		return topBrain;
+		*/
 	}
 
 	public String respondToGetAction( GetActionObject getActionObject) {
