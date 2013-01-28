@@ -75,6 +75,10 @@ public class LinearModel implements Model2D{
 		return REG_A+REG_B*x;
 	}
 	
+	public float getInverseModel( float y ) {
+		return (y-REG_A)/REG_B;
+	}
+	
 	public void print() {
 		System.out.println(name+" (Linear Model) : " + yAxis + " = " + REG_A + " + " + REG_B + " * " + xAxis);
 	}
