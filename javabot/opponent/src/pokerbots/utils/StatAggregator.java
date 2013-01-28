@@ -7,7 +7,9 @@ import pokerbots.packets.GameObject;
 import pokerbots.packets.HandObject;
 import pokerbots.packets.PerformedActionObject;
 import pokerbots.regression.LinearModel;
-import pokerbots.regression.Model;
+import pokerbots.regression.Model2D;
+import pokerbots.regression.Model3D;
+import pokerbots.regression.PlanarModel;
 import pokerbots.utils.MatchHistory.Round;
 
 public class StatAggregator {
@@ -72,19 +74,19 @@ public class StatAggregator {
 		int startingStackSize;
 		public int totalHandCount;
 		
-		public Model[] P_Check_given_Check;  	// Prob = a + b*theirPredWin
-		public Model[] P_Bet_given_Check;		// Prob = a + b*theirPredWin
+		public Model2D[] P_Check_given_Check;  	// Prob = a + b*theirPredWin
+		public Model2D[] P_Bet_given_Check;		// Prob = a + b*theirPredWin
 		
-		public Model[] P_Fold_given_Bet;
-		public Model[] P_Call_given_Bet;
-		public Model[] P_Raise_given_Bet;
+		public Model3D[] P_Fold_given_Bet;
+		public Model3D[] P_Call_given_Bet;
+		public Model3D[] P_Raise_given_Bet;
 		
-		public Model[] P_Fold_given_Raise;
-		public Model[] P_Call_given_Raise;
-		public Model[] P_Raise_given_Raise;
+		public Model3D[] P_Fold_given_Raise;
+		public Model3D[] P_Call_given_Raise;
+		public Model3D[] P_Raise_given_Raise;
 		
-		public Model[] value_Raise_given_their_winChance;
-		public Model[] value_Bet_given_their_winChance;
+		public Model2D[] value_Raise_given_their_winChance;
+		public Model2D[] value_Bet_given_their_winChance;
 		
 		/*
 		float[] Looseness;
@@ -105,29 +107,29 @@ public class StatAggregator {
 			this.brainScores = new HashMap<String, Integer>(); //total score of each brain
 			this.brainHands = new HashMap<String, Integer>(); //total hands played by each brain
 			
-			P_Check_given_Check = new Model[4];
-			P_Bet_given_Check = new Model[4];
-			P_Fold_given_Bet = new Model[4];
-			P_Call_given_Bet = new Model[4];
-			P_Raise_given_Bet = new Model[4];
-			P_Fold_given_Raise = new Model[4];
-			P_Call_given_Raise = new Model[4];
-			P_Raise_given_Raise = new Model[4];
-			value_Raise_given_their_winChance = new Model[4];
-			value_Bet_given_their_winChance = new Model[4];
+			P_Check_given_Check = new Model2D[4];
+			P_Bet_given_Check = new Model2D[4];
+			P_Fold_given_Bet = new Model3D[4];
+			P_Call_given_Bet = new Model3D[4];
+			P_Raise_given_Bet = new Model3D[4];
+			P_Fold_given_Raise = new Model3D[4];
+			P_Call_given_Raise = new Model3D[4];
+			P_Raise_given_Raise = new Model3D[4];
+			value_Raise_given_their_winChance = new Model2D[4];
+			value_Bet_given_their_winChance = new Model2D[4];
 			
 			//initialize all regression lines
 			for ( int i = 0; i < 4; i++ ) {
 				P_Check_given_Check[i] = new LinearModel("P(Check|Check)","%win","P");
 				P_Bet_given_Check[i] = new LinearModel("P(Bet|Check)","%win","P");
 				
-				P_Fold_given_Bet[i] = new LinearModel("P(Fold|Bet)","wager","P");
-				P_Call_given_Bet[i]  = new LinearModel("P(Call|Bet)","wager","P");
-				P_Raise_given_Bet[i] = new LinearModel("P(Raise|Bet)","wager","P");
+				P_Fold_given_Bet[i] = new PlanarModel("P(Fold|Bet)","wager","%win","P");
+				P_Call_given_Bet[i]  = new PlanarModel("P(Call|Bet)","wager","%win","P");
+				P_Raise_given_Bet[i] = new PlanarModel("P(Raise|Bet)","wager","%win","P");
 				
-				P_Fold_given_Raise[i] = new LinearModel("P(Fold|Raise)","wager","P");
-				P_Call_given_Raise[i] = new LinearModel("P(Call|Raise)","wager","P");
-				P_Raise_given_Raise[i] = new LinearModel("P(Raise|Raise)","wager","P");
+				P_Fold_given_Raise[i] = new PlanarModel("P(Fold|Raise)","wager","%win","P");
+				P_Call_given_Raise[i] = new PlanarModel("P(Call|Raise)","wager","%win","P");
+				P_Raise_given_Raise[i] = new PlanarModel("P(Raise|Raise)","wager","%win","P");
 				
 				value_Raise_given_their_winChance[i] = new LinearModel("$ Raise per % win","%win","$");
 				value_Bet_given_their_winChance[i] = new LinearModel("$ Bet per % win","%win","$");
@@ -191,46 +193,46 @@ public class StatAggregator {
 				
 				//Check if I got refunded AKA he folded
 				if ( curr.actor.equals(game.myName) && curr.actionType.equalsIgnoreCase("refund") ) {
-					P_Fold_given_Bet[street].addData(myWagerSize, 1);
-					P_Fold_given_Raise[street].addData(myWagerSize, 1);
+					P_Fold_given_Bet[street].addData(myWagerSize, 1, hisEstimatedWinChance);
+					P_Fold_given_Raise[street].addData(myWagerSize, 1, hisEstimatedWinChance);
 				}
 				
 				//IF I perform an action THEN OPP performs action
 				if ( prev.actor.equalsIgnoreCase(game.myName) && curr.actor.equals(game.oppName) ) {
-					if ( prevA.equalsIgnoreCase("bet") ) {
+					if ( prevA.equalsIgnoreCase("bet") || prevA.equalsIgnoreCase("post")) {
 						if ( currA.equalsIgnoreCase("fold") ) {
-							P_Fold_given_Bet[street].addData(myWagerSize, 1);
-							P_Raise_given_Bet[street].addData(myWagerSize, 0);
-							P_Call_given_Bet[street].addData(myWagerSize, 0);
+							P_Fold_given_Bet[street].addData(myWagerSize, 1, hisEstimatedWinChance);
+							P_Raise_given_Bet[street].addData(myWagerSize, 0, hisEstimatedWinChance);
+							P_Call_given_Bet[street].addData(myWagerSize, 0, hisEstimatedWinChance);
 						}
 						else if ( currA.equalsIgnoreCase("raise") ) {
-							P_Fold_given_Bet[street].addData(myWagerSize, 0);
-							P_Raise_given_Bet[street].addData(myWagerSize, 1);
-							P_Call_given_Bet[street].addData(myWagerSize, 0);
+							P_Fold_given_Bet[street].addData(myWagerSize, 0, hisEstimatedWinChance);
+							P_Raise_given_Bet[street].addData(myWagerSize, 1, hisEstimatedWinChance);
+							P_Call_given_Bet[street].addData(myWagerSize, 0, hisEstimatedWinChance);
 							value_Raise_given_their_winChance[street].addData(hisEstimatedWinChance, curr.amount);
 						}
 						else if ( currA.equalsIgnoreCase("call") ) {
-							P_Fold_given_Bet[street].addData(myWagerSize, 0);
-							P_Raise_given_Bet[street].addData(myWagerSize, 0);
-							P_Call_given_Bet[street].addData(myWagerSize, 1);
+							P_Fold_given_Bet[street].addData(myWagerSize, 0, hisEstimatedWinChance);
+							P_Raise_given_Bet[street].addData(myWagerSize, 0, hisEstimatedWinChance);
+							P_Call_given_Bet[street].addData(myWagerSize, 1, hisEstimatedWinChance);
 						}
 					}
 					else if ( prevA.equalsIgnoreCase("raise") ) {
 						if ( currA.equalsIgnoreCase("fold") ) {
-							P_Fold_given_Raise[street].addData(myWagerSize, 1);
-							P_Raise_given_Raise[street].addData(myWagerSize, 0);
-							P_Call_given_Raise[street].addData(myWagerSize, 0);
+							P_Fold_given_Raise[street].addData(myWagerSize, 1, hisEstimatedWinChance);
+							P_Raise_given_Raise[street].addData(myWagerSize, 0, hisEstimatedWinChance);
+							P_Call_given_Raise[street].addData(myWagerSize, 0, hisEstimatedWinChance);
 						}
 						else if ( currA.equalsIgnoreCase("raise") ) {
-							P_Fold_given_Raise[street].addData(myWagerSize, 0);
-							P_Raise_given_Raise[street].addData(myWagerSize, 1);
-							P_Call_given_Raise[street].addData(myWagerSize, 0);
+							P_Fold_given_Raise[street].addData(myWagerSize, 0, hisEstimatedWinChance);
+							P_Raise_given_Raise[street].addData(myWagerSize, 1, hisEstimatedWinChance);
+							P_Call_given_Raise[street].addData(myWagerSize, 0, hisEstimatedWinChance);
 							value_Raise_given_their_winChance[street].addData(hisEstimatedWinChance, curr.amount);
 						}
 						else if ( currA.equalsIgnoreCase("call") ) {
-							P_Fold_given_Raise[street].addData(myWagerSize, 0);
-							P_Raise_given_Raise[street].addData(myWagerSize, 0);
-							P_Call_given_Raise[street].addData(myWagerSize, 1);
+							P_Fold_given_Raise[street].addData(myWagerSize, 0, hisEstimatedWinChance);
+							P_Raise_given_Raise[street].addData(myWagerSize, 0, hisEstimatedWinChance);
+							P_Call_given_Raise[street].addData(myWagerSize, 1, hisEstimatedWinChance);
 						}
 					}
 					else if ( prevA.equalsIgnoreCase("check") ) {
@@ -279,10 +281,12 @@ public class StatAggregator {
 		// (0,1) rating of this opponent's looseness (number of calls+raises over number of calls+raises+folds)
 		final float DEFAULT_LOOSENESS= .5f;
 		public float getLooseness(int street){
+			int checks = P_Check_given_Check[street].getN();
 			int calls = P_Call_given_Bet[street].getN() + P_Call_given_Raise[street].getN();
 			int raises = P_Raise_given_Bet[street].getN() + P_Raise_given_Raise[street].getN();
 			int folds = P_Fold_given_Bet[street].getN() + P_Fold_given_Raise[street].getN();
-			return (calls+raises+folds > THRESHOLD_FOR_GENERALIZING[street]) ? (float)(calls+raises)/(calls+raises+folds) : DEFAULT_LOOSENESS;
+			System.out.println("Weird preflop numbers: " + checks + " checks, " + calls + " calls, " + raises + " raises, " + folds + " folds");
+			return (calls+raises+folds+checks > THRESHOLD_FOR_GENERALIZING[street]) ? (float)(calls+raises+checks)/(calls+raises+checks+folds) : DEFAULT_LOOSENESS;
 		}
 		
 		

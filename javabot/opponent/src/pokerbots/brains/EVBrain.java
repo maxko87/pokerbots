@@ -2,11 +2,11 @@ package pokerbots.brains;
 
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
+import pokerbots.strategy.BasicStrategy;
+import pokerbots.strategy.BettingStrategy;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.Utils;
-import pokerots.strategy.BasicStrategy;
-import pokerots.strategy.BettingStrategy;
 
 public class EVBrain extends GenericBrain {
 	
@@ -76,6 +76,7 @@ public class EVBrain extends GenericBrain {
 				int maxRaise = getActionObject.legalActions[i].maxBet;
 				for ( int myRaiseSize = minRaise; myRaiseSize <= maxRaise; myRaiseSize+=5 ) {
 					float ev = EV_myRaise(potSize, myRaiseSize, s, w, t,0);
+					System.out.println("Raise EV ("+myRaiseSize+") = " + ev);
 					if ( ev > EV_BEST ) {
 						EV_BEST = ev;
 						bestAction = validateAndReturn("raise", myRaiseSize);
@@ -98,10 +99,10 @@ public class EVBrain extends GenericBrain {
 					EV_BEST = 0;
 				}
 			}
-			
-			System.out.println("BEST EV: " + EV_BEST);
-			System.out.println("BEST ACTION: " + bestAction);
 		}
+		
+		System.out.println("---> BEST EV: " + EV_BEST);
+		System.out.println("---> BEST ACTION: " + bestAction);
 		
 		return bestAction;
 	}
@@ -123,9 +124,9 @@ public class EVBrain extends GenericBrain {
 	}
 	
 	public float EV_myBet( int potSize, float betSize, int s, float w, float t ) {
-		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Bet[s].getEstimate(betSize),0,1);
-		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Bet[s].getEstimate(betSize),0,1);
-		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Bet[s].getEstimate(betSize),0,1);
+		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Bet[s].getEstimate(betSize,t),0,1);
+		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Bet[s].getEstimate(betSize,t),0,1);
+		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Bet[s].getEstimate(betSize,t),0,1);
 
 		// TUNE P_call and P_raise based on P_fold
 		// P_fold + P_call + P_raise = 1
@@ -140,9 +141,9 @@ public class EVBrain extends GenericBrain {
 	}
 	
 	public float EV_myRaise( int potSize, float raiseSize, int s, float w, float t, int depth ) {
-		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Raise[s].getEstimate(raiseSize),0,1);
-		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Raise[s].getEstimate(raiseSize),0,1);
-		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Raise[s].getEstimate(raiseSize),0,1);
+		float P_he_folds = Utils.boundFloat(opponent.P_Fold_given_Raise[s].getEstimate(raiseSize,t),0,1);
+		float P_he_calls = Utils.boundFloat(opponent.P_Call_given_Raise[s].getEstimate(raiseSize,t),0,1);
+		float P_he_raises = Utils.boundFloat(opponent.P_Raise_given_Raise[s].getEstimate(raiseSize,t),0,1);
 
 		// TUNE P_call and P_raise based on P_fold
 		// P_fold + P_call + P_raise = 1

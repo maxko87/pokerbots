@@ -2,11 +2,11 @@ package pokerbots.brains;
 
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
+import pokerbots.strategy.BasicStrategy;
+import pokerbots.strategy.BettingStrategy;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.Utils;
-import pokerots.strategy.BasicStrategy;
-import pokerots.strategy.BettingStrategy;
 
 public class EVBrain extends GenericBrain {
 	
