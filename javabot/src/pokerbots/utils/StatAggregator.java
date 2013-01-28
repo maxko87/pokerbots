@@ -124,13 +124,13 @@ public class StatAggregator {
 				P_Check_given_Check[i] = new LinearModel("P(Check|Check)","%win","P",0.7f,0);
 				P_Bet_given_Check[i] = new LinearModel("P(Bet|Check)","%win","P",0.3f,0);
 				
-				P_Fold_given_Bet[i] = new CrossSectionModel("P(Fold|Bet)","wager","%win","P",0,1,1,0);
-				P_Call_given_Bet[i]  = new CrossSectionModel("P(Call|Bet)","wager","%win","P",1,0,1,0);
-				P_Raise_given_Bet[i] = new CrossSectionModel("P(Raise|Bet)","wager","%win","P",0,0,1,0);
+				P_Fold_given_Bet[i] = new CrossSectionModel("P(Fold|Bet)","wager","%win","P",1,-1,1,-1);
+				P_Call_given_Bet[i]  = new CrossSectionModel("P(Call|Bet)","wager","%win","P",0,1,0,1);
+				P_Raise_given_Bet[i] = new CrossSectionModel("P(Raise|Bet)","wager","%win","P",0,1,0,1);
 				
-				P_Fold_given_Raise[i] = new CrossSectionModel("P(Fold|Raise)","wager","%win","P",0,1,1,0);
-				P_Call_given_Raise[i] = new CrossSectionModel("P(Call|Raise)","wager","%win","P",1,0,1,0);
-				P_Raise_given_Raise[i] = new CrossSectionModel("P(Raise|Raise)","wager","%win","P",0,0,1,0);
+				P_Fold_given_Raise[i] = new CrossSectionModel("P(Fold|Raise)","wager","%win","P",1,-1,1,-1);
+				P_Call_given_Raise[i] = new CrossSectionModel("P(Call|Raise)","wager","%win","P",0,1,0,1);
+				P_Raise_given_Raise[i] = new CrossSectionModel("P(Raise|Raise)","wager","%win","P",0,1,0,1);
 				
 				value_Raise_given_their_winChance[i] = new LinearModel("$ Raise per % win","%win","$");
 				value_Bet_given_their_winChance[i] = new LinearModel("$ Bet per % win","%win","$");
