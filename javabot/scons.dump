@@ -1,5 +1,3 @@
-scons: Reading SConscript files ...
-scons: done reading SConscript files.
-scons: Building targets ...
-scons: `.' is up to date.
-scons: done building targets.
+
+scons: *** No SConstruct file found.
+File "C:\Python26\scons-2.2.0\SCons\Script\Main.py", line 905, in _main

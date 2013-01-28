@@ -20,6 +20,16 @@ public class CrossSectionModel implements Model3D{
 		}
 	}
 	
+	public CrossSectionModel( String name, String xAxis, String yAxis, String zAxis, float A1, float B1, float A2, float B2 ) {
+		this.name = name;
+		this.xAxis = xAxis;
+		this.yAxis = yAxis;
+		this.zAxis = zAxis;
+		sections = new Model2D[2];
+		sections[0] = new LinearModel(name+":"+xAxis+"[0]", yAxis, zAxis,A1,B1);
+		sections[1] = new LinearModel(name+":"+xAxis+"[1]", yAxis, zAxis,A2,B2);
+	}
+	
 	public int getN(){
 		return (int)N;
 	}
