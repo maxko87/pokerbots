@@ -83,6 +83,6 @@ public class PlanarModel implements Model3D{
 	}
 	
 	public void print() {
-		System.out.println(name+" (Linear Model) : " + zAxis + " = " + REG_A + " + " + REG_B + " * " + xAxis +" + " + REG_C +" * " + yAxis);
+		System.out.println(name+" (Planar Model) : " + zAxis + " = " + REG_A + " + " + REG_B + " * " + xAxis +" + " + REG_C +" * " + yAxis);
 	}
 }
