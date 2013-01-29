@@ -10,7 +10,7 @@ import pokerbots.regression.CrossSectionModel;
 import pokerbots.regression.LinearModel;
 import pokerbots.regression.Model2D;
 import pokerbots.regression.Model3D;
-import pokerbots.regression.PlanarModel;
+import pokerbots.regression.RawDataModel;
 import pokerbots.utils.MatchHistory.Round;
 
 public class StatAggregator {
@@ -132,8 +132,11 @@ public class StatAggregator {
 				P_Call_given_Raise[i] = new CrossSectionModel("P(Call|Raise)","wager","%win","P",0,1,0,1);
 				P_Raise_given_Raise[i] = new CrossSectionModel("P(Raise|Raise)","wager","%win","P",0,1,0,1);
 				
-				value_Raise_given_their_winChance[i] = new LinearModel("$ Raise per % win","%win","$");
-				value_Bet_given_their_winChance[i] = new LinearModel("$ Bet per % win","%win","$");
+				//value_Raise_given_their_winChance[i] = new LinearModel("$ Raise per % win","%win","$");
+				//value_Bet_given_their_winChance[i] = new LinearModel("$ Bet per % win","%win","$");
+				
+				value_Raise_given_their_winChance[i] = new RawDataModel("$ Raise per % win","%win","$");
+				value_Bet_given_their_winChance[i] = new RawDataModel("$ Bet per % win","%win","$");
 			}
 		}
 		

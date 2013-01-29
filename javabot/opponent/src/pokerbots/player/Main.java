@@ -68,6 +68,7 @@ public class Main {
 			//LearningPlayer_3 player = new LearningPlayer_3(outStream,inStream);
 			//BetterLearningPlayer_4 player = new BetterLearningPlayer_4(outStream,inStream);
 			BrainSwitchingPlayer_5 player = new BrainSwitchingPlayer_5(outStream,inStream);
+			//FourStylePlayer_6 player = new FourStylePlayer_6(outStream, inStream);
 			player.run();
 			
 			socket.close();

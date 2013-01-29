@@ -49,7 +49,7 @@ public class AdvancedBrain extends GenericBrain{
 		//PREFLOP ADJUSTMENTS
 		if ( street == 0 ) {
 			float raise_size = winChance * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (myGame.stackSize / 10) + 2;
-			if (winChance > getMinWinChanceForRaisePreflop() && raise_size < 30 && opponent.totalHandCount > 20){
+			if (winChance > getMinWinChanceForRaisePreflop() && opponent.totalHandCount > 20){
 				return validateAndReturn("raise",(int)(raise_size));
 			}
 			return validateAndReturn("call",0); //don't continuously reraise preflop
@@ -67,7 +67,12 @@ public class AdvancedBrain extends GenericBrain{
 	private boolean weBeatThem() {
 		
 		int streetOfTheirLastAction = street;
-		float oppWinChanceEstimate = Utils.inverseScale(opponent.getLooseness(street), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
+		float defaultOppChance = Utils.inverseScale(opponent.getLooseness(street), 0.0f, 1.0f, MIN_WIN_TO_PLAY[street][0], MIN_WIN_TO_PLAY[street][1]);
+		float oppWinChanceEstimate = defaultOppChance;
+		
+		if (opponent.totalHandCount < 100){
+			return (winChance > defaultOppChance);
+		}
 		
 		for ( int i = getActionObject.lastActions.length-1; i >= 0; i-- ) {
 			PerformedActionObject performedAction = getActionObject.lastActions[i];
@@ -75,32 +80,36 @@ public class AdvancedBrain extends GenericBrain{
 				streetOfTheirLastAction -= 1;
 			}
 			else if ( performedAction.actionType.equalsIgnoreCase("bet") && performedAction.actor.equalsIgnoreCase(myGame.oppName)  ) {
-				oppWinChanceEstimate = opponent.value_Bet_given_their_winChance[streetOfTheirLastAction].getInverseModel(performedAction.amount);
-				if (winChance > oppWinChanceEstimate){
-					System.out.println("estimate we win: " + winChance + " > " +oppWinChanceEstimate);
-					return true;
+				oppWinChanceEstimate = opponent.value_Bet_given_their_winChance[streetOfTheirLastAction].getEstimate(performedAction.amount);
+				if (oppWinChanceEstimate < 1 && oppWinChanceEstimate > 0){
+					if (winChance > oppWinChanceEstimate){
+						System.out.println("estimate we win: " + winChance + " > " +oppWinChanceEstimate);
+						return true;
+					}
+					else{
+						System.out.println("estimate we lose: " + winChance + " < " +oppWinChanceEstimate);
+						return false;
+					}
 				}
-				else{
-					System.out.println("estimate we lose: " + winChance + " < " +oppWinChanceEstimate);
-					return true;
-				}
-					
 			}
 			else if ( performedAction.actionType.equalsIgnoreCase("raise") && performedAction.actor.equalsIgnoreCase(myGame.oppName)  ) {
-				oppWinChanceEstimate = opponent.value_Raise_given_their_winChance[streetOfTheirLastAction].getInverseModel(performedAction.amount);
-				if (winChance > oppWinChanceEstimate){
-					System.out.println("estimate we win: " + winChance + " > " +oppWinChanceEstimate);
-					return true;
-				}
-				else{
-					System.out.println("estimate we lose: " + winChance + " < " +oppWinChanceEstimate);
-					return true;
+				oppWinChanceEstimate = opponent.value_Raise_given_their_winChance[streetOfTheirLastAction].getEstimate(performedAction.amount);
+				if (oppWinChanceEstimate < 1 && oppWinChanceEstimate > 0){
+					if (winChance > oppWinChanceEstimate){
+						System.out.println("estimate we win: " + winChance + " > " +oppWinChanceEstimate);
+						return true;
+					}
+					else{
+						System.out.println("estimate we lose: " + winChance + " < " +oppWinChanceEstimate);
+						return false;
+					}
 				}
 			}
 			
+			
 		}
-		System.out.println("estimate fail");
-		return false;
+		System.out.println("estimate fail, resort to previous stuff: " + winChance + " vs " + defaultOppChance);
+		return winChance > defaultOppChance;
 	}
 	
 	private boolean weBluffThem() {
@@ -108,7 +117,7 @@ public class AdvancedBrain extends GenericBrain{
 	}
 
 	//if the opp made a tiny bet, cover it regardless of percentage of winning
-	private final float[] MAX_PORTION_OF_POT_TO_PLAY = new float[] {.3f, .2f, .2f, .2f};
+	private final float[] MAX_PORTION_OF_POT_TO_PLAY = new float[] {.2f, .1f, .1f, .1f};
 	private int MAX_BET_TO_STILL_PLAY = 6;
 	public boolean playAnyways(){
 		if (getActionObject.lastActions.length > 0 && getActionObject.lastActions[getActionObject.lastActions.length-1].amount > 0){
@@ -121,7 +130,7 @@ public class AdvancedBrain extends GenericBrain{
 	}	
 	
 	public float getMinWinChanceForRaisePreflop(){
-		float winChance = Utils.inverseScale(opponent.getLooseness(street), 0.0f, 1.0f, .7f, .85f);
+		float winChance = Utils.inverseScale(opponent.getLooseness(0), 0.0f, 1.0f, .63f, .82f);
 		System.out.println("WINCHANCE FOR RERAISE PREFLOP: " + winChance);
 		return winChance;
 	}
@@ -176,7 +185,7 @@ public class AdvancedBrain extends GenericBrain{
 	}
 	
 	public String toString(){
-		return "S+EV_Brain";
+		return "AdvancedBrain";
 	}	
 	
 	

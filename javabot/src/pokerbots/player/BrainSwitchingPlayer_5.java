@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import pokerbots.brains.AdvancedBrain;
 import pokerbots.brains.EVBrain;
 import pokerbots.brains.GenericBrain;
-import pokerbots.brains.AdvancedBrain;
 import pokerbots.brains.SimpleBrain;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
