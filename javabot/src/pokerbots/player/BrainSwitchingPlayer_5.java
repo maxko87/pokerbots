@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 
 import pokerbots.brains.EVBrain;
 import pokerbots.brains.GenericBrain;
+import pokerbots.brains.AdvancedBrain;
 import pokerbots.brains.SimpleBrain;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
@@ -51,6 +52,7 @@ public class BrainSwitchingPlayer_5 {
 	private GenericBrain brain;
 	private SimpleBrain simpleBrain;
 	private EVBrain evBrain;
+	private AdvancedBrain advancedBrain;
 	private GenericBrain[] brains;
 
 	BrainSwitchingPlayer_5(PrintWriter output, BufferedReader input) {
@@ -130,7 +132,8 @@ public class BrainSwitchingPlayer_5 {
 	private void instantiateBrains() {
 		simpleBrain = new SimpleBrain(myGame,history);
 		evBrain = new EVBrain(history,myGame);
-		brains = new GenericBrain[] {simpleBrain, evBrain};
+		advancedBrain = new AdvancedBrain(myGame, history);
+		brains = new GenericBrain[] {simpleBrain, evBrain, advancedBrain};
 		//make sure OpponentStats knows about them all
 		for (int i=0; i<brains.length; i++){
 			opponent.updateBrain(brains[i].toString(), 0);
@@ -139,7 +142,7 @@ public class BrainSwitchingPlayer_5 {
 	}
 
 	private GenericBrain chooseBrain() {
-		return evBrain;
+		return advancedBrain;
 		/*
 		int N = opponent.totalHandCount;
 		//do some learning/training

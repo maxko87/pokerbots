@@ -1,5 +1,6 @@
 scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
-scons: `.' is up to date.
-scons: done building targets.
+scons: Build interrupted.
+scons: building terminated because of errors.
+scons: writing .sconsign file.
