@@ -50,7 +50,7 @@ public class MatchHistory {
 			oppWinRates = new float[]{ratesPF[10],ratesFLOP[10],ratesTURN[10],ratesRIVER[10]};
 			oppAmounts = new int[4];
 			
-			System.out.println("Round Analysis:");
+			//System.out.println("Round Analysis:");
 			
 			int prevPot = 0;
 			int street = 0;
@@ -76,7 +76,7 @@ public class MatchHistory {
 				for ( int j = 0; j < boardCards[i].length; j++ ) {
 					board += HandEvaluator.cardToString(boardCards[i][j])+" ";
 				}
-				System.out.println("Hand["+i+"] cards: { " + cards +"}, boards: { " + board + "}, wager = " + oppAmounts[i] +", winChance = " + oppWinRates[i] + ", potSize = " + potSizes[i]);
+				//System.out.println("Hand["+i+"] cards: { " + cards +"}, boards: { " + board + "}, wager = " + oppAmounts[i] +", winChance = " + oppWinRates[i] + ", potSize = " + potSizes[i]);
 			}
 		}
 		

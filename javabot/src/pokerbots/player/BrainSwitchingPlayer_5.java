@@ -1,10 +1,10 @@
 package pokerbots.player;
 
 import java.io.BufferedReader;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import pokerbots.brains.EVBrain;
 import pokerbots.brains.GenericBrain;
 import pokerbots.brains.SimpleBrain;
 import pokerbots.packets.GameObject;
@@ -50,7 +50,6 @@ public class BrainSwitchingPlayer_5 {
 
 	private GenericBrain brain;
 	private SimpleBrain simpleBrain;
-	private EVBrain evBrain;
 	private GenericBrain[] brains;
 
 	BrainSwitchingPlayer_5(PrintWriter output, BufferedReader input) {
@@ -102,13 +101,13 @@ public class BrainSwitchingPlayer_5 {
 					opponent.updateBrain(brain.toString(), HOobj.getEarnings(myGame.myName));
 					//choose a brain
 					brain = chooseBrain();
-					opponent.printFinalBrainScores(myGame, brains);
+					//opponent.printFinalBrainScores(myGame, brains);
 					
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
 					//none
 					
 				} else if ("REQUESTKEYVALUES".compareToIgnoreCase(packetType) == 0) {
-					opponent.printFinalBrainScores(myGame, brains);
+					//opponent.printFinalBrainScores(myGame, brains);
 					//none
 					
 					outStream.println("FINISH");
@@ -129,8 +128,7 @@ public class BrainSwitchingPlayer_5 {
 	
 	private void instantiateBrains() {
 		simpleBrain = new SimpleBrain(myGame,history);
-		evBrain = new EVBrain(history,myGame);
-		brains = new GenericBrain[] {simpleBrain, evBrain};
+		brains = new GenericBrain[] {simpleBrain};
 		//make sure OpponentStats knows about them all
 		for (int i=0; i<brains.length; i++){
 			opponent.updateBrain(brains[i].toString(), 0);
@@ -139,7 +137,7 @@ public class BrainSwitchingPlayer_5 {
 	}
 
 	private GenericBrain chooseBrain() {
-		return evBrain;
+		return simpleBrain;
 		/*
 		int N = opponent.totalHandCount;
 		//do some learning/training

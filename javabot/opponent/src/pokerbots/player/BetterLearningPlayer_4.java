@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import pokerbots.brains.EVBrain;
 import pokerbots.brains.GenericBrain;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
@@ -82,7 +81,6 @@ public class BetterLearningPlayer_4 {
 					
 				} else if ("NEWGAME".compareToIgnoreCase(packetType) == 0) {
 					myGame = new GameObject(input);
-					brain = new EVBrain(history,myGame);
 					opponent = aggregator.getOrCreateOpponent(myGame);
 					
 				} else if ("NEWHAND".compareToIgnoreCase(packetType) == 0) {

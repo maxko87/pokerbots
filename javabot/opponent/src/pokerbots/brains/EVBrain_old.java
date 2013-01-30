@@ -74,7 +74,7 @@ public class EVBrain_old extends GenericBrain{
 	EVCalculator ev;
 	
 	public EVBrain_old(GameObject game,MatchHistory history){
-		myGame = game;
+		this.game = game;
 		ev = new EVCalculator(history);
 		this.history = history;
 	}
@@ -92,7 +92,7 @@ public class EVBrain_old extends GenericBrain{
 		
 		//PREFLOP ADJUSTMENTS
 		if ( street == 0 ) {
-			float raise_size = winChance * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (myGame.stackSize / 10) + 2;
+			float raise_size = winChance * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (this.game.stackSize / 10) + 2;
 			if ( winChance > getMinWinChance() ) {
 				if (winChance > getMinWinChanceForRaisePreflop() && raise_size < 30 && opponent.totalHandCount > ENOUGH_HANDS){
 					return validateAndReturn("raise",(int)(raise_size));
@@ -105,7 +105,7 @@ public class EVBrain_old extends GenericBrain{
 		if (EV_Player && street == 3){
 			System.out.println("using EV Calc");
 			EVObj evObj = ev.getRiverEVandAction(opponent, winChance, getActionObject);
-			int maxBet = Utils.boundInt(myGame.stackSize - (getActionObject.potSize / 2), 1, myGame.stackSize);
+			int maxBet = Utils.boundInt(this.game.stackSize - (getActionObject.potSize / 2), 1, this.game.stackSize);
 			if (evObj.action.equalsIgnoreCase("bet")){
 				//return validateAndReturn("bet", makeBet(maxBet, getActionObject.potSize));
 				return validateAndReturn("bet", (int)evObj.EV);

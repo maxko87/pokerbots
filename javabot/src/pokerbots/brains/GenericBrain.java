@@ -3,20 +3,29 @@ package pokerbots.brains;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
+import pokerbots.strategy.BettingStrategy;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.StatAggregator.OpponentStats;
 import pokerbots.utils.Utils;
 
 public class GenericBrain {
 	
-	public GameObject myGame;
+	MatchHistory history;
+	GameObject game;
+	
 	
 	//these are updated by takeAction
-	MatchHistory history;
 	OpponentStats opponent;
 	float winChance;
 	int street;
 	GetActionObject getActionObject;
+	
+	public int getStreet() { return street; }
+	public float getWinChance() { return winChance; }
+	public GetActionObject getActionObject() { return getActionObject; }
+	public OpponentStats getOpponent() { return opponent; }
+	public GameObject getGame() { return game; }
+	public MatchHistory getHistory() { return history; }
 	
 	public void setVars (OpponentStats o, GetActionObject g, float w, int s){
 		opponent = o;

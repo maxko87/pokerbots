@@ -39,7 +39,7 @@ public class SimpleBrain extends GenericBrain{
 
 	
 	public SimpleBrain(GameObject game, MatchHistory history){
-		myGame = game;
+		this.game = game;
 		this.history = history;
 	}
 
@@ -52,7 +52,7 @@ public class SimpleBrain extends GenericBrain{
 		
 		//PREFLOP ADJUSTMENTS
 		if ( street == 0 ) {
-			float raise_size = winChance * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (myGame.stackSize / 10) + 2;
+			float raise_size = winChance * Utils.scale(opponent.getLooseness(0), .2f, .8f, 0f, 1f) * (this.game.stackSize / 10) + 2;
 			if ( winChance > getMinWinChance() ) {
 				if (winChance > getMinWinChanceForRaisePreflop() && raise_size < 30 && opponent.totalHandCount > 20){
 					return validateAndReturn("raise",(int)(raise_size));
@@ -96,7 +96,7 @@ public class SimpleBrain extends GenericBrain{
 			float winChanceIncreaseNeeded = 0f;
 			if (getActionObject.lastActions.length > 0){
 				PerformedActionObject performedAction = getActionObject.lastActions[getActionObject.lastActions.length-1];
-				if ( performedAction.actor.equalsIgnoreCase(myGame.oppName) && (performedAction.actionType.equalsIgnoreCase("bet") || performedAction.actionType.equalsIgnoreCase("raise")) ) {
+				if ( performedAction.actor.equalsIgnoreCase(this.game.oppName) && (performedAction.actionType.equalsIgnoreCase("bet") || performedAction.actionType.equalsIgnoreCase("raise")) ) {
 					winChanceIncreaseNeeded = Utils.scale(performedAction.amount, 0, getActionObject.potSize, 0, MAX_WIN_CHANCE_REDUCTION);
 					winChance += winChanceIncreaseNeeded;
 				}
