@@ -5,7 +5,6 @@ import pokerbots.fourstyle.Style;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.strategy.BasicStrategy;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.StatAggregator.OpponentStats;
 

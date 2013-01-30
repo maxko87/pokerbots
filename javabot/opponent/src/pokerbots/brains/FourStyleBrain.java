@@ -5,13 +5,14 @@ import pokerbots.fourstyle.Style;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
-import pokerbots.strategy.BasicStrategy;
 import pokerbots.utils.MatchHistory;
 import pokerbots.utils.StatAggregator.OpponentStats;
 
 public class FourStyleBrain extends GenericBrain {
 	
 	Style himCallStation = new CallStation();
+	MatchHistory history;
+	GameObject game;
 	
 	public FourStyleBrain( MatchHistory history, GameObject game ) {
 		this.history = history;
@@ -20,7 +21,6 @@ public class FourStyleBrain extends GenericBrain {
 	
 	public String takeAction(OpponentStats o, GetActionObject g, float w, int s) {
 		this.setVars(o, g, w, s);
-		
 		//Predict his win chances based on anything we can
 		float t = 0;
 		

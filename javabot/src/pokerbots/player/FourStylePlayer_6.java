@@ -3,7 +3,6 @@ package pokerbots.player;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import pokerbots.brains.FourStyleBrain;
 import pokerbots.brains.GenericBrain;
 import pokerbots.brains.SimpleBrain;
@@ -90,7 +89,7 @@ public class FourStylePlayer_6 {
 					history.appendRoundData(HOobj.lastActions);
 					opponent.analyzeRoundData(myHand, history.getCurrentRound());
 					history.saveRoundData();
-					//history.getCurrentRound().printRound();
+					history.getCurrentRound().printRound();
 					opponent.printStats(myGame);
 					
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {

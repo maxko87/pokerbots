@@ -135,7 +135,7 @@ public class StatAggregator {
 				P_Fold_given_Raise[i] = new StddevBin2DModel("P(Fold|Raise)","wager","P",BINS);
 				P_Call_given_Raise[i] = new StddevBin2DModel("P(Call|Raise)","wager","P",BINS);
 				P_Raise_given_Raise[i] = new StddevBin2DModel("P(Raise|Raise)","wager","P",BINS);
-				
+			
 				value_Raise_given_their_winChance[i] = new StddevBin2DModel("$ Raise per % win","%win","$",BINS);
 				value_Bet_given_their_winChance[i] = new StddevBin2DModel("$ Bet per % win","%win","$",BINS);
 			}
