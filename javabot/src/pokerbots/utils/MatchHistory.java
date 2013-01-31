@@ -89,7 +89,7 @@ public class MatchHistory {
 				if ( ACTION.actionType.equals("DEAL") )
 					street++;
 				if ( ACTION.actor.equalsIgnoreCase(current.opponentName) ) {
-					if ( ACTION.actionType.equals("BET") || ACTION.actionType.equals("RAISE") ) {
+					if ( ACTION.actionType.equals("BET") || ACTION.actionType.equals("RAISE") || ACTION.actionType.equals("POST") ) {
 						value = ACTION.amount;
 					}
 				}

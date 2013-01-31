@@ -1,7 +1,10 @@
 package pokerbots.brains;
 
 import pokerbots.fourstyle.CallStation;
+import pokerbots.fourstyle.LAG;
+import pokerbots.fourstyle.Rock;
 import pokerbots.fourstyle.Style;
+import pokerbots.fourstyle.TAG;
 import pokerbots.packets.GameObject;
 import pokerbots.packets.GetActionObject;
 import pokerbots.packets.LegalActionObject;
@@ -11,6 +14,9 @@ import pokerbots.utils.StatAggregator.OpponentStats;
 public class FourStyleBrain extends GenericBrain {
 	
 	Style himCallStation = new CallStation();
+	Style himLAG = new LAG();
+	Style himRock = new Rock();
+	Style himTAG = new TAG();
 	
 	public FourStyleBrain( MatchHistory history, GameObject game ) {
 		this.history = history;
@@ -24,7 +30,23 @@ public class FourStyleBrain extends GenericBrain {
 		float t = 0;
 		
 		//PlayStyle Consensus
-		Style hisPlayStyle = himCallStation;
+		float looseness = o.getLooseness(s);
+		float aggression = o.getAggression(s);
+		Style hisPlayStyle = himTAG;
+		
+		//Check if loose playstyle
+		if ( looseness>0.24f ) {
+			if ( aggression>0.5 )
+				hisPlayStyle = himLAG;
+			else
+				hisPlayStyle = himCallStation;
+		} else {
+			if ( aggression>0.5 )
+				hisPlayStyle = himTAG;
+			else
+				hisPlayStyle = himRock;
+		}
+		System.out.println("<<<< Opponent Playstyle: [L="+looseness+",A="+aggression+"] -> " + hisPlayStyle.getName() +" >>>>");
 		
 		//Decide which turn we're taking
 		boolean onAction = getOnAction();

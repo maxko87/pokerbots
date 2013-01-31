@@ -90,7 +90,7 @@ public class FourStylePlayer_6 {
 					opponent.analyzeRoundData(myHand, history.getCurrentRound());
 					history.saveRoundData();
 					history.getCurrentRound().printRound();
-					opponent.printStats(myGame);
+					//opponent.printStats(myGame);
 					
 				}else if ("KEYVALUE".compareToIgnoreCase(packetType) == 0) {
 					//none

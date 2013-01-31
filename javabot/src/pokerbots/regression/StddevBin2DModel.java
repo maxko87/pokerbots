@@ -45,12 +45,16 @@ public class StddevBin2DModel implements Model2D {
 	public void addData( float x, float y ) {
 		if (y!=0)
 			counter++;
-		int bin = (int)(x*(bins.length-0.001f));
+		int bin = (int)(x*(bins.length));
+		if ( bin > bins.length-1 )
+			bin = bins.length-1;
 		bins[bin].addData(y);
 	}
 	
 	public float getEstimate( float x ) {
 		int bin = (int)(x*(bins.length-0.001f));
+		if ( bin > bins.length-1 )
+			bin = bins.length-1;
 		return bins[bin].getAverage();
 	}
 	

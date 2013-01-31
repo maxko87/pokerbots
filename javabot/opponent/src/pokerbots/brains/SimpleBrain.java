@@ -67,7 +67,7 @@ public class SimpleBrain extends GenericBrain{
 		}
 		else{
 			return foldOrCheck();
-		}		
+		}
 	}
 	
 	//if the opp made a tiny bet, cover it regardless of percentage of winning
