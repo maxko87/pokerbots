@@ -33,15 +33,16 @@ public class FourStyleBrain extends GenericBrain {
 		float looseness = o.getLooseness(s);
 		float aggression = o.getAggression(s);
 		Style hisPlayStyle = himTAG;
+
 		
 		//Check if loose playstyle
-		if ( looseness>0.24f ) {
-			if ( aggression>0.5 )
+		if ( looseness>0.45f ) {
+			if ( aggression>0.45f )
 				hisPlayStyle = himLAG;
 			else
 				hisPlayStyle = himCallStation;
 		} else {
-			if ( aggression>0.5 )
+			if ( aggression>0.45f )
 				hisPlayStyle = himTAG;
 			else
 				hisPlayStyle = himRock;
